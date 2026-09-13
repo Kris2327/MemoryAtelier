@@ -14,6 +14,11 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'common.browseProducts': 'Разгледай продукти',
     'common.products': 'продукта',
 
+    // COOKIES
+    'cookies.bannerText': 'Съхраняваме локално само необходимото — данните за вашия вход и избрания език. Не използваме бисквитки за реклама или проследяване.',
+    'cookies.learnMore': 'Научете повече',
+    'cookies.ok': 'Разбирам',
+
     // HOME
     'home.hero.badge': '✿ Ръчно изработено с любов',
     'home.hero.sub': 'Ръчно изработени съкровища с любов — всяко парче разказва история',
@@ -34,6 +39,9 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'footer.contact': 'Контакти',
     'footer.sitemap': 'Карта на сайта',
     'footer.terms': 'Общи условия',
+    'footer.privacy': 'Поверителност',
+    'footer.instagram': 'Instagram',
+    'footer.facebook': 'Facebook',
 
     // CONTACT
     'contact.title': 'Свържете се с нас',
@@ -65,10 +73,13 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'sitemap.signup': 'Регистрация',
     'sitemap.contact': 'Контакти',
     'sitemap.terms': 'Общи условия',
+    'sitemap.privacy': 'Поверителност и бисквитки',
 
     // TERMS
     'terms.title': 'Общи условия',
     'terms.updated': 'Последна актуализация: 12.09.2026',
+    'privacy.title': 'Политика за поверителност и бисквитки',
+    'privacy.updated': 'Последна актуализация: 13.09.2026',
 
     // SIGN IN
     'signin.tagline1': 'Всяко парче',
@@ -424,6 +435,11 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'common.browseProducts': 'Browse products',
     'common.products': 'products',
 
+    // COOKIES
+    'cookies.bannerText': 'We store locally only what is necessary — your login and language preference. We do not use cookies for advertising or tracking.',
+    'cookies.learnMore': 'Learn more',
+    'cookies.ok': 'I understand',
+
     // HOME
     'home.hero.badge': '✿ Handmade with love',
     'home.hero.sub': 'Handmade treasures crafted with love — every piece tells a story',
@@ -444,6 +460,9 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'footer.contact': 'Contact',
     'footer.sitemap': 'Sitemap',
     'footer.terms': 'Terms & Conditions',
+    'footer.privacy': 'Privacy',
+    'footer.instagram': 'Instagram',
+    'footer.facebook': 'Facebook',
 
     // CONTACT
     'contact.title': 'Get in touch',
@@ -475,10 +494,13 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'sitemap.signup': 'Sign up',
     'sitemap.contact': 'Contact',
     'sitemap.terms': 'Terms & Conditions',
+    'sitemap.privacy': 'Privacy & Cookies',
 
     // TERMS
     'terms.title': 'Terms & Conditions',
     'terms.updated': 'Last updated: 12.09.2026',
+    'privacy.title': 'Privacy & Cookie Policy',
+    'privacy.updated': 'Last updated: 13.09.2026',
 
     // SIGN IN
     'signin.tagline1': 'Every piece',

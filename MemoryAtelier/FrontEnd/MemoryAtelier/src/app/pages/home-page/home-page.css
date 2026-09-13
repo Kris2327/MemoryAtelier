@@ -228,40 +228,6 @@
 .results-count { font-size: 13px; color: #bbb; }
 .empty-section { color: #aaa; font-size: 14px; padding: 40px 0; text-align: center; }
 
-@media (max-width: 860px) {
-  .category-hero { padding: 28px 20px 20px; }
-  .category-title { font-size: 28px; }
-
-  .category-layout {
-    grid-template-columns: 1fr;
-    padding: 0 20px 40px;
-    gap: 14px;
-  }
-
-  .sidebar-toggle { display: flex; }
-
-  .category-sidebar {
-    display: none;
-    position: static;
-    max-height: 60vh;
-    overflow-y: auto;
-  }
-  .category-sidebar.open { display: block; }
-
-  .sections { padding: 32px 20px; gap: 48px; }
-
-  .hero { height: auto; min-height: 420px; padding: 48px 20px; }
-  .hero-title { font-size: 40px; }
-  .hero-sub { font-size: 15px; }
-  .hero-quick-links { margin-top: 20px; }
-  .hero-chip { padding: 8px 16px; font-size: 12px; }
-
-  .section-header { flex-direction: column; align-items: flex-start; gap: 6px; }
-  .section-title { white-space: normal; font-size: 24px; }
-  .section-divider::before,
-  .section-divider::after { max-width: 60px; }
-}
-
 /* SECTIONS */
 .sections { padding: 56px 48px; display: flex; flex-direction: column; gap: 64px; }
 
@@ -361,10 +327,31 @@
   border-top: 1px solid #f0e8e0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
 }
-.footer-brand { display: flex; align-items: center; gap: 10px; }
+.footer-brand { display: flex; align-items: center; gap: 10px; max-width: 100%; }
+.footer-brand > * { min-width: 0; }
 .footer-links { display: flex; align-items: center; gap: 20px; }
 .footer-links a { color: #aaa; text-decoration: none; transition: color .15s; }
 .footer-links a:hover { color: #c97d4e; }
+
+.footer-social { display: flex; align-items: center; gap: 14px; }
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #f0e0d4;
+  color: #7a5c4e;
+  font-size: 16px;
+  transition: all .2s;
+}
+.footer-social a:hover {
+  background: #c97d4e;
+  border-color: #c97d4e;
+  color: #fff;
+  transform: translateY(-2px);
+}
 
 .btn-fav {
   position: absolute;
@@ -525,4 +512,41 @@
   font-size: 14px;
   font-weight: 700;
   color: #c97d4e;
+}
+
+/* MOBILE — поставено накрая нарочно, за да печели пред всички правила по-горе (еднаква специфичност, по-късно в кода) */
+@media (max-width: 860px) {
+  .hero { height: auto; min-height: 420px; padding: 48px 20px; }
+  .hero-title { font-size: 40px; }
+  .hero-sub { font-size: 15px; }
+  .hero-quick-links { margin-top: 20px; }
+  .hero-chip { padding: 8px 16px; font-size: 12px; }
+
+  .category-hero { padding: 28px 20px 20px; }
+  .category-title { font-size: 28px; }
+
+  .category-layout {
+    grid-template-columns: 1fr;
+    padding: 0 20px 40px;
+    gap: 14px;
+  }
+
+  .sidebar-toggle { display: flex; }
+
+  .category-sidebar {
+    display: none;
+    position: static;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .category-sidebar.open { display: block; }
+
+  .sections { padding: 32px 20px; gap: 48px; }
+
+  .section-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .section-title { white-space: normal; font-size: 24px; }
+  .section-divider::before,
+  .section-divider::after { max-width: 60px; }
+
+  .footer { padding: 28px 20px; }
 }

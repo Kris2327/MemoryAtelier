@@ -27,7 +27,8 @@ export const routes: Routes = [
       { path: 'checkout', component: Checkout, canActivate: [authGuard] },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact').then(m => m.Contact) },
       { path: 'sitemap', loadComponent: () => import('./pages/sitemap/sitemap').then(m => m.Sitemap) },
-      { path: 'terms', loadComponent: () => import('./pages/terms/terms').then(m => m.Terms) }
+      { path: 'terms', loadComponent: () => import('./pages/terms/terms').then(m => m.Terms) },
+      { path: 'privacy', loadComponent: () => import('./pages/privacy/privacy').then(m => m.Privacy) }
     ]
   },
   { path: '**', redirectTo: 'home' } // последен

@@ -1,0 +1,12 @@
+@if (!consent.acknowledged()) {
+  <div class="cookie-banner">
+    <div class="cookie-header">
+      <span class="cookie-icon">✿</span>
+      <p class="cookie-text">
+        {{ i18n.t('cookies.bannerText') }}
+        <a class="cookie-link" routerLink="/privacy">{{ i18n.t('cookies.learnMore') }}</a>
+      </p>
+    </div>
+    <button type="button" class="cookie-btn" (click)="consent.acknowledge()">{{ i18n.t('cookies.ok') }}</button>
+  </div>
+}

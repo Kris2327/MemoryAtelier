@@ -118,51 +118,42 @@
     <div class="mobile-menu" [class.open]="mobileMenuOpen()">
       @for (item of navItems(); track item.label) {
         <div class="mobile-section">
-          
-          <!-- HEADER -->
-          <div class="mobile-section-header" (click)="toggleMobileSection(item.label)">
-            <span class="mobile-section-title">{{ item.label }}
-              <span class="mobile-section-arrow" [class.open]="activeMobileSection() === item.label">▾</span>
-            </span>
-            
+
+          <!-- HEADER: тапване на името филтрира; стрелката само разгъва подсекциите -->
+          <div class="mobile-section-header">
+            <span class="mobile-section-title" (click)="filterBy(item.value)">{{ item.label }}</span>
+            @if (item.subcategories?.length) {
+              <button
+                type="button"
+                class="mobile-section-toggle"
+                (click)="toggleMobileSection(item.label)"
+                [attr.aria-label]="item.label">
+                <span class="mobile-section-arrow" [class.open]="activeMobileSection() === item.label">▾</span>
+              </button>
+            }
           </div>
 
-          <!-- OVERLAY DROPDOWN -->
+          <!-- РАЗГЪНАТИ ПОДСЕКЦИИ: вертикален списък, децата се разгъват директно под родителя си -->
           @if (activeMobileSection() === item.label) {
             <div class="mobile-dropdown-overlay">
-
-              <div class="mobile-dropdown-inner">
-
-                <!-- LEFT COLUMN -->
-                <div class="mobile-col">
-                  @for (sub of item.subcategories || []; track sub.label) {
-                    <div class="mobile-link"
-                        (click)="sub.children ? openSubcategory(sub.label) : filterBy(sub.value)"
-                        [class.active]="activeSubcategory() === sub.label">
-                      {{ sub.label }}
-                      @if (sub.children) {
-                        <span class="sub-arrow">›</span>
-                      }
-                    </div>
+              @for (sub of item.subcategories || []; track sub.label) {
+                <div class="mobile-link"
+                    (click)="sub.children ? openSubcategory(sub.label) : filterBy(sub.value)"
+                    [class.active]="activeSubcategory() === sub.label">
+                  {{ sub.label }}
+                  @if (sub.children) {
+                    <span class="sub-arrow" [class.open]="activeSubcategory() === sub.label">›</span>
                   }
                 </div>
 
-                <!-- RIGHT COLUMN (LIKE DESKTOP) -->
-                @for (sub of item.subcategories || []; track sub.label) {
-                  @if (sub.children && activeSubcategory() === sub.label) {
-                    <div class="mobile-col mobile-col-right">
-                      @for (child of sub.children; track child.value) {
-                        <div class="mobile-child-link"
-                            (click)="filterBy(child.value)">
-                          {{ child.label }}
-                        </div>
-                      }
-                    </div>
-                  }
+                @if (sub.children && activeSubcategory() === sub.label) {
+                  <div class="mobile-col-right">
+                    @for (child of sub.children; track child.value) {
+                      <div class="mobile-child-link" (click)="filterBy(child.value)">{{ child.label }}</div>
+                    }
+                  </div>
                 }
-
-              </div>
-
+              }
             </div>
           }
 

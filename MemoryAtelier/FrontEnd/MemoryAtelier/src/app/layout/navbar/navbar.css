@@ -233,88 +233,77 @@
 .hamburger span.open:nth-child(2) { opacity: 0; }
 .hamburger span.open:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
-/* container stays simple */
+/* контейнер — вертикален списък със секции, не ред */
 .mobile-menu {
   display: none;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 16px 16px;
   position: relative;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
 }
 
 .mobile-menu.open {
   display: flex;
-  transform: fadeDown .2 ease;
-}
-
-/* section */
-.mobile-section {
-  position: relative;
-}
-
-.mobile-section-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  transition: color .2s;
-  letter-spacing: 0.3px;
-  padding: 8px 0;
-}
-.mobile-section-title:hover { color: #c97d4e; }
-.mobile-section-arrow {
-  font-size: 10px;
-  color: #c97d4e;
-  transition: transform .2s;
-}
-.mobile-section-title:hover .mobile-section-arrow { transform: rotate(180deg); }
-
-/* header */
-.mobile-section-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.mobile-section-header:hover {
-  background: #fdf0e8;
-}
-
-/* ── OVERLAY DROPDOWN ── */
-.mobile-dropdown-overlay {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 999;
   animation: fadeDown .2s ease;
 }
 
-/* inner container (same as desktop dropdown) */
-.mobile-dropdown-inner {
+/* section — цяла ширина, елементите се редят един под друг */
+.mobile-section {
+  position: relative;
+  width: 100%;
+}
+
+/* header — две отделни зони за тап: име (филтрира) + стрелка (разгъва) */
+.mobile-section-header {
   display: flex;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(0,0,0,.12);
-  border: 1px solid #f0e8e0;
-  overflow: hidden;
-  min-width: 260px;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
 }
 
-/* left column */
-.mobile-col {
-  min-width: 180px;
-  padding: 10px 0;
+.mobile-section-title {
+  flex: 1;
+  font-size: 15px;
+  color: #444;
+  cursor: pointer;
+  transition: color .2s;
+  letter-spacing: 0.3px;
+  padding: 13px 16px;
+}
+.mobile-section-title:hover { color: #c97d4e; }
+
+.mobile-section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+}
+.mobile-section-arrow {
+  font-size: 11px;
+  color: #c97d4e;
+  transition: transform .2s;
+}
+.mobile-section-arrow.open { transform: rotate(180deg); }
+
+/* разгънатите подсекции — inline, вътре в потока на страницата (не floating overlay) */
+.mobile-dropdown-overlay {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0 8px 12px;
+  animation: fadeDown .2s ease;
 }
 
-/* right column */
+/* децата на подсекция се показват веднага под нея, вложени */
 .mobile-col-right {
-  border-left: 1px solid #f0e8e0;
-  background: #fdf8f4;
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 4px 14px;
+  border-left: 2px solid #f0e0d4;
+  padding-left: 10px;
 }
 
 /* items */
@@ -323,22 +312,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 11px 14px;
+  border-radius: 10px;
   font-size: 14px;
-  color: #555;
+  color: #666;
   cursor: pointer;
   transition: all .15s;
 }
+.mobile-child-link { font-size: 13px; padding: 9px 14px; }
 
-/* hover like desktop */
+/* hover/active */
 .mobile-link:hover,
 .mobile-child-link:hover {
   background: #fdf0e8;
   color: #c97d4e;
-  padding-left: 24px;
 }
 
-/* active subcategory */
 .mobile-link.active {
   background: #fdf0e8;
   color: #c97d4e;
@@ -348,7 +337,9 @@
 .sub-arrow {
   color: #c97d4e;
   font-size: 14px;
+  transition: transform .2s;
 }
+.sub-arrow.open { transform: rotate(90deg); }
 
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-8px); }

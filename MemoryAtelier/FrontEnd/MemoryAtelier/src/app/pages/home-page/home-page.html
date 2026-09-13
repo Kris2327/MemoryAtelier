@@ -225,6 +225,15 @@
       <a routerLink="/contact">{{ i18n.t('footer.contact') }}</a>
       <a routerLink="/sitemap">{{ i18n.t('footer.sitemap') }}</a>
       <a routerLink="/terms">{{ i18n.t('footer.terms') }}</a>
+      <a routerLink="/privacy">{{ i18n.t('footer.privacy') }}</a>
     </nav>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/memoryatelier25/" target="_blank" rel="noopener noreferrer" [attr.aria-label]="i18n.t('footer.instagram')" [title]="i18n.t('footer.instagram')">
+        <i class="bi bi-instagram"></i>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61582893020301" target="_blank" rel="noopener noreferrer" [attr.aria-label]="i18n.t('footer.facebook')" [title]="i18n.t('footer.facebook')">
+        <i class="bi bi-facebook"></i>
+      </a>
+    </div>
   </footer>
 </div>

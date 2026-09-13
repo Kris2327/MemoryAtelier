@@ -1,0 +1,85 @@
+<div class="privacy-page">
+  <button class="btn-back" (click)="goHome()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    {{ i18n.t('common.backToShop') }}
+  </button>
+
+  <div class="privacy-header">
+    <h1 class="privacy-title">{{ i18n.t('privacy.title') }}</h1>
+    <p class="privacy-updated">{{ i18n.t('privacy.updated') }}</p>
+  </div>
+
+  <div class="privacy-card">
+    @if (i18n.lang() === 'bg') {
+      <section>
+        <h2>1. Обща информация</h2>
+        <p>Тази политика обяснява какви данни обработва Memory Atelier и как използваме локално съхранение на данни в браузъра ("бисквитки" в широкия смисъл — включително localStorage) на нашия сайт.</p>
+      </section>
+
+      <section>
+        <h2>2. Локално съхранение и "бисквитки"</h2>
+        <p>Не използваме бисквитки за реклама, проследяване или анализ на трафика. В браузъра ви локално се пазят единствено:</p>
+        <ul>
+          <li>токенът за вход, за да останете вписани между посещенията;</li>
+          <li>избраният от вас език на сайта (БГ/EN).</li>
+        </ul>
+        <p>Тези данни се пазят локално във вашия браузър и не се споделят с рекламни мрежи.</p>
+      </section>
+
+      <section>
+        <h2>3. Лични данни, които обработваме</h2>
+        <p>При регистрация и поръчка обработваме име, имейл, телефон и адрес за доставка — единствено с цел създаване на профил, изпълнение на поръчката и комуникация по нея.</p>
+      </section>
+
+      <section>
+        <h2>4. Трети страни</h2>
+        <p>Използваме Supabase за хостинг на базата данни и съхранение на снимки на продуктите. При доставка споделяме необходимите данни (име, адрес, телефон) с избраната куриерска фирма. Не продаваме и не споделяме личните ви данни с трети страни за маркетингови цели.</p>
+      </section>
+
+      <section>
+        <h2>5. Вашите права</h2>
+        <p>Имате право по всяко време да поискате достъп до, корекция или изтриване на личните си данни, като се свържете с нас на <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+
+      <section>
+        <h2>6. Контакт</h2>
+        <p>За въпроси относно тази политика ни пишете през <a routerLink="/contact">контактната форма</a> или директно на <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+    } @else {
+      <section>
+        <h2>1. General information</h2>
+        <p>This policy explains what data Memory Atelier processes and how we use local browser storage ("cookies" in the broad sense — including localStorage) on our site.</p>
+      </section>
+
+      <section>
+        <h2>2. Local storage and "cookies"</h2>
+        <p>We don't use cookies for advertising, tracking, or traffic analytics. The only things stored locally in your browser are:</p>
+        <ul>
+          <li>your login token, so you stay signed in between visits;</li>
+          <li>your chosen site language (BG/EN).</li>
+        </ul>
+        <p>This data stays in your own browser and is never shared with advertising networks.</p>
+      </section>
+
+      <section>
+        <h2>3. Personal data we process</h2>
+        <p>When you register or place an order, we process your name, email, phone number, and delivery address — solely to create your account, fulfil your order, and communicate about it.</p>
+      </section>
+
+      <section>
+        <h2>4. Third parties</h2>
+        <p>We use Supabase to host our database and store product images. For delivery, we share the necessary data (name, address, phone) with the chosen courier company. We do not sell or share your personal data with third parties for marketing purposes.</p>
+      </section>
+
+      <section>
+        <h2>5. Your rights</h2>
+        <p>You can request access to, correction of, or deletion of your personal data at any time by contacting us at <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+
+      <section>
+        <h2>6. Contact</h2>
+        <p>For questions about this policy, reach us through the <a routerLink="/contact">contact form</a> or directly at <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+    }
+  </div>
+</div>
