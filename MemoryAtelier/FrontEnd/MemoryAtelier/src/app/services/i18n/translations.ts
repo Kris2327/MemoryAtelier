@@ -24,6 +24,8 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'home.addToCart': '+ Количка',
     'home.sliderTitle': 'Може да харесате също',
     'home.footer': 'Memory Atelier © 2025 — Ръчно изработено с любов',
+    'home.filters': 'Категории',
+    'home.noProductsInSection': 'Няма продукти в тази секция засега.',
 
     // FOOTER
     'footer.contact': 'Контакти',
@@ -429,6 +431,8 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'home.addToCart': '+ Cart',
     'home.sliderTitle': 'You might also like',
     'home.footer': 'Memory Atelier © 2025 — Handmade with love',
+    'home.filters': 'Categories',
+    'home.noProductsInSection': 'No products in this section yet.',
 
     // FOOTER
     'footer.contact': 'Contact',

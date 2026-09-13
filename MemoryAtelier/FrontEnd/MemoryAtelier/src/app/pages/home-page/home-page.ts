@@ -25,6 +25,7 @@ export class HomePage implements OnInit, OnDestroy {
   favouriteIds = signal<Set<string>>(new Set());
   addedToCart = signal<Set<string>>(new Set());
   heroIndex = signal(0);
+  sidebarOpen = signal(false);
   private heroTimer?: number;
 
   // снимки за hero слайдъра — избрани от администратора през админ панела
@@ -52,12 +53,19 @@ export class HomePage implements OnInit, OnDestroy {
     return ids;
   });
 
-  // продуктите от избраната категория (и подкатегориите й), групирани
+  // продуктите от избраната категория (и подкатегориите й), групирани — само за изгледа "Всички"
   filteredGrouped = computed(() => {
     const ids = this.selectedCategoryIds();
     const all = this.allProducts();
     const filtered = ids === null ? all : all.filter(p => p.categories.some(c => ids.has(c.id)));
     return this.groupProducts(filtered, ids);
+  });
+
+  // плосък списък продукти (без дублиране по категория) — за изгледа с избрана секция
+  filteredProducts = computed(() => {
+    const ids = this.selectedCategoryIds();
+    if (ids === null) return [];
+    return this.allProducts().filter(p => p.categories.some(c => ids.has(c.id)));
   });
 
   // продуктите от ДРУГИТЕ категории за слайдъра
@@ -66,6 +74,15 @@ export class HomePage implements OnInit, OnDestroy {
     const all = this.allProducts();
     if (ids === null) return [];
     return all.filter(p => !p.categories.some(c => ids.has(c.id)));
+  });
+
+  isFiltered = computed(() => this.selectedCategory() !== 'All');
+
+  // главната секция (корена), в чието дърво попада избраната категория — за breadcrumb, заглавие и странично меню
+  selectedRootCategory = computed<Category | null>(() => {
+    const catId = this.selectedCategory();
+    if (catId === 'All') return null;
+    return this.findRootCategory(this.categoryService.categories(), catId);
   });
 
   constructor(
@@ -156,6 +173,20 @@ export class HomePage implements OnInit, OnDestroy {
   private collectCategoryIds(cat: Category, out: Set<string>): void {
     out.add(cat.id);
     cat.children.forEach(child => this.collectCategoryIds(child, out));
+  }
+
+  private findRootCategory(roots: Category[], id: string): Category | null {
+    return roots.find(root => this.containsCategoryId(root, id)) ?? null;
+  }
+
+  private containsCategoryId(cat: Category, id: string): boolean {
+    if (cat.id === id) return true;
+    return cat.children.some(child => this.containsCategoryId(child, id));
+  }
+
+  goToCategory(id: string): void {
+    this.router.navigate(['/home'], { queryParams: { category: id } });
+    this.sidebarOpen.set(false);
   }
 
   groupLabel(group: { category: string; categoryEn: string | null }): string {

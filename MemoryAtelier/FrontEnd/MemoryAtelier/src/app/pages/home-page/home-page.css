@@ -83,6 +83,123 @@
   max-width: 480px; line-height: 1.7; font-weight: 300;
 }
 
+/* CATEGORY HERO — breadcrumb + заглавие, когато е избрана секция от navbar-а */
+.category-hero {
+  padding: 40px 48px 24px;
+  background: linear-gradient(180deg, #f9ddd0 0%, #fdf8f4 100%);
+}
+.category-breadcrumb {
+  font-size: 13px;
+  color: #9c8377;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.category-breadcrumb a { color: #9c8377; text-decoration: none; transition: color .15s; }
+.category-breadcrumb a:hover { color: #c97d4e; }
+.crumb-sep { color: #d8c4b8; }
+.crumb-current { color: #7a5c4e; }
+.category-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  color: #2c1810;
+  letter-spacing: 0.02em;
+}
+
+/* CATEGORY LAYOUT — странично меню с подсекции + плосък списък продукти */
+.category-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  padding: 40px 48px 56px;
+  align-items: start;
+}
+
+.sidebar-toggle {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #f0e0d4;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Lato', sans-serif;
+  color: #2c1810;
+  cursor: pointer;
+}
+.sidebar-toggle-arrow { color: #c97d4e; transition: transform .2s; }
+.sidebar-toggle-arrow.open { transform: rotate(180deg); }
+
+.category-sidebar {
+  background: #fff;
+  border: 1px solid #f0e0d4;
+  border-radius: 18px;
+  padding: 8px;
+  align-self: start;
+  position: sticky;
+  top: 24px;
+}
+.sidebar-nav { display: flex; flex-direction: column; }
+.sidebar-link {
+  display: block;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #5e4639;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.sidebar-link:hover { background: #fdf0e8; color: #c97d4e; }
+.sidebar-link.active { background: #c97d4e; color: #fff; font-weight: 600; }
+.sidebar-link-root {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c1810;
+  margin-bottom: 4px;
+}
+.sidebar-link-root.active { color: #fff; }
+.sidebar-sub {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 4px 14px;
+  border-left: 2px solid #f5e6da;
+  padding-left: 8px;
+}
+.sidebar-link-sub { font-size: 13px; padding: 8px 12px; }
+
+.category-content-head { margin-bottom: 20px; }
+.results-count { font-size: 13px; color: #bbb; }
+.empty-section { color: #aaa; font-size: 14px; padding: 40px 0; text-align: center; }
+
+@media (max-width: 860px) {
+  .category-hero { padding: 28px 20px 20px; }
+  .category-title { font-size: 28px; }
+
+  .category-layout {
+    grid-template-columns: 1fr;
+    padding: 0 20px 40px;
+    gap: 14px;
+  }
+
+  .sidebar-toggle { display: flex; }
+
+  .category-sidebar {
+    display: none;
+    position: static;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .category-sidebar.open { display: block; }
+
+  .sections { padding: 32px 20px; gap: 48px; }
+}
+
 /* SECTIONS */
 .sections { padding: 56px 48px; display: flex; flex-direction: column; gap: 64px; }
 

@@ -24,66 +24,129 @@
     </div>
   </section>
 
+  <ng-template #productCard let-product>
+    <div class="product-card" (click)="goToProduct(product)">
+      <div class="product-img-wrap">
+        <img
+          [src]="product.images[0]?.imageUrl || 'https://placehold.co/290x240'"
+          [alt]="i18n.pick(product.name, product.nameEn)"
+          class="product-img" />
+        <span class="product-category">{{ categoryNames(product.categories) }}</span>
+        @if (authService.isLoggedIn()) {
+          <button
+            class="btn-fav"
+            [class.active]="isFavourite(product.id)"
+            (click)="toggleFavourite(product, $event)"
+            [title]="i18n.t('home.addToFav')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              [attr.fill]="isFavourite(product.id) ? '#c97d4e' : 'none'"
+              stroke="#c97d4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        }
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</h3>
+        <p class="product-desc" [title]="i18n.pick(product.description, product.descriptionEn)">{{ i18n.pick(product.description, product.descriptionEn) }}</p>
+        <div class="product-footer">
+          <span class="product-price">€{{ product.price.toFixed(2) }}</span>
+          @if (authService.isLoggedIn()) {
+            <button
+              class="btn-cart"
+              [class.added]="addedToCart().has(product.id)"
+              (click)="addToCart(product, $event)">
+              {{ addedToCart().has(product.id) ? i18n.t('home.added') : i18n.t('home.addToCart') }}
+            </button>
+          } @else {
+            <button class="btn-cart" (click)="addToCart(product, $event)">{{ i18n.t('home.addToCart') }}</button>
+          }
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
   @if (loading()) {
     <div class="loading"><div class="spinner"></div></div>
   } @else {
 
-    <!-- MAIN PRODUCTS -->
-    <div class="sections">
-      @for (group of filteredGrouped(); track group.category) {
-        <section class="category-section">
-          <div class="section-header">
-            <h2 class="section-title">{{ groupLabel(group) }}</h2>
-            <span class="section-line"></span>
-            <span class="section-count">{{ group.items.length }} {{ i18n.t('common.products') }}</span>
-          </div>
+    @if (isFiltered() && selectedRootCategory(); as root) {
+      <!-- SELECTED SECTION: breadcrumb + title + странично меню + плосък списък (всеки продукт по веднъж) -->
+      <div class="category-hero">
+        <div class="category-breadcrumb">
+          <a routerLink="/home">{{ i18n.t('pd.breadcrumbHome') }}</a>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-current">{{ i18n.pick(root.name, root.nameEn) }}</span>
+        </div>
+        <h1 class="category-title">{{ i18n.pick(root.name, root.nameEn) }}</h1>
+      </div>
 
-          <div class="product-grid">
-            @for (product of group.items; track product.id) {
-              <div class="product-card" (click)="goToProduct(product)">
-                <div class="product-img-wrap">
-                  <img
-                    [src]="product.images[0]?.imageUrl || 'https://placehold.co/290x240'"
-                    [alt]="i18n.pick(product.name, product.nameEn)"
-                    class="product-img" />
-                  <span class="product-category">{{ categoryNames(product.categories) }}</span>
-                  @if (authService.isLoggedIn()) {
-                    <button
-                      class="btn-fav"
-                      [class.active]="isFavourite(product.id)"
-                      (click)="toggleFavourite(product, $event)"
-                      [title]="i18n.t('home.addToFav')">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        [attr.fill]="isFavourite(product.id) ? '#c97d4e' : 'none'"
-                        stroke="#c97d4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                      </svg>
-                    </button>
+      <div class="category-layout">
+        <button class="sidebar-toggle" type="button" (click)="sidebarOpen.set(!sidebarOpen())">
+          <span>{{ i18n.t('home.filters') }}</span>
+          <span class="sidebar-toggle-arrow" [class.open]="sidebarOpen()">▾</span>
+        </button>
+
+        <aside class="category-sidebar" [class.open]="sidebarOpen()">
+          <nav class="sidebar-nav">
+            <a class="sidebar-link sidebar-link-root" [class.active]="selectedCategory() === root.id" (click)="goToCategory(root.id)">
+              {{ i18n.pick(root.name, root.nameEn) }}
+            </a>
+
+            @for (child of root.children; track child.id) {
+              <a class="sidebar-link" [class.active]="selectedCategory() === child.id" (click)="goToCategory(child.id)">
+                {{ i18n.pick(child.name, child.nameEn) }}
+              </a>
+
+              @if (child.children.length) {
+                <div class="sidebar-sub">
+                  @for (grandchild of child.children; track grandchild.id) {
+                    <a class="sidebar-link sidebar-link-sub" [class.active]="selectedCategory() === grandchild.id" (click)="goToCategory(grandchild.id)">
+                      {{ i18n.pick(grandchild.name, grandchild.nameEn) }}
+                    </a>
                   }
                 </div>
-                <div class="product-info">
-                  <h3 class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</h3>
-                  <p class="product-desc" [title]="i18n.pick(product.description, product.descriptionEn)">{{ i18n.pick(product.description, product.descriptionEn) }}</p>
-                  <div class="product-footer">
-                    <span class="product-price">€{{ product.price.toFixed(2) }}</span>
-                    @if (authService.isLoggedIn()) {
-                      <button
-                        class="btn-cart"
-                        [class.added]="addedToCart().has(product.id)"
-                        (click)="addToCart(product, $event)">
-                        {{ addedToCart().has(product.id) ? i18n.t('home.added') : i18n.t('home.addToCart') }}
-                      </button>
-                    } @else {
-                      <button class="btn-cart" (click)="addToCart(product, $event)">{{ i18n.t('home.addToCart') }}</button>
-                    }
-                  </div>
-                </div>
-              </div>
+              }
             }
+          </nav>
+        </aside>
+
+        <div class="category-content">
+          <div class="category-content-head">
+            <span class="results-count">{{ filteredProducts().length }} {{ i18n.t('common.products') }}</span>
           </div>
-        </section>
-      }
-    </div>
+
+          @if (filteredProducts().length > 0) {
+            <div class="product-grid">
+              @for (product of filteredProducts(); track product.id) {
+                <ng-container *ngTemplateOutlet="productCard; context: { $implicit: product }"></ng-container>
+              }
+            </div>
+          } @else {
+            <p class="empty-section">{{ i18n.t('home.noProductsInSection') }}</p>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- ВСИЧКИ ПРОДУКТИ: изглед по подразбиране, групиран по категория -->
+      <div class="sections">
+        @for (group of filteredGrouped(); track group.category) {
+          <section class="category-section">
+            <div class="section-header">
+              <h2 class="section-title">{{ groupLabel(group) }}</h2>
+              <span class="section-line"></span>
+              <span class="section-count">{{ group.items.length }} {{ i18n.t('common.products') }}</span>
+            </div>
+
+            <div class="product-grid">
+              @for (product of group.items; track product.id) {
+                <ng-container *ngTemplateOutlet="productCard; context: { $implicit: product }"></ng-container>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    }
 
     <!-- HORIZONTAL SLIDER — само когато е избрана категория -->
     @if (selectedCategory() !== 'All' && otherProducts().length > 0) {
