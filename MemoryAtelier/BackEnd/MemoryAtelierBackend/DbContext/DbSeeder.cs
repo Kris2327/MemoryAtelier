@@ -70,7 +70,36 @@ public static class DbSeeder
         }
 
         SeedCategoryTranslations(db);
+        SeedCategorySortOrder(db);
         SeedProductSlugs(db);
+    }
+
+    /// <summary>
+    /// Idempotent: assigns a stable initial SortOrder to any sibling group that has never been ordered
+    /// (i.e. every sibling still sits at the default 0). Runs on every startup, unlike the main seed block above.
+    /// Skips any group that already has an explicit order, so it never overwrites an admin's manual reordering.
+    /// </summary>
+    private static void SeedCategorySortOrder(AppDbContext db)
+    {
+        var all = db.Categories.Where(c => !c.IsDeleted).ToList();
+        var changed = false;
+
+        foreach (var siblings in all.GroupBy(c => c.ParentId))
+        {
+            var group = siblings.ToList();
+            if (group.Count < 2 || group.Any(c => c.SortOrder != 0)) continue;
+
+            for (var i = 0; i < group.Count; i++)
+            {
+                group[i].SortOrder = i;
+            }
+            changed = true;
+        }
+
+        if (changed)
+        {
+            db.SaveChanges();
+        }
     }
 
     /// <summary>

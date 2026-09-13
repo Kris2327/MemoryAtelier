@@ -6,7 +6,8 @@ import { CartService } from '../../services/cartService/cartService';
 import { FavouritesService } from '../../services/favourites/favourites';
 import { AuthService } from '../../services/auth/auth';
 import { HeroImageService } from '../../services/hero-image/hero-image';
-import { CategoryRef, Product } from '../../services/auth/auth-types';
+import { CategoryService } from '../../services/category/category';
+import { Category, CategoryRef, Product } from '../../services/auth/auth-types';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
 
@@ -39,20 +40,32 @@ export class HomePage implements OnInit, OnDestroy {
       .map(p => p.images[0].imageUrl);
   });
 
-  // продуктите от избраната категория, групирани
+  // id-та на избраната категория И всичките й подкатегории (null = "All")
+  private selectedCategoryIds = computed<Set<string> | null>(() => {
+    const catId = this.selectedCategory();
+    if (catId === 'All') return null;
+
+    const root = this.findCategory(this.categoryService.categories(), catId);
+    const ids = new Set<string>();
+    if (root) this.collectCategoryIds(root, ids);
+    else ids.add(catId);
+    return ids;
+  });
+
+  // продуктите от избраната категория (и подкатегориите й), групирани
   filteredGrouped = computed(() => {
-    const cat = this.selectedCategory();
+    const ids = this.selectedCategoryIds();
     const all = this.allProducts();
-    const filtered = cat === 'All' ? all : all.filter(p => p.categories.some(c => c.name === cat));
-    return this.groupProducts(filtered);
+    const filtered = ids === null ? all : all.filter(p => p.categories.some(c => ids.has(c.id)));
+    return this.groupProducts(filtered, ids);
   });
 
   // продуктите от ДРУГИТЕ категории за слайдъра
   otherProducts = computed(() => {
-    const cat = this.selectedCategory();
+    const ids = this.selectedCategoryIds();
     const all = this.allProducts();
-    if (cat === 'All') return [];
-    return all.filter(p => !p.categories.some(c => c.name === cat));
+    if (ids === null) return [];
+    return all.filter(p => !p.categories.some(c => ids.has(c.id)));
   });
 
   constructor(
@@ -61,6 +74,7 @@ export class HomePage implements OnInit, OnDestroy {
     private favouritesService: FavouritesService,
     public authService: AuthService,
     private heroImageService: HeroImageService,
+    private categoryService: CategoryService,
     private route: ActivatedRoute,
     private router: Router,
     public i18n: I18nService,
@@ -77,6 +91,7 @@ export class HomePage implements OnInit, OnDestroy {
     // зареди ВСИЧКИ продукти веднъж
     this.loadAllProducts();
     this.loadHeroImages();
+    this.categoryService.refresh();
 
     this.route.queryParams.subscribe(params => {
       const cat = params['category'] || 'All';
@@ -116,16 +131,31 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  groupProducts(data: Product[]): { category: string; categoryEn: string | null; items: Product[] }[] {
+  groupProducts(data: Product[], restrictToIds: Set<string> | null = null): { category: string; categoryEn: string | null; items: Product[] }[] {
     const map = new Map<string, { categoryEn: string | null; items: Product[] }>();
     data.forEach(p => {
-      const cats: CategoryRef[] = p.categories.length ? p.categories : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null }];
+      const relevant = restrictToIds ? p.categories.filter(c => restrictToIds.has(c.id)) : p.categories;
+      const cats: CategoryRef[] = relevant.length ? relevant : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null }];
       cats.forEach(cat => {
         if (!map.has(cat.name)) map.set(cat.name, { categoryEn: cat.nameEn, items: [] });
         map.get(cat.name)!.items.push(p);
       });
     });
     return Array.from(map.entries()).map(([category, { categoryEn, items }]) => ({ category, categoryEn, items }));
+  }
+
+  private findCategory(list: Category[], id: string): Category | null {
+    for (const cat of list) {
+      if (cat.id === id) return cat;
+      const found = this.findCategory(cat.children, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private collectCategoryIds(cat: Category, out: Set<string>): void {
+    out.add(cat.id);
+    cat.children.forEach(child => this.collectCategoryIds(child, out));
   }
 
   groupLabel(group: { category: string; categoryEn: string | null }): string {

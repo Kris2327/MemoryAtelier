@@ -796,6 +796,17 @@ select.input:hover {
   position: relative;
 }
 
+.cat-dropdown-inline {
+  flex: 1;
+}
+
+.cat-dropdown-trigger-sm {
+  min-height: 34px;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
 .cat-dropdown-trigger {
   width: 100%;
   min-height: 46px;
@@ -856,6 +867,21 @@ select.input:hover {
   border: 1px solid #f0e8e0;
   box-shadow: 0 8px 32px rgba(44, 24, 16, 0.14);
   animation: fadeDown 0.15s ease both;
+}
+
+.cat-dropdown-group-label {
+  padding: 8px 10px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #b08968;
+}
+
+.cat-dropdown-group-label:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid #f0e8e0;
+  padding-top: 10px;
 }
 
 .cat-dropdown-panel .cat-dropdown-option {

@@ -57,13 +57,13 @@ export class Navbar implements OnInit {
   private toNavCategory(category: Category): NavCategory {
     return {
       label: this.i18n.pick(category.name, category.nameEn),
-      value: category.name,
+      value: category.id,
       subcategories: category.children.length
         ? category.children.map(sub => ({
             label: this.i18n.pick(sub.name, sub.nameEn),
-            value: sub.name,
+            value: sub.id,
             children: sub.children.length
-              ? sub.children.map(child => ({ label: this.i18n.pick(child.name, child.nameEn), value: child.name }))
+              ? sub.children.map(child => ({ label: this.i18n.pick(child.name, child.nameEn), value: child.id }))
               : undefined
           }))
         : undefined

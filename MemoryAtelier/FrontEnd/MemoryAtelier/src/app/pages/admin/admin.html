@@ -347,7 +347,7 @@
           }
         </div>
 
-        <aside class="management-side">
+        <aside class="management-side" (click)="closeAllCategoryDropdowns()">
           <article class="section-card">
             <div class="panel-head">
               <div>
@@ -367,13 +367,27 @@
             </div>
 
             <div class="form-group">
-              <label for="parentSection">{{ i18n.t('admin.newSection.parentLabel') }}</label>
-              <select id="parentSection" class="input" [(ngModel)]="newSection.parentId">
-                <option value="">{{ i18n.t('admin.newSection.topLevel') }}</option>
-                @for (cat of flatCategories(); track trackByCategory($index, cat)) {
-                  <option [value]="cat.id">{{ i18n.pick(cat.name, cat.nameEn) }}</option>
+              <label>{{ i18n.t('admin.newSection.parentLabel') }}</label>
+              <div class="cat-dropdown">
+                <button type="button" class="cat-dropdown-trigger" (click)="$event.stopPropagation(); toggleNewSectionParentDropdown()">
+                  <span class="cat-dropdown-trigger-text">{{ newSectionParentLabel() }}</span>
+                  <span class="cat-dropdown-arrow" [class.open]="newSectionParentDropdownOpen()">▾</span>
+                </button>
+                @if (newSectionParentDropdownOpen()) {
+                  <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                    <label class="cat-dropdown-option">
+                      <input type="radio" name="newSectionParent" [checked]="!newSection.parentId" (change)="selectNewSectionParent('')" />
+                      <span>{{ i18n.t('admin.newSection.topLevel') }}</span>
+                    </label>
+                    @for (cat of flatCategories(); track trackByCategory($index, cat)) {
+                      <label class="cat-dropdown-option">
+                        <input type="radio" name="newSectionParent" [checked]="newSection.parentId === cat.id" (change)="selectNewSectionParent(cat.id)" />
+                        <span>{{ categoryOptionLabel(cat) }}</span>
+                      </label>
+                    }
+                  </div>
                 }
-              </select>
+              </div>
             </div>
 
             <button class="btn-primary full-width" type="button" (click)="addSection()">{{ i18n.t('admin.newSection.addBtn') }}</button>
@@ -387,12 +401,32 @@
               </div>
             </div>
 
-            <ng-template #categoryNode let-node let-cls="cls">
+            <ng-template #categoryNode let-node let-cls="cls" let-isRoot="isRoot" let-idx="idx" let-total="total">
               <div class="tree-node" [ngClass]="cls">
                 @if (editingCategoryId() === node.id) {
                   <div class="tree-edit-form">
                     <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.name" />
                     <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.nameEn" [placeholder]="i18n.t('admin.structure.nameEnPlaceholder')" />
+                    <div class="cat-dropdown cat-dropdown-inline">
+                      <button type="button" class="cat-dropdown-trigger cat-dropdown-trigger-sm" (click)="$event.stopPropagation(); toggleCategoryEditParentDropdown()">
+                        <span class="cat-dropdown-trigger-text">{{ categoryEditParentLabel() }}</span>
+                        <span class="cat-dropdown-arrow" [class.open]="categoryEditParentDropdownOpen()">▾</span>
+                      </button>
+                      @if (categoryEditParentDropdownOpen()) {
+                        <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                          <label class="cat-dropdown-option">
+                            <input type="radio" name="categoryEditParent" [checked]="!categoryDraft.parentId" (change)="selectCategoryEditParent('')" />
+                            <span>{{ i18n.t('admin.newSection.topLevel') }}</span>
+                          </label>
+                          @for (opt of parentOptionsFor(node.id); track trackByCategory($index, opt)) {
+                            <label class="cat-dropdown-option">
+                              <input type="radio" name="categoryEditParent" [checked]="categoryDraft.parentId === opt.id" (change)="selectCategoryEditParent(opt.id)" />
+                              <span>{{ categoryOptionLabel(opt) }}</span>
+                            </label>
+                          }
+                        </div>
+                      }
+                    </div>
                   </div>
                   <div class="tree-actions">
                     <button class="btn-icon-danger" type="button" (click)="saveEditCategory(node.id)">{{ i18n.t('admin.structure.save') }}</button>
@@ -406,6 +440,24 @@
                     <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
                   </div>
                   <div class="tree-actions">
+                    @if (isRoot) {
+                      <button
+                        class="icon-button icon-button-edit icon-button-sm"
+                        type="button"
+                        [disabled]="idx === 0"
+                        [title]="i18n.t('admin.structure.moveUp')"
+                        (click)="moveCategory(idx, -1)">
+                        <i class="bi bi-arrow-up"></i>
+                      </button>
+                      <button
+                        class="icon-button icon-button-edit icon-button-sm"
+                        type="button"
+                        [disabled]="idx === total - 1"
+                        [title]="i18n.t('admin.structure.moveDown')"
+                        (click)="moveCategory(idx, 1)">
+                        <i class="bi bi-arrow-down"></i>
+                      </button>
+                    }
                     <button
                       class="icon-button icon-button-edit icon-button-sm"
                       type="button"
@@ -432,8 +484,8 @@
             </ng-template>
 
             <div class="section-tree">
-              @for (cat of categories(); track trackByCategory($index, cat)) {
-                <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: cat, cls: 'tree-root' }"></ng-container>
+              @for (cat of categories(); track trackByCategory($index, cat); let i = $index) {
+                <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: cat, cls: 'tree-root', isRoot: true, idx: i, total: categories().length }"></ng-container>
 
                 @if (isCategoryExpanded(cat.id)) {
                   @for (sub of cat.children; track trackByCategory($index, sub)) {
@@ -469,6 +521,9 @@
             <div class="upload-zone-inner">
               <strong>{{ i18n.t('admin.modal.uploadPrompt') }}</strong>
               <span>{{ i18n.t('admin.modal.uploadHint') }}</span>
+              <button type="button" class="btn-ghost" (click)="$event.stopPropagation(); pickHeroFromGoogleDrive()">
+                {{ i18n.t('admin.modal.uploadFromDrive') }}
+              </button>
             </div>
           } @else {
             <div class="upload-zone-inner">
@@ -754,11 +809,14 @@
               </button>
               @if (subcategoryDropdownOpen() && selectedSubcategories().length) {
                 <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
-                  @for (sub of selectedSubcategories(); track trackByCategory($index, sub)) {
-                    <label class="cat-dropdown-option">
-                      <input type="checkbox" [checked]="isCategorySelected(sub.id)" (change)="toggleCategorySelection(sub.id)" />
-                      <span>{{ i18n.pick(sub.name, sub.nameEn) }}</span>
-                    </label>
+                  @for (group of subcategoryGroups(); track trackByCategory($index, group.parent)) {
+                    <div class="cat-dropdown-group-label">{{ i18n.pick(group.parent.name, group.parent.nameEn) }}</div>
+                    @for (sub of group.subs; track trackByCategory($index, sub)) {
+                      <label class="cat-dropdown-option">
+                        <input type="checkbox" [checked]="isCategorySelected(sub.id)" (change)="toggleCategorySelection(sub.id)" />
+                        <span>{{ i18n.pick(sub.name, sub.nameEn) }}</span>
+                      </label>
+                    }
                   }
                 </div>
               }
@@ -777,11 +835,14 @@
                 </button>
                 @if (subSubDropdownOpen()) {
                   <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
-                    @for (child of selectedGrandchildren(); track trackByCategory($index, child)) {
-                      <label class="cat-dropdown-option">
-                        <input type="checkbox" [checked]="isCategorySelected(child.id)" (change)="toggleCategorySelection(child.id)" />
-                        <span>{{ i18n.pick(child.name, child.nameEn) }}</span>
-                      </label>
+                    @for (group of grandchildGroups(); track trackByCategory($index, group.parent)) {
+                      <div class="cat-dropdown-group-label">{{ i18n.pick(group.parent.name, group.parent.nameEn) }}</div>
+                      @for (child of group.children; track trackByCategory($index, child)) {
+                        <label class="cat-dropdown-option">
+                          <input type="checkbox" [checked]="isCategorySelected(child.id)" (change)="toggleCategorySelection(child.id)" />
+                          <span>{{ i18n.pick(child.name, child.nameEn) }}</span>
+                        </label>
+                      }
                     }
                   </div>
                 }
@@ -830,6 +891,9 @@
               <div class="upload-zone-inner">
                 <strong>{{ i18n.t('admin.modal.uploadPrompt') }}</strong>
                 <span>{{ i18n.t('admin.modal.uploadHint') }}</span>
+                <button type="button" class="btn-ghost" (click)="$event.stopPropagation(); pickFromGoogleDrive()">
+                  {{ i18n.t('admin.modal.uploadFromDrive') }}
+                </button>
               </div>
             } @else {
               <div class="upload-zone-inner">

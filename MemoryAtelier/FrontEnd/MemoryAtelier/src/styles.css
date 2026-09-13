@@ -4,3 +4,13 @@ html, body {
   height: 100%;
   margin: 0;
 }
+
+/* Google Picker inserts its dialog directly into <body> with z-index ~1000,
+   which sits behind our admin modal (z-index 2000+) unless raised here. */
+.picker-dialog-bg {
+  z-index: 10000 !important;
+}
+
+.picker-dialog {
+  z-index: 10001 !important;
+}

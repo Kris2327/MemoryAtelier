@@ -14,6 +14,7 @@ import { HttpClient } from '@angular/common/http';
 import { ProductService } from '../../services/product/product';
 import { CategoryService } from '../../services/category/category';
 import { ImageService } from '../../services/images/images';
+import { GoogleDriveService } from '../../services/google-drive/google-drive';
 import { HeroImageService } from '../../services/hero-image/hero-image';
 import { ContactMessagesService } from '../../services/contact-messages/contact-messages';
 import { OrdersService } from '../../services/orders/orders';
@@ -90,6 +91,7 @@ export class Admin implements OnInit, AfterViewInit {
   private readonly productService = inject(ProductService);
   private readonly categoryService = inject(CategoryService);
   private readonly imageService = inject(ImageService);
+  private readonly googleDriveService = inject(GoogleDriveService);
   private readonly heroImageService = inject(HeroImageService);
   private readonly contactMessagesService = inject(ContactMessagesService);
   private readonly ordersService = inject(OrdersService);
@@ -123,7 +125,7 @@ export class Admin implements OnInit, AfterViewInit {
 
   newSection = { name: '', nameEn: '', parentId: '' };
   editingCategoryId = signal<string | null>(null);
-  categoryDraft = { name: '', nameEn: '' };
+  categoryDraft = { name: '', nameEn: '', parentId: '' };
   expandedCategoryIds = signal<Set<string>>(new Set());
   collapsedGroups = signal<Set<string>>(new Set());
 
@@ -167,6 +169,8 @@ export class Admin implements OnInit, AfterViewInit {
   categoryDropdownOpen = signal(false);
   subcategoryDropdownOpen = signal(false);
   subSubDropdownOpen = signal(false);
+  newSectionParentDropdownOpen = signal(false);
+  categoryEditParentDropdownOpen = signal(false);
 
   private revenueChart?: any;
   private categoryChart?: any;
@@ -363,6 +367,25 @@ export class Admin implements OnInit, AfterViewInit {
     return result;
   }
 
+  categoryOptionLabel(cat: Category): string {
+    const depth = this.categoryDepths().get(cat.id) ?? 0;
+    const indent = depth > 0 ? '— '.repeat(depth) : '';
+    return indent + this.i18n.pick(cat.name, cat.nameEn);
+  }
+
+  private categoryDepths(): Map<string, number> {
+    const depths = new Map<string, number>();
+    const walk = (categories: Category[], depth: number) => {
+      categories.forEach(category => {
+        depths.set(category.id, depth);
+        walk(category.children, depth + 1);
+      });
+    };
+
+    walk(this.categories(), 0);
+    return depths;
+  }
+
   toggleCategorySelection(id: string): void {
     const idx = this.form.categoryIds.indexOf(id);
     if (idx >= 0) {
@@ -399,6 +422,40 @@ export class Admin implements OnInit, AfterViewInit {
     this.categoryDropdownOpen.set(false);
     this.subcategoryDropdownOpen.set(false);
     this.subSubDropdownOpen.set(false);
+    this.newSectionParentDropdownOpen.set(false);
+    this.categoryEditParentDropdownOpen.set(false);
+  }
+
+  toggleNewSectionParentDropdown(): void {
+    this.newSectionParentDropdownOpen.update(v => !v);
+  }
+
+  selectNewSectionParent(id: string): void {
+    this.newSection.parentId = id;
+    this.newSectionParentDropdownOpen.set(false);
+  }
+
+  newSectionParentLabel(): string {
+    const cat = this.newSection.parentId ? this.findCategoryById(this.newSection.parentId) : undefined;
+    return cat ? this.categoryOptionLabel(cat) : this.i18n.t('admin.newSection.topLevel');
+  }
+
+  toggleCategoryEditParentDropdown(): void {
+    this.categoryEditParentDropdownOpen.update(v => !v);
+  }
+
+  selectCategoryEditParent(id: string): void {
+    this.categoryDraft.parentId = id;
+    this.categoryEditParentDropdownOpen.set(false);
+  }
+
+  categoryEditParentLabel(): string {
+    const cat = this.categoryDraft.parentId ? this.findCategoryById(this.categoryDraft.parentId) : undefined;
+    return cat ? this.categoryOptionLabel(cat) : this.i18n.t('admin.newSection.topLevel');
+  }
+
+  private findCategoryById(id: string): Category | undefined {
+    return this.flatCategories().find(c => c.id === id);
   }
 
   categoryDropdownLabel(): string {
@@ -434,6 +491,20 @@ export class Admin implements OnInit, AfterViewInit {
       }
     }
     return result;
+  }
+
+  subcategoryGroups(): { parent: Category; subs: Category[] }[] {
+    return this.categories()
+      .filter(root => this.isCategorySelected(root.id))
+      .map(root => ({ parent: root, subs: root.children }))
+      .filter(group => group.subs.length > 0);
+  }
+
+  grandchildGroups(): { parent: Category; children: Category[] }[] {
+    return this.selectedSubcategories()
+      .filter(sub => this.isCategorySelected(sub.id))
+      .map(sub => ({ parent: sub, children: sub.children }))
+      .filter(group => group.children.length > 0);
   }
 
   selectedSubcategories(): Category[] {
@@ -550,6 +621,39 @@ export class Admin implements OnInit, AfterViewInit {
     this.form.imageUrls.splice(index, 1);
   }
 
+  async pickFromGoogleDrive(): Promise<void> {
+    let files: File[];
+    try {
+      files = await this.googleDriveService.pickImages();
+    } catch {
+      return;
+    }
+    if (!files.length) {
+      return;
+    }
+
+    this.uploadingImage.set(true);
+
+    let completed = 0;
+    files.forEach(file => {
+      this.imageService.upload(file).subscribe({
+        next: response => {
+          this.form.imageUrls.push(response.url);
+          completed++;
+          if (completed === files.length) {
+            this.uploadingImage.set(false);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === files.length) {
+            this.uploadingImage.set(false);
+          }
+        }
+      });
+    });
+  }
+
   loadHeroImages(): void {
     this.heroLoading.set(true);
     this.heroImageService.getAll().subscribe({
@@ -591,6 +695,43 @@ export class Admin implements OnInit, AfterViewInit {
     });
 
     input.value = '';
+  }
+
+  async pickHeroFromGoogleDrive(): Promise<void> {
+    let files: File[];
+    try {
+      files = await this.googleDriveService.pickImages();
+    } catch {
+      return;
+    }
+    if (!files.length) {
+      return;
+    }
+
+    this.heroUploading.set(true);
+
+    let completed = 0;
+    files.forEach(file => {
+      this.imageService.upload(file).subscribe({
+        next: response => {
+          this.heroImageService.create(response.url).subscribe({
+            next: image => {
+              this.heroImages.update(images => [...images, image]);
+              completed++;
+              if (completed === files.length) this.heroUploading.set(false);
+            },
+            error: () => {
+              completed++;
+              if (completed === files.length) this.heroUploading.set(false);
+            }
+          });
+        },
+        error: () => {
+          completed++;
+          if (completed === files.length) this.heroUploading.set(false);
+        }
+      });
+    });
   }
 
   removeHeroImage(id: string): void {
@@ -845,6 +986,17 @@ export class Admin implements OnInit, AfterViewInit {
     });
   }
 
+  moveCategory(index: number, direction: number): void {
+    const cats = [...this.categories()];
+    const target = index + direction;
+    if (target < 0 || target >= cats.length) return;
+
+    [cats[index], cats[target]] = [cats[target], cats[index]];
+    this.categories.set(cats);
+    this.categoryService.categories.set(cats);
+    this.categoryService.reorder(cats.map(c => c.id)).subscribe();
+  }
+
   deleteSection(id: string): void {
     this.categoryService.delete(id).subscribe({
       next: () => {
@@ -890,7 +1042,21 @@ export class Admin implements OnInit, AfterViewInit {
 
   startEditCategory(cat: Category): void {
     this.editingCategoryId.set(cat.id);
-    this.categoryDraft = { name: cat.name, nameEn: cat.nameEn ?? '' };
+    this.categoryDraft = { name: cat.name, nameEn: cat.nameEn ?? '', parentId: cat.parentId ?? '' };
+    this.categoryEditParentDropdownOpen.set(false);
+  }
+
+  parentOptionsFor(nodeId: string): Category[] {
+    const excluded = new Set<string>();
+    const collectDescendants = (cat: Category) => {
+      excluded.add(cat.id);
+      cat.children.forEach(collectDescendants);
+    };
+
+    const node = this.flatCategories().find(c => c.id === nodeId);
+    if (node) collectDescendants(node);
+
+    return this.flatCategories().filter(c => !excluded.has(c.id));
   }
 
   cancelEditCategory(): void {
@@ -936,7 +1102,8 @@ export class Admin implements OnInit, AfterViewInit {
 
     this.categoryService.update(id, {
       name: this.categoryDraft.name,
-      nameEn: this.categoryDraft.nameEn.trim() || null
+      nameEn: this.categoryDraft.nameEn.trim() || null,
+      parentId: this.categoryDraft.parentId || null
     }).subscribe({
       next: () => {
         this.loadCategories();

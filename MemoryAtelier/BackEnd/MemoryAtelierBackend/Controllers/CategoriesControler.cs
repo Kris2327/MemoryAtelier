@@ -30,8 +30,17 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryDto dto)
     {
-        var cat = await categoryService.UpdateAsync(id, dto);
+        var (cat, error) = await categoryService.UpdateAsync(id, dto);
+        if (error != null) return BadRequest(new { message = error });
         return cat == null ? NotFound() : Ok(cat);
+    }
+
+    [HttpPut("reorder")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Reorder([FromBody] ReorderCategoriesDto dto)
+    {
+        await categoryService.ReorderAsync(dto);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]

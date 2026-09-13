@@ -24,12 +24,16 @@ export class CategoryService {
     return this.http.post<Category>(this.API, dto);
   }
 
-  update(id: string, dto: { name: string; nameEn: string | null }) {
+  update(id: string, dto: { name: string; nameEn: string | null; parentId: string | null }) {
     return this.http.put<Category>(`${this.API}/${id}`, dto);
   }
 
   delete(id: string) {
     return this.http.delete(`${this.API}/${id}`);
+  }
+
+  reorder(orderedIds: string[]) {
+    return this.http.put(`${this.API}/reorder`, { orderedIds });
   }
 
   getDeleted() {

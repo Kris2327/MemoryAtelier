@@ -21,6 +21,7 @@ public class Category
     public Category? Parent { get; set; }
     public List<Category> Children { get; set; } = new();
     public List<Product> Products { get; set; } = new();
+    public int SortOrder { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
 }

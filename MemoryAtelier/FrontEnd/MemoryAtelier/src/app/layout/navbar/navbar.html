@@ -19,7 +19,7 @@
           <div class="nav-item"
             (mouseenter)="openDropdown(item.label)"
             (mouseleave)="closeDropdown()">
-            <span class="nav-link">
+            <span class="nav-link" (click)="filterBy(item.value); closeDropdown()">
               {{ item.label }}
               <span class="nav-arrow">▾</span>
             </span>
