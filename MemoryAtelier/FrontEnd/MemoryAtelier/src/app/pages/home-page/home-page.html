@@ -75,10 +75,18 @@
       <div class="category-hero">
         <div class="category-breadcrumb">
           <a routerLink="/home">{{ i18n.t('pd.breadcrumbHome') }}</a>
-          <span class="crumb-sep">/</span>
-          <span class="crumb-current">{{ i18n.pick(root.name, root.nameEn) }}</span>
+          @for (crumb of selectedCategoryPath(); track crumb.id; let last = $last) {
+            <span class="crumb-sep">/</span>
+            @if (last) {
+              <span class="crumb-current">{{ i18n.pick(crumb.name, crumb.nameEn) }}</span>
+            } @else {
+              <a class="crumb-link" (click)="goToCategory(crumb.id)">{{ i18n.pick(crumb.name, crumb.nameEn) }}</a>
+            }
+          }
         </div>
-        <h1 class="category-title">{{ i18n.pick(root.name, root.nameEn) }}</h1>
+        @if (selectedCategoryPath(); as path) {
+          <h1 class="category-title">{{ i18n.pick(path[path.length - 1].name, path[path.length - 1].nameEn) }}</h1>
+        }
       </div>
 
       <div class="category-layout">

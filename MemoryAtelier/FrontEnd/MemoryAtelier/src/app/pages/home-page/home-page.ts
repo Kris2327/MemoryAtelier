@@ -78,11 +78,20 @@ export class HomePage implements OnInit, OnDestroy {
 
   isFiltered = computed(() => this.selectedCategory() !== 'All');
 
-  // главната секция (корена), в чието дърво попада избраната категория — за breadcrumb, заглавие и странично меню
+  // главната секция (корена), в чието дърво попада избраната категория — за страничното меню
   selectedRootCategory = computed<Category | null>(() => {
     const catId = this.selectedCategory();
     if (catId === 'All') return null;
     return this.findRootCategory(this.categoryService.categories(), catId);
+  });
+
+  // пътят от главната секция до конкретно избраната (под)категория — за breadcrumb и заглавие
+  selectedCategoryPath = computed<Category[]>(() => {
+    const catId = this.selectedCategory();
+    if (catId === 'All') return [];
+    const path: Category[] = [];
+    this.buildCategoryPath(this.categoryService.categories(), catId, [], path);
+    return path;
   });
 
   constructor(
@@ -182,6 +191,18 @@ export class HomePage implements OnInit, OnDestroy {
   private containsCategoryId(cat: Category, id: string): boolean {
     if (cat.id === id) return true;
     return cat.children.some(child => this.containsCategoryId(child, id));
+  }
+
+  private buildCategoryPath(nodes: Category[], targetId: string, trail: Category[], out: Category[]): boolean {
+    for (const node of nodes) {
+      const nextTrail = [...trail, node];
+      if (node.id === targetId) {
+        out.push(...nextTrail);
+        return true;
+      }
+      if (this.buildCategoryPath(node.children, targetId, nextTrail, out)) return true;
+    }
+    return false;
   }
 
   goToCategory(id: string): void {
