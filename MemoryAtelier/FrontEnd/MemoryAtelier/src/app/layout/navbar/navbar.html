@@ -1,0 +1,178 @@
+<div class="layout">
+  <nav class="navbar">
+    <div class="container-nav">
+
+      <!-- 1. LEFT: brand + hamburger -->
+      <div class="brand" (click)="goHome()">
+        <button class="hamburger" (click)="$event.stopPropagation(); toggleMobileMenu()">
+          <span [class.open]="mobileMenuOpen()"></span>
+          <span [class.open]="mobileMenuOpen()"></span>
+          <span [class.open]="mobileMenuOpen()"></span>
+        </button>
+        <img style="height:40px;width:40px;" src="roundedLogo.png" alt="Logo" class="logo" />
+        <span class="brand-name">Memory Atelier</span>
+      </div>
+
+      <!-- 2. CENTER: nav links -->
+      <div class="nav-links">
+        @for (item of navItems(); track item.label) {
+          <div class="nav-item"
+            (mouseenter)="openDropdown(item.label)"
+            (mouseleave)="closeDropdown()">
+            <span class="nav-link">
+              {{ item.label }}
+              <span class="nav-arrow">▾</span>
+            </span>
+            @if (activeDropdown() === item.label) {
+              <div class="dropdown"
+                (mouseenter)="openDropdown(item.label)"
+                (mouseleave)="closeDropdown()">
+                <div class="dropdown-inner">
+                  <div class="dropdown-col">
+                    @for (sub of item.subcategories; track sub.label) {
+                      <div class="dropdown-item"
+                        [class.has-children]="sub.children"
+                        [class.active-sub]="activeSubcategory() === sub.label"
+                        (mouseenter)="sub.children ? openSubcategory(sub.label) : clearSubcategory()"
+                        (click)="filterBy(sub.value)">
+                        {{ sub.label }}
+                        @if (sub.children) { <span class="sub-arrow">›</span> }
+                      </div>
+                    }
+                  </div>
+                  @for (sub of item.subcategories!; track sub.label) {
+                    @if (sub.children && activeSubcategory() === sub.label) {
+                      <div class="dropdown-col dropdown-col-right">
+                        @for (child of sub.children; track child.value) {
+                          <div class="dropdown-item" (click)="filterBy(child.value)">{{ child.label }}</div>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 3. RIGHT: actions -->
+      <div class="nav-actions">
+
+        <button class="lang-switch" type="button" (click)="i18n.toggle()" title="Switch language">
+          {{ i18n.lang() === 'bg' ? 'EN' : 'BG' }}
+        </button>
+
+        @if (authService.isLoggedIn()) {
+          @if (authService.isAdmin()) {
+            <button class="btn-ghost" (click)="goToAdmin()">{{ i18n.t('nav.adminPanel') }}</button>
+          }
+          <span class="welcome">{{ i18n.t('nav.hello') }}, {{ authService.name() }}</span>
+          <button class="btn-outline" (click)="logout()">{{ i18n.t('nav.logout') }}</button>
+
+
+          <button class="btn-logout-icon" (click)="goToLogin()" [title]="i18n.t('nav.logout')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+              <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+              <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
+            </svg>
+          </button>
+        } @else {
+          <button class="btn-signin-icon" (click)="goToLogin()" [title]="i18n.t('nav.signIn')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+            </svg>
+          </button>
+          <button class="btn-primary btn-signin-text" (click)="goToLogin()">{{ i18n.t('nav.signIn') }}</button>
+        }
+
+        <!-- Favourites -->
+        <button class="icon-btn" (click)="goToFavourites()" [title]="i18n.t('nav.favourites')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          @if (favouritesService.favCount() > 0) {
+            <span class="icon-badge">{{ favouritesService.favCount() }}</span>
+          }
+        </button>
+
+        <!-- Cart -->
+        <button class="icon-btn" (click)="goToCart()" [title]="i18n.t('nav.cart')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          @if (cartService.cartCount() > 0) {
+            <span class="icon-badge">{{ cartService.cartCount() }}</span>
+          }
+        </button>
+
+      </div>
+    </div>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" [class.open]="mobileMenuOpen()">
+      @for (item of navItems(); track item.label) {
+        <div class="mobile-section">
+          
+          <!-- HEADER -->
+          <div class="mobile-section-header" (click)="toggleMobileSection(item.label)">
+            <span class="mobile-section-title">{{ item.label }}
+              <span class="mobile-section-arrow" [class.open]="activeMobileSection() === item.label">▾</span>
+            </span>
+            
+          </div>
+
+          <!-- OVERLAY DROPDOWN -->
+          @if (activeMobileSection() === item.label) {
+            <div class="mobile-dropdown-overlay">
+
+              <div class="mobile-dropdown-inner">
+
+                <!-- LEFT COLUMN -->
+                <div class="mobile-col">
+                  @for (sub of item.subcategories || []; track sub.label) {
+                    <div class="mobile-link"
+                        (click)="sub.children ? openSubcategory(sub.label) : filterBy(sub.value)"
+                        [class.active]="activeSubcategory() === sub.label">
+                      {{ sub.label }}
+                      @if (sub.children) {
+                        <span class="sub-arrow">›</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- RIGHT COLUMN (LIKE DESKTOP) -->
+                @for (sub of item.subcategories || []; track sub.label) {
+                  @if (sub.children && activeSubcategory() === sub.label) {
+                    <div class="mobile-col mobile-col-right">
+                      @for (child of sub.children; track child.value) {
+                        <div class="mobile-child-link"
+                            (click)="filterBy(child.value)">
+                          {{ child.label }}
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
+</div>
+
+  </nav>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

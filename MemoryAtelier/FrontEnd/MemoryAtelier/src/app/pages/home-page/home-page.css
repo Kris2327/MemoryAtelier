@@ -1,0 +1,322 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.home { font-family: 'Lato', sans-serif; background: #fdf8f4; }
+
+/* HERO */
+.hero {
+  position: relative; height: 480px;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, #f5c4a1 0%, #f9ddd0 45%, #fdf8f4 100%);
+}
+.hero-slide {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(253,248,244,0.55) 0%, rgba(253,248,244,0.85) 100%);
+}
+.hero-content {
+  position: relative; text-align: center; z-index: 1;
+  animation: fadeUp .8s ease both;
+}
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  color: #2c1810;
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background .2s;
+}
+.hero-nav:hover { background: #fff; }
+.hero-nav-prev { left: 24px; }
+.hero-nav-next { right: 24px; }
+
+.hero-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2;
+}
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(201,125,78,0.3);
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.hero-dot.active { background: #c97d4e; transform: scale(1.3); }
+.hero-badge {
+  background: rgba(255,255,255,0.9); border-radius: 50px;
+  padding: 8px 24px; font-size: 13px; color: #c97d4e;
+  display: inline-block; margin-bottom: 24px;
+  box-shadow: 0 2px 16px rgba(201,125,78,.12); letter-spacing: 0.5px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif; font-size: 72px;
+  color: #2c1810; font-weight: 700; margin-bottom: 20px; line-height: 1.1;
+}
+.hero-sub {
+  font-size: 18px; color: #7a5c4e;
+  max-width: 480px; line-height: 1.7; font-weight: 300;
+}
+
+/* SECTIONS */
+.sections { padding: 56px 48px; display: flex; flex-direction: column; gap: 64px; }
+
+.section-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif; font-size: 28px;
+  color: #2c1810; white-space: nowrap;
+}
+.section-line {
+  flex: 1; height: 1px; background: linear-gradient(to right, #e0d0c4, transparent);
+}
+.section-count { font-size: 13px; color: #bbb; white-space: nowrap; }
+
+/* GRID */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 28px;
+}
+.product-card {
+  background: #fff; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 2px 20px rgba(0,0,0,.06);
+  transition: transform .25s, box-shadow .25s;
+  animation: fadeUp .5s ease both;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(201,125,78,.15);
+}
+.product-img-wrap { position: relative; height: 240px; overflow: hidden; }
+.product-img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.product-card:hover .product-img { transform: scale(1.06); }
+.product-category {
+  position: absolute; top: 14px; left: 14px;
+  background: rgba(255,255,255,0.92); color: #c97d4e;
+  font-size: 11px; padding: 4px 12px; border-radius: 10px;
+  font-weight: 600; letter-spacing: 0.3px;
+}
+.product-info { padding: 22px; }
+.product-name {
+  font-family: 'Playfair Display', serif; font-size: 18px;
+  color: #2c1810; margin-bottom: 8px;
+}
+.product-desc {
+  font-size: 13px; color: #aaa; line-height: 1.6; margin-bottom: 18px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.product-footer { display: flex; justify-content: space-between; align-items: center; }
+.product-price { font-size: 20px; font-weight: 700; color: #c97d4e; }
+.btn-cart {
+  background: #2c1810; color: #fff; border: none;
+  padding: 9px 18px; border-radius: 12px; cursor: pointer;
+  font-size: 13px; font-family: 'Lato', sans-serif; transition: background .2s;
+}
+.btn-cart:hover { background: #c97d4e; }
+
+/* LOADING */
+.loading { display: flex; justify-content: center; padding: 80px; }
+.spinner {
+  width: 40px; height: 40px; border: 3px solid #f0e8e0;
+  border-top-color: #c97d4e; border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center; padding: 32px; color: #bbb; font-size: 13px;
+  border-top: 1px solid #f0e8e0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+}
+.footer-brand { display: flex; align-items: center; gap: 10px; }
+.footer-links { display: flex; align-items: center; gap: 20px; }
+.footer-links a { color: #aaa; text-decoration: none; transition: color .15s; }
+.footer-links a:hover { color: #c97d4e; }
+
+.btn-fav {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.btn-fav:hover { background: #fff; transform: scale(1.1); }
+.btn-fav.active { background: #fdf0e8; }
+
+.btn-cart {
+  background: #2c1810;
+  color: #fff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Lato', sans-serif;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn-cart:hover { background: #c97d4e; }
+.btn-cart.added {
+  background: #2d7a2d;
+  pointer-events: none;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SLIDER SECTION */
+.slider-section {
+  padding: 48px 32px 56px;
+  background: radial-gradient(ellipse at 70% 50%, #f5c4a1 0%, #f9ddd0 45%, #fdf8f4 100%);
+  border-top: 1px solid #f0e8e0;
+}
+
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.slider-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #2c1810;
+}
+
+.slider-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.slider-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #f0e8e0;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  transition: all .2s;
+}
+.slider-arrow:hover {
+  border-color: #c97d4e;
+  color: #c97d4e;
+  background: #fdf0e8;
+}
+
+.slider-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #f0e8e0 transparent;
+}
+.slider-track::-webkit-scrollbar { height: 4px; }
+.slider-track::-webkit-scrollbar-thumb { background: #f0c8a0; border-radius: 2px; }
+
+.slider-card {
+  flex: 0 0 220px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #f0e8e0;
+  background: #fff;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform .2s, box-shadow .2s;
+}
+.slider-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(201,125,78,0.12);
+}
+
+.slider-img-wrap {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: #fdf0e8;
+}
+.slider-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .35s ease;
+}
+.slider-card:hover .slider-img { transform: scale(1.06); }
+
+.slider-category {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255,255,255,0.9);
+  color: #c97d4e;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.slider-info {
+  padding: 10px 12px 14px;
+}
+.slider-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: #2c1810;
+  margin-bottom: 5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.slider-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #c97d4e;
+}

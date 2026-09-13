@@ -1,0 +1,110 @@
+<div class="auth-page">
+  <div class="auth-left">
+    <img src="roundedLogo.png" alt="" class="auth-deco-logo" />
+    <div class="auth-left-content">
+      <h2 class="auth-tagline">{{ i18n.t('signup.tagline1') }}<br><em>{{ i18n.t('signup.tagline2') }}</em></h2>
+      <p class="auth-tagline-sub">{{ i18n.t('signup.taglineSub') }}</p>
+      <div class="auth-features">
+        <div class="auth-feature">
+          <i class="bi bi-gift feature-icon"></i>
+          <span>{{ i18n.t('signup.feature1') }}</span>
+        </div>
+        <div class="auth-feature">
+          <i class="bi bi-stars feature-icon"></i>
+          <span>{{ i18n.t('signup.feature2') }}</span>
+        </div>
+        <div class="auth-feature">
+          <i class="bi bi-truck feature-icon"></i>
+          <span>{{ i18n.t('signup.feature3') }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-logo">✿</span>
+      <span class="brand-name">Memory Atelier</span>
+    </div>
+
+    <h2 class="auth-title">{{ i18n.t('signup.title') }}</h2>
+    <p class="auth-sub">{{ i18n.t('signup.subtitle') }}</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{ i18n.t('signup.fullNameLabel') }} <span style="color: red;">*</span></label>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          [placeholder]="i18n.t('signup.fullNamePlaceholder')"
+          class="input" />
+      </div>
+
+      <div class="form-group">
+        <label>{{ i18n.t('signup.emailLabel') }} <span style="color: red;">*</span></label>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          placeholder="you@example.com"
+          class="input" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{ i18n.t('signup.phoneLabel') }} <span style="color: #c97d4ed7;">{{ i18n.t('signup.optional') }}</span></label>
+        <input
+          type="tel"
+          [(ngModel)]="phone"
+          placeholder="+359 88 888 8888"
+          class="input" />
+      </div>
+      <div class="form-group">
+        <label>{{ i18n.t('signup.birthDateLabel') }} <span style="color: #c97d4ed7;">{{ i18n.t('signup.optional') }}</span></label>
+        <input
+          type="date"
+          [(ngModel)]="birthDate"
+          class="input" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{ i18n.t('signup.passwordLabel') }} <span style="color: red;">*</span></label>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          placeholder="••••••••"
+          class="input" />
+      </div>
+      <div class="form-group">
+        <label>{{ i18n.t('signup.confirmPasswordLabel') }} <span style="color: red;">*</span></label>
+        <input
+          type="password"
+          [(ngModel)]="confirmPassword"
+          placeholder="••••••••"
+          class="input" />
+      </div>
+    </div>
+
+    @if (error()) {
+      <div class="error-msg">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ error() }}
+      </div>
+    }
+
+    <button class="btn-submit" (click)="submit()" [disabled]="loading()">
+      @if (loading()) {
+        <span class="btn-spinner"></span> {{ i18n.t('signup.submitting') }}
+      } @else {
+        {{ i18n.t('signup.submit') }}
+      }
+    </button>
+
+    <div class="auth-divider">
+      <span></span>
+      <p style="font-size: 13px;">{{ i18n.t('signup.haveAccount') }} <a routerLink="/sign-in" class="btn-signin">{{ i18n.t('signup.loginLink') }}</a></p>
+      <span></span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+@MemoryAtelierBackend_HostAddress = http://localhost:5049
+
+GET {{MemoryAtelierBackend_HostAddress}}
+Accept: application/json
+
+###

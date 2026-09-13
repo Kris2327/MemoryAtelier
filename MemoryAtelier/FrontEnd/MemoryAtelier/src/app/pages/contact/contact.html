@@ -1,0 +1,63 @@
+<div class="contact-page">
+  <button class="btn-back" (click)="goHome()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    {{ i18n.t('common.backToShop') }}
+  </button>
+
+  <div class="contact-header">
+    <h1 class="contact-title">{{ i18n.t('contact.title') }}</h1>
+    <p class="contact-sub">{{ i18n.t('contact.subtitle') }}</p>
+  </div>
+
+  <div class="contact-layout">
+    <div class="contact-card">
+      @if (sent()) {
+        <div class="contact-success">
+          <i class="bi bi-check-circle-fill"></i>
+          <h3>{{ i18n.t('contact.sentTitle') }}</h3>
+          <p>{{ i18n.t('contact.sentSub') }}</p>
+        </div>
+      } @else {
+        <div class="form-group">
+          <label>{{ i18n.t('contact.nameLabel') }}</label>
+          <input type="text" [(ngModel)]="name" [placeholder]="i18n.t('contact.namePlaceholder')" />
+        </div>
+        <div class="form-group">
+          <label>{{ i18n.t('contact.emailLabel') }}</label>
+          <input type="email" [(ngModel)]="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>{{ i18n.t('contact.messageLabel') }}</label>
+          <textarea [(ngModel)]="message" [placeholder]="i18n.t('contact.messagePlaceholder')" rows="6"></textarea>
+        </div>
+
+        <div class="honeypot" aria-hidden="true">
+          <label>Website</label>
+          <input type="text" [(ngModel)]="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        @if (error()) {
+          <div class="error-msg">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ error() }}
+          </div>
+        }
+
+        <button class="btn-submit" (click)="submit()" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="btn-spinner"></span> {{ i18n.t('contact.sending') }}
+          } @else {
+            {{ i18n.t('contact.send') }}
+          }
+        </button>
+      }
+    </div>
+
+    <div class="contact-info">
+      <h3>{{ i18n.t('contact.directTitle') }}</h3>
+      <p>{{ i18n.t('contact.directSub') }}</p>
+      <a class="contact-email" [href]="'mailto:' + contactEmail">
+        <i class="bi bi-envelope-fill"></i> {{ contactEmail }}
+      </a>
+    </div>
+  </div>
+</div>

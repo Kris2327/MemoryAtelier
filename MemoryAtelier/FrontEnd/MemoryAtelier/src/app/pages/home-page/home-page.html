@@ -1,0 +1,136 @@
+<div class="home">
+  <section class="hero">
+    <div class="hero-bg">
+      @for (img of heroImages(); track img; let i = $index) {
+        <div class="hero-slide" [class.active]="i === heroIndex()" [style.backgroundImage]="'url(' + img + ')'"></div>
+      }
+      <div class="hero-overlay"></div>
+    </div>
+
+    @if (heroImages().length > 1) {
+      <button class="hero-nav hero-nav-prev" (click)="changeHeroImage(-1)" [attr.aria-label]="i18n.t('home.hero.prev')">‹</button>
+      <button class="hero-nav hero-nav-next" (click)="changeHeroImage(1)" [attr.aria-label]="i18n.t('home.hero.next')">›</button>
+      <div class="hero-dots">
+        @for (img of heroImages(); track img; let i = $index) {
+          <span class="hero-dot" [class.active]="i === heroIndex()" (click)="heroIndex.set(i)"></span>
+        }
+      </div>
+    }
+
+    <div class="hero-content">
+      <div class="hero-badge">{{ i18n.t('home.hero.badge') }}</div>
+      <h1 class="hero-title">Memory Atelier</h1>
+      <p class="hero-sub">{{ i18n.t('home.hero.sub') }}</p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading"><div class="spinner"></div></div>
+  } @else {
+
+    <!-- MAIN PRODUCTS -->
+    <div class="sections">
+      @for (group of filteredGrouped(); track group.category) {
+        <section class="category-section">
+          <div class="section-header">
+            <h2 class="section-title">{{ groupLabel(group) }}</h2>
+            <span class="section-line"></span>
+            <span class="section-count">{{ group.items.length }} {{ i18n.t('common.products') }}</span>
+          </div>
+
+          <div class="product-grid">
+            @for (product of group.items; track product.id) {
+              <div class="product-card" (click)="goToProduct(product)">
+                <div class="product-img-wrap">
+                  <img
+                    [src]="product.images[0]?.imageUrl || 'https://placehold.co/290x240'"
+                    [alt]="i18n.pick(product.name, product.nameEn)"
+                    class="product-img" />
+                  <span class="product-category">{{ categoryNames(product.categories) }}</span>
+                  @if (authService.isLoggedIn()) {
+                    <button
+                      class="btn-fav"
+                      [class.active]="isFavourite(product.id)"
+                      (click)="toggleFavourite(product, $event)"
+                      [title]="i18n.t('home.addToFav')">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        [attr.fill]="isFavourite(product.id) ? '#c97d4e' : 'none'"
+                        stroke="#c97d4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                  }
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</h3>
+                  <p class="product-desc" [title]="i18n.pick(product.description, product.descriptionEn)">{{ i18n.pick(product.description, product.descriptionEn) }}</p>
+                  <div class="product-footer">
+                    <span class="product-price">€{{ product.price.toFixed(2) }}</span>
+                    @if (authService.isLoggedIn()) {
+                      <button
+                        class="btn-cart"
+                        [class.added]="addedToCart().has(product.id)"
+                        (click)="addToCart(product, $event)">
+                        {{ addedToCart().has(product.id) ? i18n.t('home.added') : i18n.t('home.addToCart') }}
+                      </button>
+                    } @else {
+                      <button class="btn-cart" (click)="addToCart(product, $event)">{{ i18n.t('home.addToCart') }}</button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </div>
+
+    <!-- HORIZONTAL SLIDER — само когато е избрана категория -->
+    @if (selectedCategory() !== 'All' && otherProducts().length > 0) {
+      <section class="slider-section">
+        <div class="slider-header">
+          <h2 class="slider-title">{{ i18n.t('home.sliderTitle') }}</h2>
+          <div class="slider-arrows">
+            <button class="slider-arrow" (click)="scrollSlider(-1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="slider-arrow" (click)="scrollSlider(1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="slider-track">
+          @for (product of otherProducts(); track product.id) {
+            <div class="slider-card" (click)="goToProduct(product)">
+              <div class="slider-img-wrap">
+                <img
+                  [src]="product.images[0]?.imageUrl || 'https://placehold.co/220x180'"
+                  [alt]="i18n.pick(product.name, product.nameEn)"
+                  class="slider-img" />
+                <span class="slider-category">{{ categoryNames(product.categories) }}</span>
+              </div>
+              <div class="slider-info">
+                <div class="slider-name">{{ i18n.pick(product.name, product.nameEn) }}</div>
+                <div class="slider-price">€{{ product.price.toFixed(2) }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+  }
+
+  <footer class="footer">
+    <div class="footer-brand">
+      <span>✿</span>
+      <span>{{ i18n.t('home.footer') }}</span>
+    </div>
+    <nav class="footer-links">
+      <a routerLink="/contact">{{ i18n.t('footer.contact') }}</a>
+      <a routerLink="/sitemap">{{ i18n.t('footer.sitemap') }}</a>
+      <a routerLink="/terms">{{ i18n.t('footer.terms') }}</a>
+    </nav>
+  </footer>
+</div>

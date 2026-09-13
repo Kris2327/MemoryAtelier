@@ -1,0 +1,32 @@
+<div class="sitemap-page">
+  <button class="btn-back" (click)="goHome()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    {{ i18n.t('common.backToShop') }}
+  </button>
+
+  <div class="sitemap-header">
+    <h1 class="sitemap-title">{{ i18n.t('sitemap.title') }}</h1>
+    <p class="sitemap-sub">{{ i18n.t('sitemap.subtitle') }}</p>
+  </div>
+
+  <div class="sitemap-grid">
+    <div class="sitemap-group">
+      <h3>{{ i18n.t('sitemap.groupShop') }}</h3>
+      <a routerLink="/home"><i class="bi bi-house-door"></i> {{ i18n.t('sitemap.home') }}</a>
+      <a routerLink="/cart"><i class="bi bi-cart3"></i> {{ i18n.t('sitemap.cart') }}</a>
+      <a routerLink="/favourites"><i class="bi bi-heart"></i> {{ i18n.t('sitemap.favourites') }}</a>
+    </div>
+
+    <div class="sitemap-group">
+      <h3>{{ i18n.t('sitemap.groupAccount') }}</h3>
+      <a routerLink="/sign-in"><i class="bi bi-box-arrow-in-right"></i> {{ i18n.t('sitemap.signIn') }}</a>
+      <a routerLink="/signup"><i class="bi bi-person-plus"></i> {{ i18n.t('sitemap.signup') }}</a>
+    </div>
+
+    <div class="sitemap-group">
+      <h3>{{ i18n.t('sitemap.groupInfo') }}</h3>
+      <a routerLink="/contact"><i class="bi bi-envelope"></i> {{ i18n.t('sitemap.contact') }}</a>
+      <a routerLink="/terms"><i class="bi bi-file-text"></i> {{ i18n.t('sitemap.terms') }}</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.terms-page {
+  font-family: 'Lato', sans-serif;
+  background: #fdf8f4;
+  min-height: 100vh;
+  padding: 48px 24px 80px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #f0e8e0;
+  color: #888;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: all .2s;
+  white-space: nowrap;
+  margin-bottom: 24px;
+}
+.btn-back:hover {
+  border-color: #c97d4e;
+  color: #c97d4e;
+}
+
+.terms-header { text-align: center; margin-bottom: 32px; }
+.terms-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  color: #2c1810;
+  margin-bottom: 10px;
+}
+.terms-updated { font-size: 13px; color: #aaa; }
+
+.terms-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.05);
+}
+
+.terms-card section { margin-bottom: 28px; }
+.terms-card section:last-child { margin-bottom: 0; }
+
+.terms-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  color: #2c1810;
+  margin-bottom: 10px;
+}
+
+.terms-card p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #5e4639;
+}
+
+.terms-card p + ul,
+.terms-card ul + p {
+  margin-top: 10px;
+}
+
+.terms-card ul {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.terms-card li {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #5e4639;
+}
+
+.terms-card a {
+  color: #c97d4e;
+  font-weight: 600;
+  text-decoration: none;
+}
+.terms-card a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .terms-card { padding: 26px 22px; }
+}

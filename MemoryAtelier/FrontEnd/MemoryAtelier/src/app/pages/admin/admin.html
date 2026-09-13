@@ -1,0 +1,1070 @@
+﻿<div class="admin-shell">
+  <button class="mobile-menu-btn" type="button" (click)="toggleSidebar()" [attr.aria-label]="i18n.t('admin.openNav')">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  @if (sidebarOpen()) {
+    <button class="sidebar-backdrop" type="button" (click)="toggleSidebar()" [attr.aria-label]="i18n.t('admin.closeNav')"></button>
+  }
+
+  <aside class="admin-sidebar" [class.open]="sidebarOpen()">
+    <div class="sidebar-brand">
+      <div class="brand-mark">MA</div>
+      <div>
+        <h1>Memory Atelier</h1>
+        <p>{{ i18n.t('admin.panelSubtitle') }}</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'dashboard'"
+        (click)="setActivePanel('dashboard')">
+        <span class="sidebar-link-title">{{ i18n.t('admin.navDashboard') }}</span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navDashboardSub') }}</span>
+      </button>
+
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'management'"
+        (click)="setActivePanel('management')">
+        <span class="sidebar-link-title">{{ i18n.t('admin.navManagement') }}</span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navManagementSub') }}</span>
+      </button>
+
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'hero'"
+        (click)="setActivePanel('hero')">
+        <span class="sidebar-link-title">{{ i18n.t('admin.navHero') }}</span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navHeroSub') }}</span>
+      </button>
+
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'contact'"
+        (click)="setActivePanel('contact')">
+        <span class="sidebar-link-title">
+          {{ i18n.t('admin.navContact') }}
+          @if (pendingContactCount() > 0) {
+            <span class="nav-badge">{{ pendingContactCount() }}</span>
+          }
+        </span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navContactSub') }}</span>
+      </button>
+
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'orders'"
+        (click)="setActivePanel('orders')">
+        <span class="sidebar-link-title">
+          {{ i18n.t('admin.navOrders') }}
+          @if (unseenOrdersCount() > 0) {
+            <span class="nav-badge">{{ unseenOrdersCount() }}</span>
+          }
+        </span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navOrdersSub') }}</span>
+      </button>
+
+      <button
+        class="sidebar-link"
+        type="button"
+        [class.active]="activePanel() === 'trash'"
+        (click)="setActivePanel('trash')">
+        <span class="sidebar-link-title">{{ i18n.t('admin.navTrash') }}</span>
+        <span class="sidebar-link-sub">{{ i18n.t('admin.navTrashSub') }}</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-summary">
+      <span class="summary-label">{{ i18n.t('admin.lowStockLabel') }}</span>
+      <strong>{{ lowStockCount() }}</strong>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="content-header">
+      <div>
+        <p class="eyebrow">{{ panelEyebrow() }}</p>
+        <h2>{{ panelTitle() }}</h2>
+        <p class="content-subtitle">{{ panelSubtitle() }}</p>
+      </div>
+
+      @if (activePanel() === 'management') {
+        <button class="btn-primary" type="button" (click)="openAdd()">{{ i18n.t('admin.addProduct') }}</button>
+      }
+    </header>
+
+    @if (successMsg()) {
+      <div class="success-msg">{{ successMsg() }}</div>
+    }
+
+    @if (activePanel() === 'dashboard') {
+      @if (dashboardLoading()) {
+        <div class="loading-block">
+          <div class="spinner"></div>
+        </div>
+      } @else {
+        <section class="stats-grid">
+          @for (card of statsCards(); track card.label) {
+            <article class="stat-card" [class.dark]="card.accent === 'dark'" [class.sand]="card.accent === 'sand'">
+              <span class="stat-label">{{ card.label }}</span>
+              <strong class="stat-value">{{ card.value }}</strong>
+              @if (card.subValue) {
+                <span class="stat-subvalue">{{ card.subValue }}</span>
+              }
+            </article>
+          }
+        </section>
+
+        <section class="charts-grid">
+          <article class="chart-card chart-wide">
+            <div class="panel-head">
+              <div>
+                <h3>{{ i18n.t('admin.chart.revenueTitle') }}</h3>
+                <p>{{ i18n.t('admin.chart.revenueSub') }}</p>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              @if (chartsLoading()) {
+                <div class="chart-placeholder">{{ i18n.t('admin.chart.loading') }}</div>
+              } @else {
+                <canvas #revenueChart></canvas>
+              }
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <div class="panel-head">
+              <div>
+                <h3>{{ i18n.t('admin.chart.categoryTitle') }}</h3>
+                <p>{{ i18n.t('admin.chart.categorySub') }}</p>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              @if (chartsLoading()) {
+                <div class="chart-placeholder">{{ i18n.t('admin.chart.loading') }}</div>
+              } @else {
+                <canvas #categoryChart></canvas>
+              }
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <div class="panel-head">
+              <div>
+                <h3>{{ i18n.t('admin.chart.usersTitle') }}</h3>
+                <p>{{ i18n.t('admin.chart.usersSub') }}</p>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              @if (chartsLoading()) {
+                <div class="chart-placeholder">{{ i18n.t('admin.chart.loading') }}</div>
+              } @else {
+                <canvas #usersChart></canvas>
+              }
+            </div>
+          </article>
+        </section>
+
+        <section class="table-card">
+          <div class="panel-head">
+            <div>
+              <h3>{{ i18n.t('admin.lowStock.title') }}</h3>
+              <p>{{ i18n.t('admin.lowStock.subtitle') }}</p>
+            </div>
+          </div>
+
+          @if (dashboardStats()?.lowStockProducts?.length) {
+            <div class="low-stock-table">
+              <div class="table-head low-stock-grid">
+                <span>{{ i18n.t('admin.lowStock.colProduct') }}</span>
+                <span>{{ i18n.t('admin.lowStock.colCategory') }}</span>
+                <span>{{ i18n.t('admin.lowStock.colStock') }}</span>
+                <span>{{ i18n.t('admin.lowStock.colEdit') }}</span>
+              </div>
+
+              @for (product of dashboardStats()!.lowStockProducts; track trackByLowStock($index, product)) {
+                <div class="table-row low-stock-grid" [class.out-of-stock]="product.stock === 0">
+                  <div class="product-cell">
+                    <img
+                      class="product-thumb"
+                      [src]="product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                      [alt]="product.name" />
+                    <div>
+                      <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
+                      <span class="product-meta">{{ product.stock === 0 ? i18n.t('admin.lowStock.outOfStock') : i18n.t('admin.lowStock.needsAttention') }}</span>
+                    </div>
+                  </div>
+                  <span class="category-chip">{{ categoryNames(product.categories) }}</span>
+                  <span class="stock-badge" [class.zero]="product.stock === 0">{{ product.stock }}</span>
+                  <div class="stock-editor">
+                    <input
+                      class="stock-input"
+                      type="number"
+                      min="0"
+                      [ngModel]="getStockDraft(product.id, product.stock)"
+                      (ngModelChange)="updateStockDraft(product.id, $event)" />
+                    <button
+                      class="btn-secondary"
+                      type="button"
+                      [disabled]="stockSavingId() === product.id"
+                      (click)="saveStock(product)">
+                      {{ stockSavingId() === product.id ? i18n.t('admin.lowStock.saving') : i18n.t('admin.lowStock.save') }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <h4>{{ i18n.t('admin.lowStock.emptyTitle') }}</h4>
+              <p>{{ i18n.t('admin.lowStock.emptySub') }}</p>
+            </div>
+          }
+        </section>
+      }
+    }
+
+    @if (activePanel() === 'management') {
+      <section class="management-summary">
+        <article class="summary-card">
+          <span>{{ i18n.t('admin.mgmt.products') }}</span>
+          <strong>{{ totalProducts() }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>{{ i18n.t('admin.mgmt.categories') }}</span>
+          <strong>{{ totalCategories() }}</strong>
+        </article>
+      </section>
+
+      <section class="management-layout">
+        <div class="management-main">
+          @if (managementLoading()) {
+            <div class="loading-block">
+              <div class="spinner"></div>
+            </div>
+          } @else {
+            <div class="sections">
+              @for (group of groupedProducts(); track group.category) {
+                <article class="section-card">
+                  <div class="panel-head section-head collapsible" (click)="toggleGroupCollapse(group.category)">
+                    <div>
+                      <h3>{{ groupLabel(group) }}</h3>
+                      <p>{{ group.items.length }} {{ i18n.t('admin.mgmt.productsInSection') }}</p>
+                    </div>
+                    <button
+                      class="icon-button icon-button-sm icon-button-edit"
+                      type="button"
+                      [attr.aria-label]="i18n.t('admin.mgmt.toggleSection')"
+                      [title]="i18n.t('admin.mgmt.toggleSection')"
+                      (click)="$event.stopPropagation(); toggleGroupCollapse(group.category)">
+                      <span class="tree-chevron" [class.open]="!isGroupCollapsed(group.category)">▾</span>
+                    </button>
+                  </div>
+
+                  @if (!isGroupCollapsed(group.category)) {
+                  <div class="product-table">
+                    <div class="table-head product-grid">
+                      <span>{{ i18n.t('admin.lowStock.colProduct') }}</span>
+                      <span>{{ i18n.t('admin.mgmt.colDescription') }}</span>
+                      <span>{{ i18n.t('admin.mgmt.colPrice') }}</span>
+                      <span>{{ i18n.t('admin.lowStock.colStock') }}</span>
+                      <span>{{ i18n.t('admin.mgmt.colActions') }}</span>
+                    </div>
+
+                    @for (product of group.items; track trackByProduct($index, product)) {
+                      <div class="table-row product-grid">
+                        <div class="product-cell">
+                          <img
+                            class="product-thumb"
+                            [src]="product.images[0]?.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                            [alt]="product.name" />
+                          <div>
+                            <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
+                            <span class="product-meta">
+                              @if (product.images.length > 1) {
+                                +{{ product.images.length - 1 }} {{ i18n.t('admin.mgmt.extraPhotos') }}
+                              } @else {
+                                {{ i18n.t('admin.mgmt.mainPhoto') }}
+                              }
+                            </span>
+                          </div>
+                        </div>
+
+                        <span class="product-description" [title]="i18n.pick(product.description, product.descriptionEn)">{{ product.description ? truncate(i18n.pick(product.description, product.descriptionEn)) : i18n.t('admin.mgmt.noDescription') }}</span>
+                        <span class="price">€{{ product.price.toFixed(2) }}</span>
+                        <span class="stock-badge" [class.zero]="product.stock === 0" [class.low]="product.stock > 0 && product.stock < 5">
+                          {{ product.stock }}
+                        </span>
+                        <div class="row-actions">
+                          <button
+                            class="icon-button icon-button-edit"
+                            type="button"
+                            [attr.aria-label]="i18n.t('admin.mgmt.editProduct')"
+                            [title]="i18n.t('admin.mgmt.editProduct')"
+                            (click)="openEdit(product)">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M4 20h4.75L19 9.75 14.25 5 4 15.25V20zm12.06-16.56L18.8 6.2a1.5 1.5 0 0 1 0 2.12l-1.38 1.38-4.74-4.75 1.38-1.37a1.5 1.5 0 0 1 2.12 0z"/>
+                            </svg>
+                          </button>
+                          <button
+                            class="icon-button icon-button-delete"
+                            type="button"
+                            [attr.aria-label]="i18n.t('admin.mgmt.deleteProduct')"
+                            [title]="i18n.t('admin.mgmt.deleteProduct')"
+                            (click)="confirmDelete(product.id)">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 8h10l-1 12H8L7 8z"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      @if (deleteConfirmId() === product.id) {
+                        <div class="delete-confirm">
+                          <span>{{ i18n.t('admin.mgmt.deleteConfirmPrefix') }} "{{ product.name }}"?</span>
+                          <div class="delete-actions">
+                            <button class="btn-danger" type="button" (click)="deleteProduct(product.id)">{{ i18n.t('admin.mgmt.yesDelete') }}</button>
+                            <button class="btn-ghost" type="button" (click)="cancelDelete()">{{ i18n.t('admin.mgmt.cancel') }}</button>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </div>
+
+        <aside class="management-side">
+          <article class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3>{{ i18n.t('admin.newSection.title') }}</h3>
+                <p>{{ i18n.t('admin.newSection.subtitle') }}</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="sectionName">{{ i18n.t('admin.newSection.nameLabel') }}</label>
+              <input id="sectionName" class="input" type="text" [(ngModel)]="newSection.name" [placeholder]="i18n.t('admin.newSection.namePlaceholder')" />
+            </div>
+
+            <div class="form-group">
+              <label for="sectionNameEn">{{ i18n.t('admin.newSection.nameEnLabel') }}</label>
+              <input id="sectionNameEn" class="input" type="text" [(ngModel)]="newSection.nameEn" [placeholder]="i18n.t('admin.newSection.nameEnPlaceholder')" />
+            </div>
+
+            <div class="form-group">
+              <label for="parentSection">{{ i18n.t('admin.newSection.parentLabel') }}</label>
+              <select id="parentSection" class="input" [(ngModel)]="newSection.parentId">
+                <option value="">{{ i18n.t('admin.newSection.topLevel') }}</option>
+                @for (cat of flatCategories(); track trackByCategory($index, cat)) {
+                  <option [value]="cat.id">{{ i18n.pick(cat.name, cat.nameEn) }}</option>
+                }
+              </select>
+            </div>
+
+            <button class="btn-primary full-width" type="button" (click)="addSection()">{{ i18n.t('admin.newSection.addBtn') }}</button>
+          </article>
+
+          <article class="section-card">
+            <div class="panel-head">
+              <div>
+                <h3>{{ i18n.t('admin.structure.title') }}</h3>
+                <p>{{ i18n.t('admin.structure.subtitle') }}</p>
+              </div>
+            </div>
+
+            <ng-template #categoryNode let-node let-cls="cls">
+              <div class="tree-node" [ngClass]="cls">
+                @if (editingCategoryId() === node.id) {
+                  <div class="tree-edit-form">
+                    <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.name" />
+                    <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.nameEn" [placeholder]="i18n.t('admin.structure.nameEnPlaceholder')" />
+                  </div>
+                  <div class="tree-actions">
+                    <button class="btn-icon-danger" type="button" (click)="saveEditCategory(node.id)">{{ i18n.t('admin.structure.save') }}</button>
+                    <button class="btn-ghost" type="button" (click)="cancelEditCategory()">{{ i18n.t('admin.structure.cancel') }}</button>
+                  </div>
+                } @else {
+                  <div class="tree-node-label" [class.clickable]="node.children?.length" (click)="node.children?.length && toggleCategoryExpand(node.id)">
+                    @if (node.children?.length) {
+                      <span class="tree-chevron" [class.open]="isCategoryExpanded(node.id)">▾</span>
+                    }
+                    <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
+                  </div>
+                  <div class="tree-actions">
+                    <button
+                      class="icon-button icon-button-edit icon-button-sm"
+                      type="button"
+                      [attr.aria-label]="i18n.t('admin.structure.edit')"
+                      [title]="i18n.t('admin.structure.edit')"
+                      (click)="startEditCategory(node)">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 20h4.75L19 9.75 14.25 5 4 15.25V20zm12.06-16.56L18.8 6.2a1.5 1.5 0 0 1 0 2.12l-1.38 1.38-4.74-4.75 1.38-1.37a1.5 1.5 0 0 1 2.12 0z"/>
+                      </svg>
+                    </button>
+                    <button
+                      class="icon-button icon-button-delete icon-button-sm"
+                      type="button"
+                      [attr.aria-label]="i18n.t('admin.structure.delete')"
+                      [title]="i18n.t('admin.structure.delete')"
+                      (click)="deleteSection(node.id)">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 8h10l-1 12H8L7 8z"/>
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            </ng-template>
+
+            <div class="section-tree">
+              @for (cat of categories(); track trackByCategory($index, cat)) {
+                <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: cat, cls: 'tree-root' }"></ng-container>
+
+                @if (isCategoryExpanded(cat.id)) {
+                  @for (sub of cat.children; track trackByCategory($index, sub)) {
+                    <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: sub, cls: 'tree-sub' }"></ng-container>
+
+                    @if (isCategoryExpanded(sub.id)) {
+                      @for (child of sub.children; track trackByCategory($index, child)) {
+                        <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: child, cls: 'tree-child' }"></ng-container>
+                      }
+                    }
+                  }
+                }
+              }
+            </div>
+          </article>
+        </aside>
+      </section>
+    }
+
+    @if (activePanel() === 'hero') {
+      <section class="section-card">
+        <div class="panel-head">
+          <div>
+            <h3>{{ i18n.t('admin.hero.title') }}</h3>
+            <p>{{ i18n.t('admin.hero.subtitle') }}</p>
+          </div>
+        </div>
+
+        <div class="upload-zone" (click)="heroFileInput.click()">
+          <input #heroFileInput type="file" accept="image/*" multiple hidden (change)="onHeroFileSelected($event)" />
+
+          @if (!heroUploading()) {
+            <div class="upload-zone-inner">
+              <strong>{{ i18n.t('admin.modal.uploadPrompt') }}</strong>
+              <span>{{ i18n.t('admin.modal.uploadHint') }}</span>
+            </div>
+          } @else {
+            <div class="upload-zone-inner">
+              <div class="spinner small"></div>
+              <span>{{ i18n.t('admin.modal.uploading') }}</span>
+            </div>
+          }
+        </div>
+
+        @if (heroLoading()) {
+          <div class="loading-block">
+            <div class="spinner"></div>
+          </div>
+        } @else if (heroImages().length > 0) {
+          <div class="image-list">
+            @for (image of heroImages(); track image.id; let i = $index) {
+              <div class="image-item">
+                <img [src]="image.imageUrl" [alt]="i18n.t('admin.modal.imageAlt')" />
+                <span>{{ i18n.t('admin.hero.slidePrefix') }} {{ i + 1 }}</span>
+                <div class="row-actions">
+                  <button
+                    class="icon-button icon-button-sm icon-button-edit"
+                    type="button"
+                    [disabled]="i === 0"
+                    [title]="i18n.t('admin.hero.moveUp')"
+                    (click)="moveHeroImage(i, -1)">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button
+                    class="icon-button icon-button-sm icon-button-edit"
+                    type="button"
+                    [disabled]="i === heroImages().length - 1"
+                    [title]="i18n.t('admin.hero.moveDown')"
+                    (click)="moveHeroImage(i, 1)">
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                  <button
+                    class="icon-button icon-button-sm icon-button-delete"
+                    type="button"
+                    [title]="i18n.t('admin.modal.removeImage')"
+                    (click)="removeHeroImage(image.id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>{{ i18n.t('admin.hero.empty') }}</p>
+          </div>
+        }
+      </section>
+    }
+
+    @if (activePanel() === 'contact') {
+      <section class="management-summary">
+        <article class="summary-card">
+          <span>{{ i18n.t('admin.contact.total') }}</span>
+          <strong>{{ contactMessages().length }}</strong>
+        </article>
+        <article class="summary-card">
+          <span>{{ i18n.t('admin.contact.pending') }}</span>
+          <strong>{{ pendingContactCount() }}</strong>
+        </article>
+      </section>
+
+      <section class="table-card">
+        <div class="panel-head">
+          <div>
+            <h3>{{ i18n.t('admin.contact.title') }}</h3>
+            <p>{{ i18n.t('admin.contact.subtitle') }}</p>
+          </div>
+        </div>
+
+        @if (contactLoading()) {
+          <div class="loading-block">
+            <div class="spinner"></div>
+          </div>
+        } @else if (contactMessages().length) {
+          <div class="low-stock-table">
+            <div class="table-head contact-grid">
+              <span>{{ i18n.t('admin.contact.colFrom') }}</span>
+              <span>{{ i18n.t('admin.contact.colMessage') }}</span>
+              <span>{{ i18n.t('admin.contact.colDate') }}</span>
+              <span>{{ i18n.t('admin.contact.colStatus') }}</span>
+            </div>
+
+            @for (msg of contactMessages(); track trackByContactMessage($index, msg)) {
+              <div class="table-row contact-grid contact-row" (click)="openContactMessage(msg)">
+                <div class="product-cell">
+                  <div>
+                    <strong class="product-name">{{ msg.name }}</strong>
+                    <span class="product-meta">{{ msg.email }}</span>
+                  </div>
+                </div>
+                <span class="product-description">{{ truncate(msg.message, 90) }}</span>
+                <span class="category-chip">{{ msg.createdAt | date:'d MMM y, HH:mm' }}</span>
+                <span class="status-badge" [class.replied]="msg.isReplied">
+                  {{ msg.isReplied ? i18n.t('admin.contact.replied') : i18n.t('admin.contact.awaiting') }}
+                </span>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>{{ i18n.t('admin.contact.empty') }}</p>
+          </div>
+        }
+      </section>
+    }
+
+    @if (activePanel() === 'orders') {
+      <section class="table-card">
+        <div class="panel-head">
+          <div>
+            <h3>{{ i18n.t('admin.orders.title') }}</h3>
+            <p>{{ i18n.t('admin.orders.subtitle') }}</p>
+          </div>
+        </div>
+
+        @if (ordersLoading()) {
+          <div class="loading-block">
+            <div class="spinner"></div>
+          </div>
+        } @else if (orders().length) {
+          <div class="low-stock-table">
+            <div class="table-head orders-grid">
+              <span>{{ i18n.t('admin.orders.colCustomer') }}</span>
+              <span>{{ i18n.t('admin.orders.colTotal') }}</span>
+              <span>{{ i18n.t('admin.orders.colDate') }}</span>
+              <span>{{ i18n.t('admin.orders.colStatus') }}</span>
+            </div>
+
+            @for (order of orders(); track trackByOrder($index, order)) {
+              <div class="table-row orders-grid contact-row" [class.unseen-row]="!order.isSeen" (click)="openOrderDetail(order)">
+                <div class="product-cell">
+                  @if (!order.isSeen) {
+                    <span class="unseen-dot" [title]="i18n.t('admin.orders.newOrderTitle')"></span>
+                  }
+                  <div>
+                    <strong class="product-name">{{ order.customerName }}</strong>
+                    <span class="product-meta">{{ order.customerEmail }}</span>
+                  </div>
+                </div>
+                <span class="price">€{{ order.totalAmount.toFixed(2) }}</span>
+                <span class="category-chip">{{ order.createdAt | date:'d MMM y, HH:mm' }}</span>
+                <div class="order-status-cell">
+                  <span class="order-status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+                    {{ orderStatusLabel(order.status) }}
+                  </span>
+                  @for (tag of orderFulfillmentTags(order); track tag.label) {
+                    <span class="fulfillment-badge" [ngClass]="tag.cls">{{ tag.label }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>{{ i18n.t('admin.orders.empty') }}</p>
+          </div>
+        }
+      </section>
+    }
+
+    @if (activePanel() === 'trash') {
+      <section class="table-card">
+        <div class="panel-head">
+          <div>
+            <h3>{{ i18n.t('admin.trash.productsTitle') }}</h3>
+          </div>
+        </div>
+
+        @if (trashLoading()) {
+          <div class="loading-block">
+            <div class="spinner"></div>
+          </div>
+        } @else if (trashedProducts().length) {
+          <div class="low-stock-table">
+            @for (product of trashedProducts(); track product.id) {
+              <div class="table-row low-stock-grid">
+                <div class="product-cell">
+                  <img
+                    class="product-thumb"
+                    [src]="product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                    [alt]="product.name" />
+                  <div>
+                    <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
+                    <span class="product-meta">€{{ product.price.toFixed(2) }}</span>
+                  </div>
+                </div>
+                <span class="category-chip">{{ i18n.t('admin.trash.deletedOn') }} {{ product.deletedAt | date:'d MMM y' }}</span>
+                <span></span>
+                <button class="btn-secondary" type="button" (click)="restoreProduct(product.id)">{{ i18n.t('admin.trash.restore') }}</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>{{ i18n.t('admin.trash.emptyProducts') }}</p>
+          </div>
+        }
+      </section>
+
+      <section class="table-card">
+        <div class="panel-head">
+          <div>
+            <h3>{{ i18n.t('admin.trash.categoriesTitle') }}</h3>
+          </div>
+        </div>
+
+        @if (trashedCategories().length) {
+          <div class="section-tree">
+            @for (cat of trashedCategories(); track cat.id) {
+              <div class="tree-node tree-root">
+                <span>{{ i18n.pick(cat.name, cat.nameEn) }} · {{ i18n.t('admin.trash.deletedOn') }} {{ cat.deletedAt | date:'d MMM y' }}</span>
+                <button class="btn-secondary" type="button" (click)="restoreCategory(cat.id)">{{ i18n.t('admin.trash.restore') }}</button>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p>{{ i18n.t('admin.trash.emptyCategories') }}</p>
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="pm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ editingProduct() ? i18n.t('admin.modal.editTitle') : i18n.t('admin.modal.newTitle') }}</h3>
+          <p>{{ editingProduct() ? i18n.t('admin.modal.editSubtitle') : i18n.t('admin.modal.newSubtitle') }}</p>
+        </div>
+        <button class="modal-close" type="button" (click)="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body" (click)="closeAllCategoryDropdowns()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productName">{{ i18n.t('admin.modal.nameLabel') }}</label>
+            <input id="productName" class="input" type="text" [(ngModel)]="form.name" [placeholder]="i18n.t('admin.modal.namePlaceholder')" />
+          </div>
+
+          <div class="form-group">
+            <label for="productNameEn">{{ i18n.t('admin.modal.nameEnLabel') }}</label>
+            <input id="productNameEn" class="input" type="text" [ngModel]="form.nameEn" (ngModelChange)="form.nameEn = $event" [placeholder]="i18n.t('admin.modal.nameEnPlaceholder')" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ i18n.t('admin.modal.categoryLabel') }}</label>
+            <div class="cat-dropdown">
+              <button type="button" class="cat-dropdown-trigger" (click)="$event.stopPropagation(); toggleCategoryDropdown()">
+                <span class="cat-dropdown-trigger-text">{{ categoryDropdownLabel() }}</span>
+                <span class="cat-dropdown-arrow" [class.open]="categoryDropdownOpen()">▾</span>
+              </button>
+              @if (categoryDropdownOpen()) {
+                <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                  @for (root of categories(); track trackByCategory($index, root)) {
+                    <label class="cat-dropdown-option">
+                      <input type="checkbox" [checked]="isCategorySelected(root.id)" (change)="toggleCategorySelection(root.id)" />
+                      <span>{{ i18n.pick(root.name, root.nameEn) }}</span>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ i18n.t('admin.modal.subcategoryLabel') }}</label>
+            <div class="cat-dropdown">
+              <button type="button" class="cat-dropdown-trigger" [disabled]="!selectedSubcategories().length" (click)="$event.stopPropagation(); toggleSubcategoryDropdown()">
+                <span class="cat-dropdown-trigger-text">{{ selectedSubcategories().length ? subcategoryDropdownLabel() : i18n.t('admin.modal.chooseCategoryFirst') }}</span>
+                <span class="cat-dropdown-arrow" [class.open]="subcategoryDropdownOpen()">▾</span>
+              </button>
+              @if (subcategoryDropdownOpen() && selectedSubcategories().length) {
+                <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                  @for (sub of selectedSubcategories(); track trackByCategory($index, sub)) {
+                    <label class="cat-dropdown-option">
+                      <input type="checkbox" [checked]="isCategorySelected(sub.id)" (change)="toggleCategorySelection(sub.id)" />
+                      <span>{{ i18n.pick(sub.name, sub.nameEn) }}</span>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (selectedGrandchildren().length) {
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ i18n.t('admin.modal.moreSubcategoriesLabel') }}</label>
+              <div class="cat-dropdown">
+                <button type="button" class="cat-dropdown-trigger" (click)="$event.stopPropagation(); toggleSubSubDropdown()">
+                  <span class="cat-dropdown-trigger-text">{{ grandchildDropdownLabel() }}</span>
+                  <span class="cat-dropdown-arrow" [class.open]="subSubDropdownOpen()">▾</span>
+                </button>
+                @if (subSubDropdownOpen()) {
+                  <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                    @for (child of selectedGrandchildren(); track trackByCategory($index, child)) {
+                      <label class="cat-dropdown-option">
+                        <input type="checkbox" [checked]="isCategorySelected(child.id)" (change)="toggleCategorySelection(child.id)" />
+                        <span>{{ i18n.pick(child.name, child.nameEn) }}</span>
+                      </label>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productPrice">{{ i18n.t('admin.modal.priceLabel') }}</label>
+            <input id="productPrice" class="input" type="number" min="0" [(ngModel)]="form.price" />
+          </div>
+
+          <div class="form-group">
+            <label for="productStock">{{ i18n.t('admin.modal.stockLabel') }}</label>
+            <input id="productStock" class="input" type="number" min="0" [(ngModel)]="form.stock" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="productDescription">{{ i18n.t('admin.modal.descLabel') }}</label>
+          <textarea
+            id="productDescription"
+            class="input textarea"
+            [(ngModel)]="form.description"
+            [placeholder]="i18n.t('admin.modal.descPlaceholder')"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="productDescriptionEn">{{ i18n.t('admin.modal.descEnLabel') }}</label>
+          <textarea
+            id="productDescriptionEn"
+            class="input textarea"
+            [ngModel]="form.descriptionEn"
+            (ngModelChange)="form.descriptionEn = $event"
+            [placeholder]="i18n.t('admin.modal.descEnPlaceholder')"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>{{ i18n.t('admin.modal.photosLabel') }}</label>
+          <div class="upload-zone" (click)="fileInput.click()">
+            <input #fileInput type="file" accept="image/*" multiple hidden (change)="onFileSelected($event)" />
+
+            @if (!uploadingImage()) {
+              <div class="upload-zone-inner">
+                <strong>{{ i18n.t('admin.modal.uploadPrompt') }}</strong>
+                <span>{{ i18n.t('admin.modal.uploadHint') }}</span>
+              </div>
+            } @else {
+              <div class="upload-zone-inner">
+                <div class="spinner small"></div>
+                <span>{{ i18n.t('admin.modal.uploading') }}</span>
+              </div>
+            }
+          </div>
+
+          @if (form.imageUrls.length > 0) {
+            <div class="image-list">
+              @for (url of form.imageUrls; track url; let i = $index) {
+                <div class="image-item">
+                  <img [src]="url" [alt]="i18n.t('admin.modal.imageAlt')" />
+                  <span>{{ url }}</span>
+                  <button class="btn-icon-danger" type="button" (click)="removeImageUrl(i)">{{ i18n.t('admin.modal.removeImage') }}</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="closeModal()">{{ i18n.t('admin.mgmt.cancel') }}</button>
+        <button class="btn-primary" type="button" (click)="saveProduct()">
+          {{ editingProduct() ? i18n.t('admin.modal.saveChanges') : i18n.t('admin.modal.addProductBtn') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedContactMessage(); as msg) {
+  <div class="modal-overlay" (click)="closeContactMessage()">
+    <div class="pm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ i18n.t('admin.contact.modalTitle') }}</h3>
+          <p>{{ msg.createdAt | date:'d MMM y, HH:mm' }}</p>
+        </div>
+        <button class="modal-close" type="button" (click)="closeContactMessage()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="email-preview">
+          <div class="email-preview-header">
+            <span class="email-preview-brand">Memory Atelier</span>
+            <h4>{{ i18n.t('admin.contact.newMessageTitle') }}</h4>
+          </div>
+          <div class="email-preview-body">
+            <div class="email-box">
+              <span class="email-box-label">{{ i18n.t('admin.contact.colFrom') }}</span>
+              <strong>{{ msg.name }}</strong>
+              <span class="email-meta">{{ msg.email }}</span>
+            </div>
+            <div class="email-box email-box-message">{{ msg.message }}</div>
+          </div>
+        </div>
+
+        @if (msg.isReplied) {
+          <div class="form-group">
+            <label>{{ i18n.t('admin.contact.previousReply') }}</label>
+            <div class="email-box email-box-reply">{{ msg.replyText }}</div>
+            <span class="reply-meta">{{ i18n.t('admin.contact.repliedOn') }} {{ msg.repliedAt | date:'d MMM y, HH:mm' }}</span>
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="replyText">{{ msg.isReplied ? i18n.t('admin.contact.replyAgainLabel') : i18n.t('admin.contact.replyLabel') }}</label>
+          <textarea
+            id="replyText"
+            class="input textarea"
+            rows="5"
+            [ngModel]="replyDraft()"
+            (ngModelChange)="replyDraft.set($event)"
+            [placeholder]="i18n.t('admin.contact.replyPlaceholder')"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="closeContactMessage()">{{ i18n.t('admin.mgmt.cancel') }}</button>
+        <button class="btn-primary" type="button" [disabled]="!replyDraft().trim() || sendingReply()" (click)="sendReply()">
+          {{ sendingReply() ? i18n.t('admin.contact.sending') : i18n.t('admin.contact.send') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (selectedOrder(); as order) {
+  <div class="modal-overlay" (click)="closeOrderDetail()">
+    <div class="pm-modal order-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ i18n.t('admin.orders.modalTitle') }} №{{ order.id.slice(0,8).toUpperCase() }}</h3>
+          <p>{{ order.createdAt | date:'d MMM y, HH:mm' }}</p>
+        </div>
+        <button class="modal-close" type="button" (click)="closeOrderDetail()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="email-preview">
+          <div class="email-preview-header">
+            <span class="email-preview-brand">{{ order.customerName }}</span>
+            <h4>{{ order.customerEmail }}</h4>
+          </div>
+          <div class="email-preview-body">
+            <div class="email-box">
+              <span class="email-box-label">{{ i18n.t('admin.orders.deliveryLabel') }}</span>
+              <strong>{{ order.deliveryMethod === 'SpeedyOffice' ? i18n.t('checkout.deliveryMethodSpeedy') : i18n.t('checkout.deliveryMethodAddress') }}</strong>
+              <span class="email-meta">{{ order.deliveryAddress }}</span>
+              <span class="email-meta">{{ order.deliveryPhone }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>{{ i18n.t('admin.orders.statusLabel') }}</label>
+          <div class="status-editor">
+            <select class="input" [ngModel]="statusDraft()" (ngModelChange)="statusDraft.set($event)">
+              @for (status of availableStatusOptions(order); track status) {
+                <option [value]="status">{{ orderStatusLabel(status) }}</option>
+              }
+            </select>
+            <button class="btn-secondary" type="button" [disabled]="savingStatus() || statusDraft() === order.status" (click)="saveOrderStatus()">
+              {{ savingStatus() ? i18n.t('admin.orders.saving') : i18n.t('admin.orders.updateStatus') }}
+            </button>
+          </div>
+          @if (statusDraft() === 'Shipped' && order.status !== 'Shipped') {
+            <span class="reply-meta">{{ i18n.t('admin.orders.shippedNotice') }}</span>
+          }
+          @if (hasPendingFulfillmentItems(order)) {
+            <span class="reply-meta">{{ i18n.t('admin.orders.autoShippedNotice') }}</span>
+          }
+
+          @if (statusDraft() === 'Cancelled') {
+            <div class="cancellation-note-field">
+              <label for="cancellationNote">{{ i18n.t('admin.orders.cancellationNoteLabel') }}</label>
+              <textarea
+                id="cancellationNote"
+                class="input textarea"
+                rows="3"
+                [ngModel]="cancellationNoteDraft()"
+                (ngModelChange)="cancellationNoteDraft.set($event)"
+                [placeholder]="i18n.t('admin.orders.cancellationNotePlaceholder')"></textarea>
+              <span class="reply-meta">{{ i18n.t('admin.orders.cancellationNoteHint') }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="order-items-list">
+          @for (item of order.items; track trackByOrderItem($index, item)) {
+            <div class="order-item-card">
+              <div class="order-item-head">
+                <div class="order-item-head-name">
+                  <strong>{{ item.productName }}</strong>
+                  <span class="fulfillment-badge" [ngClass]="itemFulfillmentClass(item)">{{ itemFulfillmentLabel(item) }}</span>
+                </div>
+                <span>{{ item.quantity }} × €{{ item.unitPrice.toFixed(2) }}</span>
+              </div>
+
+              @if (item.fulfillmentChoice === 'Split') {
+                <div class="shipment-editor">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>{{ i18n.t('admin.orders.firstShipmentLabel') }} ({{ item.shippedNowQuantity }} {{ i18n.t('admin.orders.pcsSuffix') }})</label>
+                      <input
+                        class="input"
+                        type="date"
+                        [ngModel]="shipmentDrafts()[item.id]?.firstShipmentSentAt"
+                        (ngModelChange)="updateShipmentDraft(item.id, 'firstShipmentSentAt', $event)" />
+                    </div>
+                    <div class="form-group">
+                      <label>{{ i18n.t('admin.orders.nextShipmentLabel') }} ({{ item.quantity - (item.shippedNowQuantity ?? 0) }} {{ i18n.t('admin.orders.pcsSuffix') }})</label>
+                      <input
+                        class="input"
+                        type="date"
+                        [ngModel]="shipmentDrafts()[item.id]?.nextShipmentEstimatedAt"
+                        (ngModelChange)="updateShipmentDraft(item.id, 'nextShipmentEstimatedAt', $event)" />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>{{ i18n.t('admin.orders.secondShipmentSentLabel') }} ({{ item.quantity - (item.shippedNowQuantity ?? 0) }} {{ i18n.t('admin.orders.pcsSuffix') }})</label>
+                    <input
+                      class="input"
+                      type="date"
+                      [ngModel]="shipmentDrafts()[item.id]?.finalShipmentSentAt"
+                      (ngModelChange)="updateShipmentDraft(item.id, 'finalShipmentSentAt', $event)" />
+                    @if (!item.finalShipmentSentAt) {
+                      <span class="reply-meta">{{ i18n.t('admin.orders.secondShipmentNotice') }}</span>
+                    }
+                  </div>
+
+                  <button class="btn-secondary full-width" type="button" [disabled]="savingItemId() === item.id" (click)="saveShipmentInfo(item)">
+                    {{ savingItemId() === item.id ? i18n.t('admin.orders.saving') : i18n.t('admin.orders.saveAndNotify') }}
+                  </button>
+                </div>
+              } @else if (item.fulfillmentChoice === 'Wait') {
+                <div class="shipment-editor">
+                  <div class="form-group">
+                    <label>{{ i18n.t('admin.orders.fullShipmentLabel') }}</label>
+                    <input
+                      class="input"
+                      type="date"
+                      [ngModel]="shipmentDrafts()[item.id]?.nextShipmentEstimatedAt"
+                      (ngModelChange)="updateShipmentDraft(item.id, 'nextShipmentEstimatedAt', $event)" />
+                  </div>
+
+                  <div class="form-group">
+                    <label>{{ i18n.t('admin.orders.waitShipmentSentLabel') }} ({{ item.quantity }} {{ i18n.t('admin.orders.pcsSuffix') }})</label>
+                    <input
+                      class="input"
+                      type="date"
+                      [ngModel]="shipmentDrafts()[item.id]?.finalShipmentSentAt"
+                      (ngModelChange)="updateShipmentDraft(item.id, 'finalShipmentSentAt', $event)" />
+                    @if (!item.finalShipmentSentAt) {
+                      <span class="reply-meta">{{ i18n.t('admin.orders.secondShipmentNotice') }}</span>
+                    }
+                  </div>
+
+                  <button class="btn-secondary full-width" type="button" [disabled]="savingItemId() === item.id" (click)="saveShipmentInfo(item)">
+                    {{ savingItemId() === item.id ? i18n.t('admin.orders.saving') : i18n.t('admin.orders.saveAndNotify') }}
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="closeOrderDetail()">{{ i18n.t('admin.mgmt.cancel') }}</button>
+      </div>
+    </div>
+  </div>
+}

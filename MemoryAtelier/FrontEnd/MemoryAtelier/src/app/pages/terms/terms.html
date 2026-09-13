@@ -1,0 +1,87 @@
+<div class="terms-page">
+  <button class="btn-back" (click)="goHome()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    {{ i18n.t('common.backToShop') }}
+  </button>
+
+  <div class="terms-header">
+    <h1 class="terms-title">{{ i18n.t('terms.title') }}</h1>
+    <p class="terms-updated">{{ i18n.t('terms.updated') }}</p>
+  </div>
+
+  <div class="terms-card">
+    @if (i18n.lang() === 'bg') {
+      <section>
+        <h2>1. Обща информация</h2>
+        <p>Настоящите общи условия уреждат отношенията между Memory Atelier ("ние") и потребителите ("вие") на сайта. С поръчване на продукт от сайта вие се съгласявате с описаното по-долу.</p>
+      </section>
+
+      <section>
+        <h2>2. Поръчки и плащане</h2>
+        <p>Поръчки се приемат само от регистрирани и влезли в профила си потребители. Приемаме плащане в брой на куриера при доставка (наложен платеж) или по банков път — при избор на банков превод ще получите отделен имейл с данните за плащане.</p>
+      </section>
+
+      <section>
+        <h2>3. Доставка</h2>
+        <p>Доставяме до посочен от вас адрес или до избран офис на куриер. Разходите за доставка са за сметка на купувача и се заплащат отделно, директно на куриера при получаване на пратката — те не са включени в цената на продуктите.</p>
+      </section>
+
+      <section>
+        <h2>4. Връщане и рекламации</h2>
+        <p>Като потребител в ЕС имате право да върнете поръчката си в 14-дневен срок след получаването ѝ, без да посочвате причина, освен в случаите на продукти, изработени по индивидуална поръчка. При одобрено връщане сумата се възстановява по банков път в срок до 30 дни. За да бъде прието връщането, продуктът трябва да е:</p>
+        <ul>
+          <li>неизползван;</li>
+          <li>в добър търговски вид;</li>
+          <li>в оригиналната си опаковка.</li>
+        </ul>
+        <p>За да заявите връщане или рекламация, свържете се с нас на <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+
+      <section>
+        <h2>5. Лични данни</h2>
+        <p>Обработваме предоставените от вас лични данни (име, адрес, телефон, имейл) единствено с цел изпълнение на поръчката и комуникация по нея, в съответствие с приложимото законодателство за защита на личните данни.</p>
+      </section>
+
+      <section>
+        <h2>6. Контакт</h2>
+        <p>За въпроси и обратна връзка ни пишете през <a routerLink="/contact">контактната форма</a> или директно на <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+    } @else {
+      <section>
+        <h2>1. General information</h2>
+        <p>These terms govern the relationship between Memory Atelier ("we") and the users ("you") of this website. By placing an order through the site, you agree to the terms described below.</p>
+      </section>
+
+      <section>
+        <h2>2. Orders and payment</h2>
+        <p>Orders can only be placed by registered, signed-in users. We accept cash on delivery (paid to the courier) or bank transfer — if you choose bank transfer, you'll receive a separate email with the payment details.</p>
+      </section>
+
+      <section>
+        <h2>3. Delivery</h2>
+        <p>We deliver to an address of your choice or to a courier office you select. Delivery costs are paid by the buyer, directly to the courier upon receiving the parcel — they are not included in the product prices.</p>
+      </section>
+
+      <section>
+        <h2>4. Returns and complaints</h2>
+        <p>As an EU consumer, you have the right to return your order within 14 days of receiving it, without giving a reason, except for items made to your individual specification. Once a return is approved, the amount will be refunded by bank transfer within 30 days. To be accepted, the returned item must be:</p>
+        <ul>
+          <li>unused;</li>
+          <li>in good commercial condition;</li>
+          <li>in its original packaging.</li>
+        </ul>
+        <p>To request a return or complaint, contact us at <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+
+      <section>
+        <h2>5. Personal data</h2>
+        <p>We process the personal data you provide (name, address, phone, email) solely to fulfil and communicate about your order, in accordance with applicable data protection legislation.</p>
+      </section>
+
+      <section>
+        <h2>6. Contact</h2>
+        <p>For questions or feedback, reach us through the <a routerLink="/contact">contact form</a> or directly at <a [href]="'mailto:' + 'memoryatelier25@gmail.com'">memoryatelier25&#64;gmail.com</a>.</p>
+      </section>
+    }
+  </div>
+</div>

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /favourites
+Disallow: /sign-in
+Disallow: /signup
+
+Sitemap: https://memoryatelier.bg/sitemap.xml

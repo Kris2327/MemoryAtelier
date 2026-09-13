@@ -1,0 +1,262 @@
+<div class="checkout-page">
+
+  <!-- ORDER PLACED SUCCESS -->
+  @if (orderPlaced()) {
+    <div class="success-wrap">
+      <div class="success-card">
+        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+        <h2 class="success-title">{{ i18n.t('checkout.successTitle') }}</h2>
+        <p class="success-sub">{{ paymentMethod() === 'BankTransfer' ? i18n.t('checkout.successSubBank') : i18n.t('checkout.successSub') }}</p>
+        @if (orderId()) {
+          <div class="success-order-id">{{ i18n.t('checkout.orderNumber') }}{{ orderId().slice(0, 8).toUpperCase() }}</div>
+        }
+        <div class="success-info">
+          <div class="info-row">
+            <span class="info-label">{{ i18n.t('checkout.paymentLabel') }}</span>
+            <span class="info-val">{{ paymentMethod() === 'BankTransfer' ? i18n.t('checkout.bankTransferValue') : i18n.t('checkout.paymentValue') }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">{{ i18n.t('checkout.addressLabel') }}</span>
+            <span class="info-val">
+              @if (deliveryMethod() === 'SpeedyOffice') {
+                {{ i18n.t('checkout.deliveryMethodSpeedy') }} — {{ address.officeName }}, {{ address.city }}
+              } @else {
+                {{ address.address }}, {{ address.city }}
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">{{ i18n.t('checkout.totalLabel') }}</span>
+            <span class="info-val price">€{{ total().toFixed(2) }}</span>
+          </div>
+        </div>
+        <button class="btn-home" (click)="goHome()">{{ i18n.t('cart.continueShopping') }}</button>
+      </div>
+    </div>
+  }
+
+  @if (!orderPlaced()) {
+
+    <div class="checkout-header">
+      <button class="btn-back" (click)="goCart()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        {{ i18n.t('checkout.backToCart') }}
+      </button>
+      <h1 class="checkout-title">{{ i18n.t('checkout.title') }}</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="co-loading"><div class="spinner"></div></div>
+    } @else {
+
+      <div class="checkout-grid">
+
+        <!-- LEFT: DELIVERY FORM -->
+        <div class="checkout-left">
+          <div class="co-card">
+            <div class="co-card-header">
+              <div class="co-step">1</div>
+              <h2 class="co-card-title">{{ i18n.t('checkout.step1Title') }}</h2>
+            </div>
+
+            <div class="payment-option" [class.selected]="deliveryMethod() === 'Address'" (click)="selectDeliveryMethod('Address')">
+              <div class="payment-radio">
+                @if (deliveryMethod() === 'Address') { <div class="radio-dot"></div> }
+              </div>
+              <div class="payment-icon"><i class="bi bi-geo-alt"></i></div>
+              <div class="payment-info">
+                <div class="payment-name">{{ i18n.t('checkout.deliveryMethodAddress') }}</div>
+                <div class="payment-desc">{{ i18n.t('checkout.deliveryMethodAddressDesc') }}</div>
+              </div>
+              @if (deliveryMethod() === 'Address') {
+                <div class="payment-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+</svg></div>
+              }
+            </div>
+
+            <div class="payment-option" [class.selected]="deliveryMethod() === 'SpeedyOffice'" (click)="selectDeliveryMethod('SpeedyOffice')">
+              <div class="payment-radio">
+                @if (deliveryMethod() === 'SpeedyOffice') { <div class="radio-dot"></div> }
+              </div>
+              <div class="payment-icon"><i class="bi bi-shop"></i></div>
+              <div class="payment-info">
+                <div class="payment-name">{{ i18n.t('checkout.deliveryMethodSpeedy') }}</div>
+                <div class="payment-desc">{{ i18n.t('checkout.deliveryMethodSpeedyDesc') }}</div>
+              </div>
+              @if (deliveryMethod() === 'SpeedyOffice') {
+                <div class="payment-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+</svg></div>
+              }
+            </div>
+
+            <div class="form-row" style="margin-top: 18px;">
+              <div class="form-group" [class.error]="errors.firstName">
+                <label>{{ i18n.t('checkout.firstName') }} <span style="color: red;">*</span></label>
+                <input type="text" [(ngModel)]="address.firstName" [placeholder]="i18n.t('checkout.firstNamePlaceholder')" />
+                @if (errors.firstName) { <span class="err-msg">{{ errors.firstName }}</span> }
+              </div>
+              <div class="form-group" [class.error]="errors.lastName">
+                <label>{{ i18n.t('checkout.lastName') }} <span style="color: red;">*</span></label>
+                <input type="text" [(ngModel)]="address.lastName" [placeholder]="i18n.t('checkout.lastNamePlaceholder')" />
+                @if (errors.lastName) { <span class="err-msg">{{ errors.lastName }}</span> }
+              </div>
+            </div>
+
+            <div class="form-group" [class.error]="errors.phone">
+              <label>{{ i18n.t('checkout.phone') }} <span style="color: red;">*</span></label>
+              <input type="tel" [(ngModel)]="address.phone" placeholder="+359 88 888 8888" />
+              @if (errors.phone) { <span class="err-msg">{{ errors.phone }}</span> }
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" [class.error]="errors.city">
+                <label>{{ i18n.t('checkout.city') }} <span style="color: red;">*</span></label>
+                <input type="text" [(ngModel)]="address.city" [placeholder]="i18n.t('checkout.cityPlaceholder')" />
+                @if (errors.city) { <span class="err-msg">{{ errors.city }}</span> }
+              </div>
+              @if (deliveryMethod() === 'Address') {
+                <div class="form-group" [class.error]="errors.postCode">
+                  <label>{{ i18n.t('checkout.postCode') }} <span style="color: red;">*</span></label>
+                  <input type="text" [(ngModel)]="address.postCode" placeholder="1000" />
+                  @if (errors.postCode) { <span class="err-msg">{{ errors.postCode }}</span> }
+                </div>
+              }
+            </div>
+
+            @if (deliveryMethod() === 'Address') {
+              <div class="form-group" [class.error]="errors.address">
+                <label>{{ i18n.t('checkout.address') }} <span style="color: red;">*</span></label>
+                <input type="text" [(ngModel)]="address.address" [placeholder]="i18n.t('checkout.addressPlaceholder')" />
+                @if (errors.address) { <span class="err-msg">{{ errors.address }}</span> }
+              </div>
+            } @else {
+              <div class="form-group" [class.error]="errors.officeName">
+                <label>{{ i18n.t('checkout.officeNameLabel') }} <span style="color: red;">*</span></label>
+                <input type="text" [(ngModel)]="address.officeName" [placeholder]="i18n.t('checkout.officeNamePlaceholder')" />
+                @if (errors.officeName) { <span class="err-msg">{{ errors.officeName }}</span> }
+              </div>
+            }
+
+            <div class="form-group">
+              <label>{{ i18n.t('checkout.notes') }} <span class="optional">{{ i18n.t('checkout.optional') }}</span></label>
+              <textarea [(ngModel)]="address.notes" [placeholder]="i18n.t('checkout.notesPlaceholder')" rows="3"></textarea>
+            </div>
+          </div>
+
+          <!-- PAYMENT METHOD -->
+          <div class="co-card">
+            <div class="co-card-header">
+              <div class="co-step">2</div>
+              <h2 class="co-card-title">{{ i18n.t('checkout.step2Title') }}</h2>
+            </div>
+            <div class="payment-option" [class.selected]="paymentMethod() === 'CashOnDelivery'" (click)="selectPaymentMethod('CashOnDelivery')">
+              <div class="payment-radio">
+                @if (paymentMethod() === 'CashOnDelivery') { <div class="radio-dot"></div> }
+              </div>
+              <div class="payment-icon"><i class="bi bi-cash-coin"></i></div>
+              <div class="payment-info">
+                <div class="payment-name">{{ i18n.t('checkout.paymentValue') }}</div>
+                <div class="payment-desc">{{ i18n.t('checkout.codDesc') }}</div>
+              </div>
+              @if (paymentMethod() === 'CashOnDelivery') {
+                <div class="payment-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+</svg></div>
+              }
+            </div>
+
+            <div class="payment-option" [class.selected]="paymentMethod() === 'BankTransfer'" (click)="selectPaymentMethod('BankTransfer')">
+              <div class="payment-radio">
+                @if (paymentMethod() === 'BankTransfer') { <div class="radio-dot"></div> }
+              </div>
+              <div class="payment-icon"><i class="bi bi-bank"></i></div>
+              <div class="payment-info">
+                <div class="payment-name">{{ i18n.t('checkout.bankTransferValue') }}</div>
+                <div class="payment-desc">{{ i18n.t('checkout.bankTransferDesc') }}</div>
+              </div>
+              @if (paymentMethod() === 'BankTransfer') {
+                <div class="payment-check"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+  <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
+</svg></div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+        <div class="checkout-right">
+          <div class="co-card order-summary">
+            <div class="co-card-header">
+              <div class="co-step">3</div>
+              <h2 class="co-card-title">{{ i18n.t('checkout.step3Title') }}</h2>
+            </div>
+
+            <div class="order-items">
+              @for (item of cartItems(); track item.id) {
+                <div class="order-item">
+                  <div class="order-item-img">
+                    <img [src]="item.imageUrl || 'https://placehold.co/56x56'" [alt]="item.productName" />
+                  </div>
+                  <div class="order-item-info">
+                    <div class="order-item-name">{{ item.productName }}</div>
+                    <div class="order-item-qty">{{ i18n.t('checkout.qty') }}: {{ item.quantity }}</div>
+                  </div>
+                  <div class="order-item-price">€{{ item.total.toFixed(2) }}</div>
+                </div>
+              }
+            </div>
+
+            <div class="order-totals">
+              <div class="total-row">
+                <span>{{ i18n.t('checkout.subtotal') }}</span>
+                <span>€{{ subtotal().toFixed(2) }}</span>
+              </div>
+              <div class="total-row">
+                <span>{{ i18n.t('cart.delivery') }}</span>
+                <span class="delivery-buyer">{{ i18n.t('checkout.deliveryAtBuyerExpense') }}</span>
+              </div>
+              <div class="shipping-note">
+                <i class="bi bi-truck"></i>
+                <span>{{ i18n.t('checkout.deliveryNote') }}</span>
+              </div>
+              <div class="total-row grand-total">
+                <span>{{ i18n.t('checkout.grandTotal') }}</span>
+                <span>€{{ total().toFixed(2) }}</span>
+              </div>
+            </div>
+
+            @if (hasUnresolvedStockChoice()) {
+              <div class="checkout-blocked-note">
+                {{ i18n.t('checkout.resolveStockInCart') }}
+                <a (click)="goCart()">{{ i18n.t('checkout.backToCart') }}</a>
+              </div>
+            }
+
+            <button class="btn-place-order"
+              (click)="placeOrder()"
+              [disabled]="submitting() || cartItems().length === 0 || hasUnresolvedStockChoice()">
+              @if (submitting()) {
+                <div class="btn-spinner"></div>
+                {{ i18n.t('checkout.placeOrderPreparing') }}
+              } @else {
+                {{ i18n.t('checkout.placeOrderPrefix') }} · €{{ total().toFixed(2) }}
+              }
+            </button>
+
+            <div class="cod-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              @if (paymentMethod() === 'BankTransfer') {
+                {{ i18n.t('checkout.bankTransferNote') }}
+              } @else {
+                {{ i18n.t('checkout.willPayPrefix') }} <strong>€{{ total().toFixed(2) }}</strong> {{ i18n.t('checkout.willPaySuffix') }}
+              }
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  }
+</div>
