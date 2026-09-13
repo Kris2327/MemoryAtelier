@@ -800,6 +800,11 @@ select.input:hover {
   flex: 1;
 }
 
+.cat-dropdown-panel.cat-dropdown-panel-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
 .cat-dropdown-trigger-sm {
   min-height: 34px;
   padding: 8px 10px;

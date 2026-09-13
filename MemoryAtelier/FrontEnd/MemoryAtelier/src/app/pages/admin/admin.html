@@ -374,7 +374,7 @@
                   <span class="cat-dropdown-arrow" [class.open]="newSectionParentDropdownOpen()">▾</span>
                 </button>
                 @if (newSectionParentDropdownOpen()) {
-                  <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                  <div class="cat-dropdown-panel cat-dropdown-panel-up" (click)="$event.stopPropagation()">
                     <label class="cat-dropdown-option">
                       <input type="radio" name="newSectionParent" [checked]="!newSection.parentId" (change)="selectNewSectionParent('')" />
                       <span>{{ i18n.t('admin.newSection.topLevel') }}</span>
