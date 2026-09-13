@@ -21,7 +21,21 @@
       <div class="hero-badge">{{ i18n.t('home.hero.badge') }}</div>
       <h1 class="hero-title">Memory Atelier</h1>
       <p class="hero-sub">{{ i18n.t('home.hero.sub') }}</p>
+
+      @if (rootCategories().length) {
+        <div class="hero-quick-links">
+          @for (root of rootCategories(); track root.id) {
+            <button type="button" class="hero-chip" (click)="goToCategory(root.id)">
+              {{ i18n.pick(root.name, root.nameEn) }}
+            </button>
+          }
+        </div>
+      }
     </div>
+
+    <button type="button" class="hero-scroll-cue" (click)="scrollToSections()" [attr.aria-label]="i18n.t('home.scrollCue')">
+      <span class="scroll-cue-arrow">⌄</span>
+    </button>
   </section>
 
   <ng-template #productCard let-product>
@@ -32,6 +46,9 @@
           [alt]="i18n.pick(product.name, product.nameEn)"
           class="product-img" />
         <span class="product-category">{{ categoryNames(product.categories) }}</span>
+        @if (isNew(product)) {
+          <span class="product-new-badge">{{ i18n.t('home.newBadge') }}</span>
+        }
         @if (authService.isLoggedIn()) {
           <button
             class="btn-fav"
@@ -138,11 +155,13 @@
     } @else {
       <!-- ВСИЧКИ ПРОДУКТИ: изглед по подразбиране, групиран по категория -->
       <div class="sections">
-        @for (group of filteredGrouped(); track group.category) {
+        @for (group of filteredGrouped(); track group.category; let last = $last) {
           <section class="category-section">
             <div class="section-header">
-              <h2 class="section-title">{{ groupLabel(group) }}</h2>
-              <span class="section-line"></span>
+              <div class="section-heading">
+                <span class="section-kicker">{{ i18n.t('home.collectionKicker') }}</span>
+                <h2 class="section-title">{{ groupLabel(group) }}</h2>
+              </div>
               <span class="section-count">{{ group.items.length }} {{ i18n.t('common.products') }}</span>
             </div>
 
@@ -152,6 +171,10 @@
               }
             </div>
           </section>
+
+          @if (!last) {
+            <div class="section-divider"><span class="section-divider-mark">✿</span></div>
+          }
         }
       </div>
     }

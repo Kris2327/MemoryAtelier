@@ -41,6 +41,9 @@ export class HomePage implements OnInit, OnDestroy {
       .map(p => p.images[0].imageUrl);
   });
 
+  // главните секции — за бързите линкове под hero заглавието
+  rootCategories = computed(() => this.categoryService.categories());
+
   // id-та на избраната категория И всичките й подкатегории (null = "All")
   private selectedCategoryIds = computed<Set<string> | null>(() => {
     const catId = this.selectedCategory();
@@ -261,5 +264,14 @@ export class HomePage implements OnInit, OnDestroy {
   scrollSlider(dir: number) {
     const el = document.querySelector('.slider-track') as HTMLElement;
     if (el) el.scrollBy({ left: dir * 320, behavior: 'smooth' });
+  }
+
+  scrollToSections(): void {
+    document.querySelector('.sections, .category-layout')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  isNew(product: Product): boolean {
+    const ageInDays = (Date.now() - new Date(product.createdAt).getTime()) / 86_400_000;
+    return ageInDays <= 14;
   }
 }
