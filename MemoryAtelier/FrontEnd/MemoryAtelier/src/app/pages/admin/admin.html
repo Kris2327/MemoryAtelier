@@ -401,7 +401,7 @@
               </div>
             </div>
 
-            <ng-template #categoryNode let-node let-cls="cls" let-isRoot="isRoot" let-idx="idx" let-total="total">
+            <ng-template #categoryNode let-node let-cls="cls" let-idx="idx" let-total="total">
               <div class="tree-node" [ngClass]="cls">
                 @if (editingCategoryId() === node.id) {
                   <div class="tree-edit-form">
@@ -440,24 +440,22 @@
                     <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
                   </div>
                   <div class="tree-actions">
-                    @if (isRoot) {
-                      <button
-                        class="icon-button icon-button-edit icon-button-sm"
-                        type="button"
-                        [disabled]="idx === 0"
-                        [title]="i18n.t('admin.structure.moveUp')"
-                        (click)="moveCategory(idx, -1)">
-                        <i class="bi bi-arrow-up"></i>
-                      </button>
-                      <button
-                        class="icon-button icon-button-edit icon-button-sm"
-                        type="button"
-                        [disabled]="idx === total - 1"
-                        [title]="i18n.t('admin.structure.moveDown')"
-                        (click)="moveCategory(idx, 1)">
-                        <i class="bi bi-arrow-down"></i>
-                      </button>
-                    }
+                    <button
+                      class="icon-button icon-button-edit icon-button-sm"
+                      type="button"
+                      [disabled]="idx === 0"
+                      [title]="i18n.t('admin.structure.moveUp')"
+                      (click)="moveCategory(node, -1)">
+                      <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <button
+                      class="icon-button icon-button-edit icon-button-sm"
+                      type="button"
+                      [disabled]="idx === total - 1"
+                      [title]="i18n.t('admin.structure.moveDown')"
+                      (click)="moveCategory(node, 1)">
+                      <i class="bi bi-arrow-down"></i>
+                    </button>
                     <button
                       class="icon-button icon-button-edit icon-button-sm"
                       type="button"
@@ -485,15 +483,15 @@
 
             <div class="section-tree">
               @for (cat of categories(); track trackByCategory($index, cat); let i = $index) {
-                <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: cat, cls: 'tree-root', isRoot: true, idx: i, total: categories().length }"></ng-container>
+                <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: cat, cls: 'tree-root', idx: i, total: categories().length }"></ng-container>
 
                 @if (isCategoryExpanded(cat.id)) {
-                  @for (sub of cat.children; track trackByCategory($index, sub)) {
-                    <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: sub, cls: 'tree-sub' }"></ng-container>
+                  @for (sub of cat.children; track trackByCategory($index, sub); let si = $index) {
+                    <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: sub, cls: 'tree-sub', idx: si, total: cat.children.length }"></ng-container>
 
                     @if (isCategoryExpanded(sub.id)) {
-                      @for (child of sub.children; track trackByCategory($index, child)) {
-                        <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: child, cls: 'tree-child' }"></ng-container>
+                      @for (child of sub.children; track trackByCategory($index, child); let ci = $index) {
+                        <ng-container *ngTemplateOutlet="categoryNode; context: { $implicit: child, cls: 'tree-child', idx: ci, total: sub.children.length }"></ng-container>
                       }
                     }
                   }

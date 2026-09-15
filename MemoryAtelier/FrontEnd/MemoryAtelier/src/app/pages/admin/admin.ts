@@ -986,15 +986,31 @@ export class Admin implements OnInit, AfterViewInit {
     });
   }
 
-  moveCategory(index: number, direction: number): void {
-    const cats = [...this.categories()];
-    const target = index + direction;
-    if (target < 0 || target >= cats.length) return;
+  moveCategory(node: Category, direction: number): void {
+    const roots = structuredClone(this.categories());
+    const siblings = node.parentId === null
+      ? roots
+      : this.findInTree(roots, node.parentId)?.children;
+    if (!siblings) return;
 
-    [cats[index], cats[target]] = [cats[target], cats[index]];
-    this.categories.set(cats);
-    this.categoryService.categories.set(cats);
-    this.categoryService.reorder(cats.map(c => c.id)).subscribe();
+    const index = siblings.findIndex(c => c.id === node.id);
+    const target = index + direction;
+    if (index === -1 || target < 0 || target >= siblings.length) return;
+
+    [siblings[index], siblings[target]] = [siblings[target], siblings[index]];
+
+    this.categories.set(roots);
+    this.categoryService.categories.set(roots);
+    this.categoryService.reorder(siblings.map(c => c.id)).subscribe();
+  }
+
+  private findInTree(nodes: Category[], id: string): Category | undefined {
+    for (const node of nodes) {
+      if (node.id === id) return node;
+      const found = this.findInTree(node.children, id);
+      if (found) return found;
+    }
+    return undefined;
   }
 
   deleteSection(id: string): void {
