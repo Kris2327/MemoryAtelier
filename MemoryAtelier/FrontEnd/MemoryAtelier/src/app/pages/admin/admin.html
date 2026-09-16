@@ -10,6 +10,7 @@
   }
 
   <aside class="admin-sidebar" [class.open]="sidebarOpen()">
+    <div class="sidebar-scroll">
     <div class="sidebar-brand">
       <div class="brand-mark">MA</div>
       <div>
@@ -83,8 +84,9 @@
         <span class="sidebar-link-sub">{{ i18n.t('admin.navTrashSub') }}</span>
       </button>
     </nav>
+    </div>
 
-    <button class="sidebar-summary" type="button" (click)="goToLowStock()">
+    <button class="sidebar-summary" [class.alert]="lowStockCount() > 0" type="button" (click)="goToLowStock()">
       <span class="summary-label">{{ i18n.t('admin.lowStockLabel') }}</span>
       <strong>{{ lowStockCount() }}</strong>
     </button>
