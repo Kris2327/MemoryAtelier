@@ -14,6 +14,8 @@ export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'sign-in', component: SignIn },
   { path: 'signup', component: Signup },
+  // Извън Navbar wrapper-а нарочно — админ панелът има собствен sidebar и не му трябва сайтовият navbar.
+  { path: 'admin', loadComponent: () => import('./pages/admin/admin').then(m => m.Admin), canActivate: [authGuard, adminGuard] },
   {
     path: '',
     component: Navbar,
@@ -21,7 +23,6 @@ export const routes: Routes = [
       { path: 'home', loadComponent: () => import('./pages/home-page/home-page').then(m => m.HomePage) },
       { path: 'product/:id/:slug', loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetail) },
       { path: 'product/:id', loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetail) },
-      { path: 'admin', loadComponent: () => import('./pages/admin/admin').then(m => m.Admin), canActivate: [authGuard, adminGuard] },
       { path: 'cart', component: Cart, canActivate: [authGuard] },
       { path: 'favourites', component: Favourites, canActivate: [authGuard] },
       { path: 'checkout', component: Checkout, canActivate: [authGuard] },
