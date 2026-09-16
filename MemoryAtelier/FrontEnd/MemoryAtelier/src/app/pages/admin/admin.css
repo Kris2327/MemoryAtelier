@@ -165,6 +165,8 @@
   border-radius: 20px;
   background: rgba(255, 248, 243, 0.1);
   border: 1px solid rgba(255, 248, 243, 0.18);
+  color: rgba(255, 248, 243, 0.94);
+  font: inherit;
   text-align: left;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
