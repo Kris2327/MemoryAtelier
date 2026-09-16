@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { ProductService } from '../../services/product/product';
 import { CategoryService } from '../../services/category/category';
 import { ImageService } from '../../services/images/images';
@@ -97,6 +98,7 @@ export class Admin implements OnInit, AfterViewInit {
   private readonly ordersService = inject(OrdersService);
   private readonly seo = inject(SeoService);
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   readonly i18n = inject(I18nService);
 
   private readonly dashboardApi = `${environment.apiUrl}/dashboard`;
@@ -288,6 +290,10 @@ export class Admin implements OnInit, AfterViewInit {
     if (panel === 'trash') {
       this.loadTrash();
     }
+  }
+
+  goToSite(): void {
+    this.router.navigate(['/home']);
   }
 
   goToLowStock(): void {

@@ -10,13 +10,13 @@
   }
 
   <aside class="admin-sidebar" [class.open]="sidebarOpen()">
-    <div class="sidebar-brand">
+    <button class="sidebar-brand" type="button" (click)="goToSite()" [attr.aria-label]="i18n.t('admin.backToSite')" [title]="i18n.t('admin.backToSite')">
       <div class="brand-mark"><img src="roundedLogo.png" alt="Memory Atelier" /></div>
       <div>
         <h1>Memory Atelier</h1>
         <p>{{ i18n.t('admin.panelSubtitle') }}</p>
       </div>
-    </div>
+    </button>
 
     <div class="sidebar-scroll">
     <nav class="sidebar-nav">

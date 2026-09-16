@@ -98,6 +98,21 @@
   display: flex;
   align-items: center;
   gap: 14px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 18px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-brand:hover {
+  background: rgba(255, 248, 243, 0.1);
+  transform: translateX(4px);
 }
 
 .brand-mark {
