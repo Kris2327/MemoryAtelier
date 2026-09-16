@@ -1,8 +1,7 @@
-﻿/* 73px = височината на sticky navbar-а (72px + 1px долна рамка) над тази страница */
-:host {
+﻿:host {
   display: block;
-  min-height: calc(100vh - 73px);
-  height: calc(100vh - 73px);
+  min-height: 100vh;
+  height: 100vh;
   color: #2c1810;
   font-family: 'Lato', sans-serif;
   overflow: hidden;
@@ -13,8 +12,8 @@
 }
 
 .admin-shell {
-  min-height: calc(100vh - 73px);
-  height: calc(100vh - 73px);
+  min-height: 100vh;
+  height: 100vh;
   display: block;
   background:
     radial-gradient(circle at top left, rgba(201, 125, 78, 0.1), transparent 24%),
@@ -58,9 +57,9 @@
 
 .admin-sidebar {
   position: fixed;
-  top: 73px;
+  top: 0;
   width: 240px;
-  height: calc(100vh - 73px);
+  height: 100vh;
   overflow: hidden;
   padding: 28px 20px;
   background: linear-gradient(180deg, #a86b42ee 0%, #ba774aee 55%, #cf8656ee 100%);
