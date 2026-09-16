@@ -136,6 +136,39 @@ public class ProductService(AppDbContext db)
         return true;
     }
 
+    public async Task<PurgeResult> PurgeAsync(Guid id)
+    {
+        var product = await db.Products.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id && p.IsDeleted);
+        if (product == null) return PurgeResult.NotFound;
+
+        if (await db.OrderItems.AnyAsync(oi => oi.ProductId == id))
+        {
+            return PurgeResult.HasReferences;
+        }
+
+        db.CartItems.RemoveRange(await db.CartItems.Where(c => c.ProductId == id).ToListAsync());
+        db.Favourites.RemoveRange(await db.Favourites.Where(f => f.ProductId == id).ToListAsync());
+        db.Reviews.RemoveRange(await db.Reviews.Where(r => r.ProductId == id).ToListAsync());
+        db.Products.Remove(product);
+        await db.SaveChangesAsync();
+        return PurgeResult.Purged;
+    }
+
+    public async Task<int> PurgeDeletedOlderThanAsync(DateTime cutoffUtc)
+    {
+        var ids = await db.Products.IgnoreQueryFilters()
+            .Where(p => p.IsDeleted && p.DeletedAt < cutoffUtc)
+            .Select(p => p.Id)
+            .ToListAsync();
+
+        var purged = 0;
+        foreach (var id in ids)
+        {
+            if (await PurgeAsync(id) == PurgeResult.Purged) purged++;
+        }
+        return purged;
+    }
+
     public async Task<ProductDto?> UpdateStockAsync(Guid id, int stock)
     {
         var product = await db.Products

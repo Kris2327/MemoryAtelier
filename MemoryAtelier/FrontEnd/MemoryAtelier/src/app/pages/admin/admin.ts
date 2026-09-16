@@ -114,6 +114,7 @@ export class Admin implements OnInit, AfterViewInit {
   editingProduct = signal<Product | null>(null);
   deleteConfirmId = signal<string | null>(null);
   successMsg = signal('');
+  errorMsg = signal('');
 
   activePanel = signal<AdminPanel>('dashboard');
   sidebarOpen = signal(false);
@@ -128,10 +129,13 @@ export class Admin implements OnInit, AfterViewInit {
   categoryDraft = { name: '', nameEn: '', parentId: '' };
   expandedCategoryIds = signal<Set<string>>(new Set());
   collapsedGroups = signal<Set<string>>(new Set());
+  sectionDeleteConfirmId = signal<string | null>(null);
 
   trashedProducts = signal<TrashedProduct[]>([]);
   trashedCategories = signal<TrashedCategory[]>([]);
   trashLoading = signal(false);
+  purgeConfirmProductId = signal<string | null>(null);
+  purgeConfirmCategoryId = signal<string | null>(null);
 
   heroImages = signal<HeroImage[]>([]);
   heroLoading = signal(false);
@@ -284,6 +288,13 @@ export class Admin implements OnInit, AfterViewInit {
     if (panel === 'trash') {
       this.loadTrash();
     }
+  }
+
+  goToLowStock(): void {
+    this.setActivePanel('dashboard');
+    window.setTimeout(() => {
+      document.getElementById('low-stock-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 0);
   }
 
   panelEyebrow(): string {
@@ -1013,9 +1024,27 @@ export class Admin implements OnInit, AfterViewInit {
     return undefined;
   }
 
+  confirmDeleteSection(id: string): void {
+    this.sectionDeleteConfirmId.set(id);
+  }
+
+  cancelDeleteSection(): void {
+    this.sectionDeleteConfirmId.set(null);
+  }
+
+  sectionDescendantCount(id: string): number {
+    const node = this.findInTree(this.categories(), id);
+    return node ? this.countDescendants(node) : 0;
+  }
+
+  private countDescendants(node: Category): number {
+    return node.children.reduce((sum, child) => sum + 1 + this.countDescendants(child), 0);
+  }
+
   deleteSection(id: string): void {
     this.categoryService.delete(id).subscribe({
       next: () => {
+        this.sectionDeleteConfirmId.set(null);
         this.loadCategories();
         this.loadDashboardData();
         this.showSuccess(this.i18n.t('admin.toast.sectionDeleted'));
@@ -1052,6 +1081,50 @@ export class Admin implements OnInit, AfterViewInit {
         this.loadCategories();
         this.loadDashboardData();
         this.showSuccess(this.i18n.t('admin.toast.sectionRestored'));
+      }
+    });
+  }
+
+  confirmPurgeProduct(id: string): void {
+    this.purgeConfirmProductId.set(id);
+  }
+
+  cancelPurgeProduct(): void {
+    this.purgeConfirmProductId.set(null);
+  }
+
+  purgeProduct(id: string): void {
+    this.productService.purge(id).subscribe({
+      next: () => {
+        this.purgeConfirmProductId.set(null);
+        this.loadTrash();
+        this.showSuccess(this.i18n.t('admin.toast.productPurged'));
+      },
+      error: (err) => {
+        this.purgeConfirmProductId.set(null);
+        this.showError(err?.error?.message || this.i18n.t('admin.toast.purgeFailedGeneric'));
+      }
+    });
+  }
+
+  confirmPurgeCategory(id: string): void {
+    this.purgeConfirmCategoryId.set(id);
+  }
+
+  cancelPurgeCategory(): void {
+    this.purgeConfirmCategoryId.set(null);
+  }
+
+  purgeCategory(id: string): void {
+    this.categoryService.purge(id).subscribe({
+      next: () => {
+        this.purgeConfirmCategoryId.set(null);
+        this.loadTrash();
+        this.showSuccess(this.i18n.t('admin.toast.categoryPurged'));
+      },
+      error: (err) => {
+        this.purgeConfirmCategoryId.set(null);
+        this.showError(err?.error?.message || this.i18n.t('admin.toast.purgeFailedGeneric'));
       }
     });
   }
@@ -1163,6 +1236,11 @@ export class Admin implements OnInit, AfterViewInit {
   showSuccess(message: string): void {
     this.successMsg.set(message);
     window.setTimeout(() => this.successMsg.set(''), 3000);
+  }
+
+  showError(message: string): void {
+    this.errorMsg.set(message);
+    window.setTimeout(() => this.errorMsg.set(''), 4000);
   }
 
   trackByProduct(_: number, product: Product): string {

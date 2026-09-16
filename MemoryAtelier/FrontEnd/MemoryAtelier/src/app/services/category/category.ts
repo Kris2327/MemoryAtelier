@@ -43,4 +43,8 @@ export class CategoryService {
   restore(id: string) {
     return this.http.post(`${this.API}/${id}/restore`, {});
   }
+
+  purge(id: string) {
+    return this.http.delete(`${this.API}/${id}/purge`);
+  }
 }

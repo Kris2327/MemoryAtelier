@@ -160,10 +160,19 @@
 
 .sidebar-summary {
   margin-top: auto;
+  width: 100%;
   padding: 20px;
   border-radius: 20px;
   background: rgba(255, 248, 243, 0.1);
   border: 1px solid rgba(255, 248, 243, 0.18);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-summary:hover {
+  background: rgba(255, 248, 243, 0.18);
+  transform: translateX(4px);
 }
 
 .summary-label {
@@ -251,6 +260,16 @@
   border: 1px solid #c6e7d1;
   color: #25573a;
   box-shadow: 0 10px 24px rgba(37, 87, 58, 0.08);
+}
+
+.error-msg {
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: #fdeeee;
+  border: 1px solid #f0c6c6;
+  color: #7a2323;
+  box-shadow: 0 10px 24px rgba(122, 35, 35, 0.08);
 }
 
 .stats-grid {
@@ -733,6 +752,18 @@ select.input:hover {
 
 .tree-root {
   font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.tree-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 0 28px;
+}
+
+.tree-sub-list .tree-root {
+  font-weight: 400;
 }
 
 .tree-sub {
@@ -917,8 +948,22 @@ select.input:hover {
   cursor: pointer;
 }
 
+.trash-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trash-notice {
+  margin: -6px 0 18px;
+  font-size: 13px;
+  color: #8c6853;
+}
+
 .delete-confirm {
   margin-top: -2px;
+  grid-column: 1 / -1;
+  flex-basis: 100%;
   padding: 14px 16px;
   border-radius: 18px;
   background: #fff4f2;
@@ -1100,7 +1145,8 @@ select.input:hover {
 
   .stock-editor,
   .row-actions,
-  .delete-actions {
+  .delete-actions,
+  .trash-actions {
     flex-wrap: wrap;
   }
 }

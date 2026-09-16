@@ -56,6 +56,7 @@ export interface TrashedCategory {
   name: string;
   nameEn: string | null;
   deletedAt: string;
+  children: TrashedCategory[];
 }
 
 export interface CreateProductDto {

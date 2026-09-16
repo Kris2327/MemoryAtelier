@@ -61,6 +61,7 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<HeroImageService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<ContactMessageService>();
+builder.Services.AddHostedService<TrashCleanupService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<SupabaseSettings>(builder.Configuration.GetSection("Supabase"));
 builder.Services.Configure<BankTransferSettings>(builder.Configuration.GetSection("BankTransfer"));

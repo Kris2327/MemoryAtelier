@@ -69,4 +69,17 @@ public class ProductController(ProductService productService) : ControllerBase
         var success = await productService.RestoreAsync(id);
         return success ? NoContent() : NotFound();
     }
+
+    [HttpDelete("{id:guid}/purge")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Purge(Guid id)
+    {
+        var result = await productService.PurgeAsync(id);
+        return result switch
+        {
+            PurgeResult.Purged => NoContent(),
+            PurgeResult.HasReferences => Conflict(new { message = "Продуктът участва в съществуващи поръчки и не може да бъде изтрит завинаги." }),
+            _ => NotFound()
+        };
+    }
 }

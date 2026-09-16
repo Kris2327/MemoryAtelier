@@ -58,4 +58,17 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
         var success = await categoryService.RestoreAsync(id);
         return success ? NoContent() : NotFound();
     }
+
+    [HttpDelete("{id:guid}/purge")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Purge(Guid id)
+    {
+        var result = await categoryService.PurgeAsync(id);
+        return result switch
+        {
+            PurgeResult.Purged => NoContent(),
+            PurgeResult.HasReferences => Conflict(new { message = "Категорията все още има подкатегории и не може да бъде изтрита завинаги." }),
+            _ => NotFound()
+        };
+    }
 }

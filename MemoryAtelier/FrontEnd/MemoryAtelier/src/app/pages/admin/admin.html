@@ -84,10 +84,10 @@
       </button>
     </nav>
 
-    <div class="sidebar-summary">
+    <button class="sidebar-summary" type="button" (click)="goToLowStock()">
       <span class="summary-label">{{ i18n.t('admin.lowStockLabel') }}</span>
       <strong>{{ lowStockCount() }}</strong>
-    </div>
+    </button>
   </aside>
 
   <main class="admin-main">
@@ -105,6 +105,10 @@
 
     @if (successMsg()) {
       <div class="success-msg">{{ successMsg() }}</div>
+    }
+
+    @if (errorMsg()) {
+      <div class="error-msg">{{ errorMsg() }}</div>
     }
 
     @if (activePanel() === 'dashboard') {
@@ -175,7 +179,7 @@
           </article>
         </section>
 
-        <section class="table-card">
+        <section class="table-card" id="low-stock-section">
           <div class="panel-head">
             <div>
               <h3>{{ i18n.t('admin.lowStock.title') }}</h3>
@@ -471,12 +475,27 @@
                       type="button"
                       [attr.aria-label]="i18n.t('admin.structure.delete')"
                       [title]="i18n.t('admin.structure.delete')"
-                      (click)="deleteSection(node.id)">
+                      (click)="confirmDeleteSection(node.id)">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 8h10l-1 12H8L7 8z"/>
                       </svg>
                     </button>
                   </div>
+
+                  @if (sectionDeleteConfirmId() === node.id) {
+                    <div class="delete-confirm">
+                      <span>
+                        {{ i18n.t('admin.structure.deleteConfirmPrefix') }} "{{ i18n.pick(node.name, node.nameEn) }}"?
+                        @if (sectionDescendantCount(node.id) > 0) {
+                          {{ i18n.t('admin.structure.deleteConfirmChildrenPrefix') }} {{ sectionDescendantCount(node.id) }} {{ i18n.t('admin.structure.deleteConfirmChildrenSuffix') }}
+                        }
+                      </span>
+                      <div class="delete-actions">
+                        <button class="btn-danger" type="button" (click)="deleteSection(node.id)">{{ i18n.t('admin.mgmt.yesDelete') }}</button>
+                        <button class="btn-ghost" type="button" (click)="cancelDeleteSection()">{{ i18n.t('admin.structure.cancel') }}</button>
+                      </div>
+                    </div>
+                  }
                 }
               </div>
             </ng-template>
@@ -689,6 +708,8 @@
     }
 
     @if (activePanel() === 'trash') {
+      <p class="trash-notice">{{ i18n.t('admin.trash.autoPurgeNotice') }}</p>
+
       <section class="table-card">
         <div class="panel-head">
           <div>
@@ -716,7 +737,20 @@
                 </div>
                 <span class="category-chip">{{ i18n.t('admin.trash.deletedOn') }} {{ product.deletedAt | date:'d MMM y' }}</span>
                 <span></span>
-                <button class="btn-secondary" type="button" (click)="restoreProduct(product.id)">{{ i18n.t('admin.trash.restore') }}</button>
+                <div class="trash-actions">
+                  <button class="btn-secondary" type="button" (click)="restoreProduct(product.id)">{{ i18n.t('admin.trash.restore') }}</button>
+                  <button class="btn-danger" type="button" (click)="confirmPurgeProduct(product.id)">{{ i18n.t('admin.trash.deleteForever') }}</button>
+                </div>
+
+                @if (purgeConfirmProductId() === product.id) {
+                  <div class="delete-confirm">
+                    <span>{{ i18n.t('admin.trash.confirmDeleteProductPrefix') }} "{{ i18n.pick(product.name, product.nameEn) }}"?</span>
+                    <div class="delete-actions">
+                      <button class="btn-danger" type="button" (click)="purgeProduct(product.id)">{{ i18n.t('admin.trash.yesDeleteForever') }}</button>
+                      <button class="btn-ghost" type="button" (click)="cancelPurgeProduct()">{{ i18n.t('admin.trash.cancel') }}</button>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
@@ -734,13 +768,46 @@
           </div>
         </div>
 
+        <ng-template #trashCategoryNode let-node let-isRoot="isRoot">
+          <div class="tree-node tree-root">
+            <div class="tree-node-label" [class.clickable]="node.children?.length" (click)="node.children?.length && toggleCategoryExpand(node.id)">
+              @if (node.children?.length) {
+                <span class="tree-chevron" [class.open]="isCategoryExpanded(node.id)">▾</span>
+              }
+              <span>{{ i18n.pick(node.name, node.nameEn) }} · {{ i18n.t('admin.trash.deletedOn') }} {{ node.deletedAt | date:'d MMM y' }}</span>
+            </div>
+
+            @if (isRoot) {
+              <div class="trash-actions">
+                <button class="btn-secondary" type="button" (click)="restoreCategory(node.id)">{{ i18n.t('admin.trash.restore') }}</button>
+                <button class="btn-danger" type="button" (click)="confirmPurgeCategory(node.id)">{{ i18n.t('admin.trash.deleteForever') }}</button>
+              </div>
+            }
+
+            @if (purgeConfirmCategoryId() === node.id) {
+              <div class="delete-confirm">
+                <span>{{ i18n.t('admin.trash.confirmDeleteCategoryPrefix') }} "{{ i18n.pick(node.name, node.nameEn) }}"?</span>
+                <div class="delete-actions">
+                  <button class="btn-danger" type="button" (click)="purgeCategory(node.id)">{{ i18n.t('admin.trash.yesDeleteForever') }}</button>
+                  <button class="btn-ghost" type="button" (click)="cancelPurgeCategory()">{{ i18n.t('admin.trash.cancel') }}</button>
+                </div>
+              </div>
+            }
+          </div>
+
+          @if (node.children?.length && isCategoryExpanded(node.id)) {
+            <div class="tree-sub-list">
+              @for (child of node.children; track child.id) {
+                <ng-container *ngTemplateOutlet="trashCategoryNode; context: { $implicit: child, isRoot: false }"></ng-container>
+              }
+            </div>
+          }
+        </ng-template>
+
         @if (trashedCategories().length) {
           <div class="section-tree">
             @for (cat of trashedCategories(); track cat.id) {
-              <div class="tree-node tree-root">
-                <span>{{ i18n.pick(cat.name, cat.nameEn) }} · {{ i18n.t('admin.trash.deletedOn') }} {{ cat.deletedAt | date:'d MMM y' }}</span>
-                <button class="btn-secondary" type="button" (click)="restoreCategory(cat.id)">{{ i18n.t('admin.trash.restore') }}</button>
-              </div>
+              <ng-container *ngTemplateOutlet="trashCategoryNode; context: { $implicit: cat, isRoot: true }"></ng-container>
             }
           </div>
         } @else {

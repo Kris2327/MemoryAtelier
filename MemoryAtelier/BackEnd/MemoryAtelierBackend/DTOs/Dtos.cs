@@ -1,5 +1,7 @@
 ﻿namespace MemoryAtelierBackend.DTOs;
 
+public enum PurgeResult { NotFound, HasReferences, Purged }
+
 public record RegisterDto(string Name, string Email, string Password, string? PhoneNumber, DateTime? BirthDate);
 public record LoginDto(string Email, string Password);
 public record AuthResponseDto(string Token, string Role, string Name, Guid UserId, string? Phone);
@@ -52,7 +54,7 @@ public record ProductDto(
 public record UpdateProductStockDto(int Stock);
 
 public record TrashedProductDto(Guid Id, string Name, string? NameEn, string? ImageUrl, decimal Price, DateTime DeletedAt);
-public record TrashedCategoryDto(Guid Id, string Name, string? NameEn, DateTime DeletedAt);
+public record TrashedCategoryDto(Guid Id, string Name, string? NameEn, DateTime DeletedAt, List<TrashedCategoryDto> Children);
 
 public record CartItemDto(Guid Id, Guid ProductId, string ProductName, string? ImageUrl, decimal Price, int Quantity, decimal Total, int Stock, string? FulfillmentChoice);
 public record AddToCartDto(Guid ProductId, int Quantity);
