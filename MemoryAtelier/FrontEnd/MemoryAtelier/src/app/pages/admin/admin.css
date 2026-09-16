@@ -108,7 +108,6 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #f3c4a0 0%, #ffd8bc 100%);
 }
 
 .brand-mark img {
