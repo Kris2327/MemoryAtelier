@@ -11,7 +11,7 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
 {
     [HttpGet]
     public async Task<IActionResult> GetAll() =>
-        Ok(await categoryService.GetTreeAsync());
+        Ok(await categoryService.GetTreeAsync(User.IsInRole("Admin")));
 
     [HttpGet("deleted")]
     [Authorize(Roles = "Admin")]
@@ -56,6 +56,14 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
     public async Task<IActionResult> Restore(Guid id)
     {
         var success = await categoryService.RestoreAsync(id);
+        return success ? NoContent() : NotFound();
+    }
+
+    [HttpPatch("{id:guid}/hidden")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetHidden(Guid id, [FromBody] SetHiddenDto dto)
+    {
+        var success = dto.Hidden ? await categoryService.HideAsync(id) : await categoryService.ShowAsync(id);
         return success ? NoContent() : NotFound();
     }
 

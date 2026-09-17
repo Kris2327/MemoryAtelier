@@ -288,7 +288,7 @@
                     </div>
 
                     @for (product of group.items; track trackByProduct($index, product)) {
-                      <div class="table-row product-grid">
+                      <div class="table-row product-grid" [class.row-hidden]="product.isHidden">
                         <div class="product-cell">
                           <img
                             class="product-thumb"
@@ -303,6 +303,9 @@
                                 {{ i18n.t('admin.mgmt.mainPhoto') }}
                               }
                             </span>
+                            @if (product.isHidden) {
+                              <span class="hidden-badge">{{ i18n.t('admin.mgmt.hiddenBadge') }}</span>
+                            }
                           </div>
                         </div>
 
@@ -321,6 +324,14 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                               <path d="M4 20h4.75L19 9.75 14.25 5 4 15.25V20zm12.06-16.56L18.8 6.2a1.5 1.5 0 0 1 0 2.12l-1.38 1.38-4.74-4.75 1.38-1.37a1.5 1.5 0 0 1 2.12 0z"/>
                             </svg>
+                          </button>
+                          <button
+                            class="icon-button icon-button-edit"
+                            type="button"
+                            [attr.aria-label]="product.isHidden ? i18n.t('admin.mgmt.showProduct') : i18n.t('admin.mgmt.hideProduct')"
+                            [title]="product.isHidden ? i18n.t('admin.mgmt.showProduct') : i18n.t('admin.mgmt.hideProduct')"
+                            (click)="toggleProductHidden(product)">
+                            <i class="bi" [class.bi-eye]="product.isHidden" [class.bi-eye-slash]="!product.isHidden"></i>
                           </button>
                           <button
                             class="icon-button icon-button-delete"
@@ -408,7 +419,7 @@
             </div>
 
             <ng-template #categoryNode let-node let-cls="cls" let-idx="idx" let-total="total">
-              <div class="tree-node" [ngClass]="cls">
+              <div class="tree-node" [ngClass]="cls" [class.tree-node-hidden]="node.isHidden">
                 @if (editingCategoryId() === node.id) {
                   <div class="tree-edit-form">
                     <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.name" />
@@ -444,44 +455,41 @@
                       <span class="tree-chevron" [class.open]="isCategoryExpanded(node.id)">▾</span>
                     }
                     <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
+                    @if (node.isHidden) {
+                      <span class="hidden-badge">{{ i18n.t('admin.structure.hiddenBadge') }}</span>
+                    }
                   </div>
                   <div class="tree-actions">
-                    <button
-                      class="icon-button icon-button-edit icon-button-sm"
-                      type="button"
-                      [disabled]="idx === 0"
-                      [title]="i18n.t('admin.structure.moveUp')"
-                      (click)="moveCategory(node, -1)">
-                      <i class="bi bi-arrow-up"></i>
-                    </button>
-                    <button
-                      class="icon-button icon-button-edit icon-button-sm"
-                      type="button"
-                      [disabled]="idx === total - 1"
-                      [title]="i18n.t('admin.structure.moveDown')"
-                      (click)="moveCategory(node, 1)">
-                      <i class="bi bi-arrow-down"></i>
-                    </button>
-                    <button
-                      class="icon-button icon-button-edit icon-button-sm"
-                      type="button"
-                      [attr.aria-label]="i18n.t('admin.structure.edit')"
-                      [title]="i18n.t('admin.structure.edit')"
-                      (click)="startEditCategory(node)">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 20h4.75L19 9.75 14.25 5 4 15.25V20zm12.06-16.56L18.8 6.2a1.5 1.5 0 0 1 0 2.12l-1.38 1.38-4.74-4.75 1.38-1.37a1.5 1.5 0 0 1 2.12 0z"/>
-                      </svg>
-                    </button>
-                    <button
-                      class="icon-button icon-button-delete icon-button-sm"
-                      type="button"
-                      [attr.aria-label]="i18n.t('admin.structure.delete')"
-                      [title]="i18n.t('admin.structure.delete')"
-                      (click)="confirmDeleteSection(node.id)">
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8zM7 8h10l-1 12H8L7 8z"/>
-                      </svg>
-                    </button>
+                    <div class="menu-dropdown">
+                      <button
+                        class="icon-button icon-button-edit icon-button-sm menu-trigger"
+                        type="button"
+                        [attr.aria-label]="i18n.t('admin.structure.actions')"
+                        [title]="i18n.t('admin.structure.actions')"
+                        (click)="$event.stopPropagation(); toggleSectionMenu(node.id)">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      @if (isSectionMenuOpen(node.id)) {
+                        <div class="menu-panel" (click)="$event.stopPropagation()">
+                          <button class="menu-item" type="button" [disabled]="idx === 0" (click)="moveCategory(node, -1)">
+                            <i class="bi bi-arrow-up"></i> {{ i18n.t('admin.structure.moveUp') }}
+                          </button>
+                          <button class="menu-item" type="button" [disabled]="idx === total - 1" (click)="moveCategory(node, 1)">
+                            <i class="bi bi-arrow-down"></i> {{ i18n.t('admin.structure.moveDown') }}
+                          </button>
+                          <button class="menu-item" type="button" (click)="startEditCategory(node)">
+                            <i class="bi bi-pencil"></i> {{ i18n.t('admin.structure.edit') }}
+                          </button>
+                          <button class="menu-item" type="button" (click)="toggleSectionHidden(node)">
+                            <i class="bi" [class.bi-eye]="node.isHidden" [class.bi-eye-slash]="!node.isHidden"></i>
+                            {{ node.isHidden ? i18n.t('admin.structure.show') : i18n.t('admin.structure.hide') }}
+                          </button>
+                          <button class="menu-item menu-item-danger" type="button" (click)="confirmDeleteSection(node.id)">
+                            <i class="bi bi-trash"></i> {{ i18n.t('admin.structure.delete') }}
+                          </button>
+                        </div>
+                      }
+                    </div>
                   </div>
 
                   @if (sectionDeleteConfirmId() === node.id) {

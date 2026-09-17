@@ -7,7 +7,7 @@ namespace MemoryAtelierBackend.Services;
 
 public class ProductService(AppDbContext db)
 {
-    public async Task<List<ProductDto>> GetAllAsync(Guid? categoryId = null)
+    public async Task<List<ProductDto>> GetAllAsync(Guid? categoryId = null, bool isAdmin = false)
     {
         var query = db.Products.Include(p => p.Categories).Include(p => p.Images).AsQueryable();
         if (categoryId.HasValue)
@@ -15,13 +15,34 @@ public class ProductService(AppDbContext db)
             var ids = await GetCategoryAndChildIds(categoryId.Value);
             query = query.Where(p => p.Categories.Any(c => ids.Contains(c.Id)));
         }
-        return await query.OrderByDescending(p => p.CreatedAt).Select(p => ToDto(p)).ToListAsync();
+
+        var products = await query.OrderByDescending(p => p.CreatedAt).ToListAsync();
+        if (!isAdmin)
+        {
+            products = products.Where(IsVisibleToPublic).ToList();
+        }
+
+        return products.Select(p => ToDto(p, isAdmin)).ToList();
     }
 
-    public async Task<ProductDto?> GetByIdAsync(Guid id)
+    public async Task<ProductDto?> GetByIdAsync(Guid id, bool isAdmin = false)
     {
         var p = await db.Products.Include(p => p.Categories).Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
-        return p == null ? null : ToDto(p);
+        return p == null ? null : ToDto(p, isAdmin);
+    }
+
+    // Продукт се вижда публично, ако не е скрит сам по себе си и има поне една видима категория (или изобщо няма категории).
+    private static bool IsVisibleToPublic(Product p) =>
+        !p.IsHidden && (p.Categories.Count == 0 || p.Categories.Any(c => !c.IsHidden));
+
+    public async Task<ProductDto?> SetHiddenAsync(Guid id, bool hidden)
+    {
+        var product = await db.Products.Include(p => p.Categories).Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+        if (product == null) return null;
+
+        product.IsHidden = hidden;
+        await db.SaveChangesAsync();
+        return ToDto(product, isAdmin: true);
     }
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto)
@@ -211,11 +232,14 @@ public class ProductService(AppDbContext db)
             CollectIds(all, child.Id, result);
     }
 
-    private static ProductDto ToDto(Product p) => new(
+    private static ProductDto ToDto(Product p, bool isAdmin = true) => new(
         p.Id, p.Name, p.NameEn, p.Slug,
-        p.Categories.Select(c => new CategoryRefDto(c.Id, c.Name, c.NameEn)).ToList(),
+        p.Categories
+            .Where(c => isAdmin || !c.IsHidden)
+            .Select(c => new CategoryRefDto(c.Id, c.Name, c.NameEn, c.IsHidden))
+            .ToList(),
         p.Price, p.Description, p.DescriptionEn,
         p.Images.OrderBy(i => i.Order).Select(i => new ProductImageDto(i.Id, i.ImageUrl, i.Order)).ToList(),
-        p.Stock, p.CreatedAt
+        p.Stock, p.CreatedAt, p.IsHidden
     );
 }

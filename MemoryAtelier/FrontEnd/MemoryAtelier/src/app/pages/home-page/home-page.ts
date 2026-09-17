@@ -164,7 +164,7 @@ export class HomePage implements OnInit, OnDestroy {
     const map = new Map<string, { categoryEn: string | null; items: Product[] }>();
     data.forEach(p => {
       const relevant = restrictToIds ? p.categories.filter(c => restrictToIds.has(c.id)) : p.categories;
-      const cats: CategoryRef[] = relevant.length ? relevant : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null }];
+      const cats: CategoryRef[] = relevant.length ? relevant : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null, isHidden: false }];
       cats.forEach(cat => {
         if (!map.has(cat.name)) map.set(cat.name, { categoryEn: cat.nameEn, items: [] });
         map.get(cat.name)!.items.push(p);

@@ -24,6 +24,8 @@ public class Category
     public int SortOrder { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+    // Скрита от публичния сайт (но не изтрита) — каскадно важи и за поддървото/продуктите ѝ, вж. CategoryService.HideAsync/ShowAsync
+    public bool IsHidden { get; set; }
 }
 
 public class Product
@@ -42,6 +44,8 @@ public class Product
     public List<ProductImage> Images { get; set; } = new();
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+    // Скрит от публичния сайт (но не изтрит). Не каскадира от категория — видимостта му спрямо скрита секция се смята динамично, вж. ProductService.GetAllAsync
+    public bool IsHidden { get; set; }
 }
 
 public class ProductImage

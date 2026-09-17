@@ -14,6 +14,7 @@ export interface Category {
   nameEn: string | null;
   parentId: string | null;
   children: Category[];
+  isHidden: boolean;
 }
 
 export interface ProductImage {
@@ -26,6 +27,7 @@ export interface CategoryRef {
   id: string;
   name: string;
   nameEn: string | null;
+  isHidden: boolean;
 }
 
 export interface Product {
@@ -40,6 +42,7 @@ export interface Product {
   images: ProductImage[];
   stock: number;
   createdAt: string;
+  isHidden: boolean;
 }
 
 export interface TrashedProduct {

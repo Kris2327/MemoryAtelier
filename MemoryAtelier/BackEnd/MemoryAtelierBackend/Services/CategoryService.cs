@@ -7,18 +7,18 @@ namespace MemoryAtelierBackend.Services;
 
 public class CategoryService(AppDbContext db)
 {
-    public async Task<List<CategoryDto>> GetTreeAsync()
+    public async Task<List<CategoryDto>> GetTreeAsync(bool includeHidden)
     {
         var all = await db.Categories.ToListAsync();
-        return BuildTree(all, null);
+        return BuildTree(all, null, includeHidden);
     }
 
-    private List<CategoryDto> BuildTree(List<Category> all, Guid? parentId)
+    private List<CategoryDto> BuildTree(List<Category> all, Guid? parentId, bool includeHidden)
     {
         return all
-            .Where(c => c.ParentId == parentId)
+            .Where(c => c.ParentId == parentId && (includeHidden || !c.IsHidden))
             .OrderBy(c => c.SortOrder)
-            .Select(c => new CategoryDto(c.Id, c.Name, c.NameEn, c.ParentId, BuildTree(all, c.Id)))
+            .Select(c => new CategoryDto(c.Id, c.Name, c.NameEn, c.ParentId, BuildTree(all, c.Id, includeHidden), c.IsHidden))
             .ToList();
     }
 
@@ -122,6 +122,44 @@ public class CategoryService(AppDbContext db)
             .Select(c => BuildTrashNode(c, allDeleted))
             .ToList();
         return new TrashedCategoryDto(cat.Id, cat.Name, cat.NameEn, cat.DeletedAt!.Value, children);
+    }
+
+    // Скрива категорията и цялото ѝ активно поддърво от публичния сайт (без да ги трие).
+    public async Task<bool> HideAsync(Guid id)
+    {
+        var cat = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        if (cat == null) return false;
+
+        var idsToHide = new List<Guid> { id };
+        idsToHide.AddRange(await CollectActiveDescendantIdsAsync(id));
+
+        var categories = await db.Categories.Where(c => idsToHide.Contains(c.Id)).ToListAsync();
+        foreach (var category in categories)
+        {
+            category.IsHidden = true;
+        }
+
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    // Показва обратно категорията заедно с цялото ѝ активно поддърво.
+    public async Task<bool> ShowAsync(Guid id)
+    {
+        var cat = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        if (cat == null) return false;
+
+        var idsToShow = new List<Guid> { id };
+        idsToShow.AddRange(await CollectActiveDescendantIdsAsync(id));
+
+        var categories = await db.Categories.Where(c => idsToShow.Contains(c.Id)).ToListAsync();
+        foreach (var category in categories)
+        {
+            category.IsHidden = false;
+        }
+
+        await db.SaveChangesAsync();
+        return true;
     }
 
     // Възстановява категорията заедно с цялото ѝ поддърво, останало в кошчето — иначе възстановените деца

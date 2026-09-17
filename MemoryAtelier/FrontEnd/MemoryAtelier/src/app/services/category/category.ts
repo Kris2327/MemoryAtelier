@@ -36,6 +36,10 @@ export class CategoryService {
     return this.http.put(`${this.API}/reorder`, { orderedIds });
   }
 
+  setHidden(id: string, hidden: boolean) {
+    return this.http.patch(`${this.API}/${id}/hidden`, { hidden });
+  }
+
   getDeleted() {
     return this.http.get<TrashedCategory[]>(`${this.API}/deleted`);
   }

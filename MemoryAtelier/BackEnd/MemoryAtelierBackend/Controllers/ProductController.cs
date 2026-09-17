@@ -11,7 +11,7 @@ public class ProductController(ProductService productService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] Guid? categoryId) =>
-        Ok(await productService.GetAllAsync(categoryId));
+        Ok(await productService.GetAllAsync(categoryId, User.IsInRole("Admin")));
 
     [HttpGet("deleted")]
     [Authorize(Roles = "Admin")]
@@ -21,7 +21,7 @@ public class ProductController(ProductService productService) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var product = await productService.GetByIdAsync(id);
+        var product = await productService.GetByIdAsync(id, User.IsInRole("Admin"));
         return product == null ? NotFound() : Ok(product);
     }
 
@@ -51,6 +51,14 @@ public class ProductController(ProductService productService) : ControllerBase
         }
 
         var product = await productService.UpdateStockAsync(id, dto.Stock);
+        return product == null ? NotFound() : Ok(product);
+    }
+
+    [HttpPatch("{id:guid}/hidden")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetHidden(Guid id, [FromBody] SetHiddenDto dto)
+    {
+        var product = await productService.SetHiddenAsync(id, dto.Hidden);
         return product == null ? NotFound() : Ok(product);
     }
 

@@ -6,14 +6,15 @@ public record RegisterDto(string Name, string Email, string Password, string? Ph
 public record LoginDto(string Email, string Password);
 public record AuthResponseDto(string Token, string Role, string Name, Guid UserId, string? Phone);
 
-public record CategoryDto(Guid Id, string Name, string? NameEn, Guid? ParentId, List<CategoryDto> Children);
+public record CategoryDto(Guid Id, string Name, string? NameEn, Guid? ParentId, List<CategoryDto> Children, bool IsHidden = false);
 public record CreateCategoryDto(string Name, string? NameEn, Guid? ParentId);
 public record UpdateCategoryDto(string Name, string? NameEn, Guid? ParentId);
 public record ReorderCategoriesDto(List<Guid> OrderedIds);
+public record SetHiddenDto(bool Hidden);
 
 public record ProductImageDto(Guid Id, string ImageUrl, int Order);
 
-public record CategoryRefDto(Guid Id, string Name, string? NameEn);
+public record CategoryRefDto(Guid Id, string Name, string? NameEn, bool IsHidden = false);
 
 public record CreateProductDto(
     string Name,
@@ -48,7 +49,8 @@ public record ProductDto(
     string? DescriptionEn,
     List<ProductImageDto> Images,
     int Stock,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool IsHidden = false
 );
 
 public record UpdateProductStockDto(int Stock);

@@ -31,6 +31,10 @@ export class ProductService {
     return this.http.delete(`${this.API}/${id}`);
   }
 
+  setHidden(id: string, hidden: boolean) {
+    return this.http.patch<Product>(`${this.API}/${id}/hidden`, { hidden });
+  }
+
   getDeleted() {
     return this.http.get<TrashedProduct[]>(`${this.API}/deleted`);
   }

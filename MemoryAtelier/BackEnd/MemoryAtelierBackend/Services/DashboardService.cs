@@ -38,7 +38,7 @@ public class DashboardService(AppDbContext db)
                 product.Id,
                 product.Name,
                 product.NameEn,
-                product.Categories.Select(c => new CategoryRefDto(c.Id, c.Name, c.NameEn)).ToList(),
+                product.Categories.Select(c => new CategoryRefDto(c.Id, c.Name, c.NameEn, c.IsHidden)).ToList(),
                 product.Stock,
                 product.Images.OrderBy(image => image.Order).Select(image => image.ImageUrl).FirstOrDefault()
             ))

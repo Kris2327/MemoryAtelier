@@ -132,6 +132,7 @@ export class Admin implements OnInit, AfterViewInit {
   expandedCategoryIds = signal<Set<string>>(new Set());
   collapsedGroups = signal<Set<string>>(new Set());
   sectionDeleteConfirmId = signal<string | null>(null);
+  openSectionMenuId = signal<string | null>(null);
 
   trashedProducts = signal<TrashedProduct[]>([]);
   trashedCategories = signal<TrashedCategory[]>([]);
@@ -346,7 +347,7 @@ export class Admin implements OnInit, AfterViewInit {
     data.forEach(product => {
       const cats: CategoryRef[] = product.categories.length
         ? product.categories
-        : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null }];
+        : [{ id: '', name: this.i18n.t('admin.noCategory'), nameEn: null, isHidden: false }];
 
       cats.forEach(cat => {
         if (!map.has(cat.name)) {
@@ -441,6 +442,39 @@ export class Admin implements OnInit, AfterViewInit {
     this.subSubDropdownOpen.set(false);
     this.newSectionParentDropdownOpen.set(false);
     this.categoryEditParentDropdownOpen.set(false);
+    this.openSectionMenuId.set(null);
+  }
+
+  toggleSectionMenu(id: string): void {
+    this.openSectionMenuId.update(current => current === id ? null : id);
+  }
+
+  closeSectionMenu(): void {
+    this.openSectionMenuId.set(null);
+  }
+
+  isSectionMenuOpen(id: string): boolean {
+    return this.openSectionMenuId() === id;
+  }
+
+  toggleSectionHidden(node: Category): void {
+    this.closeSectionMenu();
+    this.categoryService.setHidden(node.id, !node.isHidden).subscribe({
+      next: () => {
+        this.loadCategories();
+        this.loadProducts();
+        this.showSuccess(node.isHidden ? this.i18n.t('admin.toast.sectionShown') : this.i18n.t('admin.toast.sectionHidden'));
+      }
+    });
+  }
+
+  toggleProductHidden(product: Product): void {
+    this.productService.setHidden(product.id, !product.isHidden).subscribe({
+      next: () => {
+        this.loadProducts();
+        this.showSuccess(product.isHidden ? this.i18n.t('admin.toast.productShown') : this.i18n.t('admin.toast.productHidden'));
+      }
+    });
   }
 
   toggleNewSectionParentDropdown(): void {
@@ -1004,6 +1038,7 @@ export class Admin implements OnInit, AfterViewInit {
   }
 
   moveCategory(node: Category, direction: number): void {
+    this.closeSectionMenu();
     const roots = structuredClone(this.categories());
     const siblings = node.parentId === null
       ? roots
@@ -1031,6 +1066,7 @@ export class Admin implements OnInit, AfterViewInit {
   }
 
   confirmDeleteSection(id: string): void {
+    this.closeSectionMenu();
     this.sectionDeleteConfirmId.set(id);
   }
 
@@ -1136,6 +1172,7 @@ export class Admin implements OnInit, AfterViewInit {
   }
 
   startEditCategory(cat: Category): void {
+    this.closeSectionMenu();
     this.editingCategoryId.set(cat.id);
     this.categoryDraft = { name: cat.name, nameEn: cat.nameEn ?? '', parentId: cat.parentId ?? '' };
     this.categoryEditParentDropdownOpen.set(false);
