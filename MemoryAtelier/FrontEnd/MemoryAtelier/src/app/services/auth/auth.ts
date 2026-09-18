@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal, computed } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
@@ -8,11 +9,13 @@ import { AuthResponse, LoginRequest, RegisterRequest, UserProfile } from './auth
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly API = `${environment.apiUrl}/auth`;
+  // localStorage не съществува по време на SSR — четем/пишем само в браузъра.
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  private _token = signal<string | null>(localStorage.getItem('token'));
-  private _role = signal<string | null>(localStorage.getItem('role'));
-  private _name = signal<string | null>(localStorage.getItem('name'));
-  private _phone = signal<string | null>(localStorage.getItem('phone')); // <- добави
+  private _token = signal<string | null>(this.isBrowser ? localStorage.getItem('token') : null);
+  private _role = signal<string | null>(this.isBrowser ? localStorage.getItem('role') : null);
+  private _name = signal<string | null>(this.isBrowser ? localStorage.getItem('name') : null);
+  private _phone = signal<string | null>(this.isBrowser ? localStorage.getItem('phone') : null); // <- добави
 
   readonly token = this._token.asReadonly();
   readonly role = this._role.asReadonly();
@@ -36,7 +39,7 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.clear();
+    if (this.isBrowser) localStorage.clear();
     this._token.set(null);
     this._role.set(null);
     this._name.set(null);
@@ -45,10 +48,12 @@ export class AuthService {
   }
 
   private saveSession(res: AuthResponse) {
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('role', res.role);
-    localStorage.setItem('name', res.name);
-    if (res.phone) localStorage.setItem('phone', res.phone); // <- добави
+    if (this.isBrowser) {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('role', res.role);
+      localStorage.setItem('name', res.name);
+      if (res.phone) localStorage.setItem('phone', res.phone); // <- добави
+    }
     this._token.set(res.token);
     this._role.set(res.role);
     this._name.set(res.name);

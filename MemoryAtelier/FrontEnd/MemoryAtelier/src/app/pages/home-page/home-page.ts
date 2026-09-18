@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product/product';
 import { CartService } from '../../services/cartService/cartService';
@@ -27,6 +27,7 @@ export class HomePage implements OnInit, OnDestroy {
   heroIndex = signal(0);
   sidebarOpen = signal(false);
   private heroTimer?: number;
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   // снимки за hero слайдъра — избрани от администратора през админ панела
   adminHeroImages = signal<string[]>([]);
@@ -131,11 +132,13 @@ export class HomePage implements OnInit, OnDestroy {
       this.loadFavouriteIds();
     }
 
-    this.heroTimer = window.setInterval(() => this.changeHeroImage(1), 4500);
+    if (this.isBrowser) {
+      this.heroTimer = window.setInterval(() => this.changeHeroImage(1), 4500);
+    }
   }
 
   ngOnDestroy() {
-    if (this.heroTimer) {
+    if (this.isBrowser && this.heroTimer) {
       window.clearInterval(this.heroTimer);
     }
   }
