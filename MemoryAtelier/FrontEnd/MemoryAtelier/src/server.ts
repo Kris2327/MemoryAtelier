@@ -6,23 +6,33 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import { environment } from './environments/environment';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// Backend-ът сервира /sitemap.xml на своя корен (виж SitemapController).
+// Reverse proxy-то пред memoryatelier.bg рутира всичко към този Angular SSR
+// сървър, така че проксираме заявката към backend-а тук вместо да разчитаме
+// на инфра-ниво рутиране на /sitemap.xml.
+const backendOrigin = environment.apiUrl.replace(/\/api\/?$/, '');
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const upstream = await fetch(`${backendOrigin}/sitemap.xml`);
+    if (!upstream.ok) {
+      res.status(upstream.status).end();
+      return;
+    }
+    const xml = await upstream.text();
+    res.type('application/xml').send(xml);
+  } catch (err) {
+    console.error('Failed to fetch /sitemap.xml from backend', err);
+    res.status(502).end();
+  }
+});
 
 /**
  * Serve static files from /browser
