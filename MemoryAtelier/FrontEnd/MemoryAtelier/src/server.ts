@@ -4,6 +4,7 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import compression from 'compression';
 import express from 'express';
 import { join } from 'node:path';
 import { environment } from './environments/environment';
@@ -12,6 +13,9 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+// Gzip/Brotli компресия на SSR HTML-а (може да е 1MB+ при много продукти) и на статичните файлове.
+app.use(compression());
 
 // Backend-ът сервира /sitemap.xml на своя корен (виж SitemapController).
 // Reverse proxy-то пред memoryatelier.bg рутира всичко към този Angular SSR

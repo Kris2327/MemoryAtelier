@@ -44,6 +44,8 @@
         <img
           [src]="product.images[0]?.imageUrl || 'https://placehold.co/290x240'"
           [alt]="i18n.pick(product.name, product.nameEn)"
+          loading="lazy"
+          decoding="async"
           class="product-img" />
         <span class="product-category">{{ categoryNames(product.categories) }}</span>
         @if (isNew(product)) {
@@ -201,6 +203,8 @@
                 <img
                   [src]="product.images[0]?.imageUrl || 'https://placehold.co/220x180'"
                   [alt]="i18n.pick(product.name, product.nameEn)"
+                  loading="lazy"
+                  decoding="async"
                   class="slider-img" />
                 <span class="slider-category">{{ categoryNames(product.categories) }}</span>
               </div>
