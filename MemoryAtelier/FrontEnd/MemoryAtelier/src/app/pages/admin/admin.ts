@@ -23,6 +23,7 @@ import { AdminOrder, AdminOrderItem, Category, CategoryRef, ContactMessage, Crea
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
 import { environment } from '../../../environments/environment';
+import { ThumbUrlPipe } from '../../shared/thumb-url';
 
 declare global {
   interface Window {
@@ -80,7 +81,7 @@ type AdminPanel = 'dashboard' | 'management' | 'hero' | 'contact' | 'orders' | '
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ThumbUrlPipe],
   templateUrl: './admin.html',
   styleUrl: './admin.css'
 })
@@ -1284,6 +1285,13 @@ export class Admin implements OnInit, AfterViewInit {
   showError(message: string): void {
     this.errorMsg.set(message);
     window.setTimeout(() => this.errorMsg.set(''), 4000);
+  }
+
+  // -thumb companion файлът може да липсва за снимки, качени преди thumbnail генерирането
+  // (или преди reprocess-legacy backfill-а) — тогава падаме обратно на пълната снимка.
+  onThumbError(event: Event, original: string): void {
+    const el = event.target as HTMLImageElement;
+    if (el.src !== original) el.src = original;
   }
 
   trackByProduct(_: number, product: Product): string {

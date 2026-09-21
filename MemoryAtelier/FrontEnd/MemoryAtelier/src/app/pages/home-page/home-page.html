@@ -5,12 +5,11 @@
         <div class="hero-slide" [class.active]="i === heroIndex()">
           @if (isHeroSlideLoaded(i)) {
             <img
-              [src]="img | resizeImage:1600"
+              [src]="img"
               alt=""
               [attr.fetchpriority]="i === 0 ? 'high' : null"
               [loading]="i === 0 ? 'eager' : 'lazy'"
-              decoding="async"
-              (error)="onImageError($event)" />
+              decoding="async" />
           }
         </div>
       }
@@ -52,11 +51,11 @@
     <div class="product-card" (click)="goToProduct(product)">
       <div class="product-img-wrap">
         <img
-          [src]="(product.images[0]?.imageUrl | resizeImage:400) || 'https://placehold.co/290x240'"
+          [src]="(product.images[0]?.imageUrl | thumbUrl) || 'https://placehold.co/290x240'"
           [alt]="i18n.pick(product.name, product.nameEn)"
           loading="lazy"
           decoding="async"
-          (error)="onImageError($event)"
+          (error)="onThumbError($event, product.images[0]?.imageUrl || 'https://placehold.co/290x240')"
           class="product-img" />
         <span class="product-category">{{ categoryNames(product.categories) }}</span>
         @if (isNew(product)) {
@@ -212,11 +211,11 @@
             <div class="slider-card" (click)="goToProduct(product)">
               <div class="slider-img-wrap">
                 <img
-                  [src]="(product.images[0]?.imageUrl | resizeImage:300) || 'https://placehold.co/220x180'"
+                  [src]="(product.images[0]?.imageUrl | thumbUrl) || 'https://placehold.co/220x180'"
                   [alt]="i18n.pick(product.name, product.nameEn)"
                   loading="lazy"
                   decoding="async"
-                  (error)="onImageError($event)"
+                  (error)="onThumbError($event, product.images[0]?.imageUrl || 'https://placehold.co/220x180')"
                   class="slider-img" />
                 <span class="slider-category">{{ categoryNames(product.categories) }}</span>
               </div>

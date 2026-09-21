@@ -10,12 +10,12 @@ import { CategoryService } from '../../services/category/category';
 import { Category, CategoryRef, Product } from '../../services/auth/auth-types';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
-import { ResizeImagePipe, originalImageUrl } from '../../shared/resize-image.pipe';
+import { ThumbUrlPipe } from '../../shared/thumb-url';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ResizeImagePipe],
+  imports: [CommonModule, RouterLink, ThumbUrlPipe],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css'
 })
@@ -292,11 +292,11 @@ export class HomePage implements OnInit, OnDestroy {
     document.querySelector('.sections, .category-layout')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // Fallback ако Supabase-ият image-transformation endpoint не е наличен — връща оригиналния URL.
-  onImageError(event: Event): void {
+  // -thumb companion файлът може да липсва за снимки, качени преди thumbnail генерирането
+  // (или преди reprocess-legacy backfill-а) — тогава падаме обратно на пълната снимка.
+  onThumbError(event: Event, original: string): void {
     const el = event.target as HTMLImageElement;
-    const fallback = originalImageUrl(el.src);
-    if (fallback !== el.src) el.src = fallback;
+    if (el.src !== original) el.src = original;
   }
 
   isNew(product: Product): boolean {

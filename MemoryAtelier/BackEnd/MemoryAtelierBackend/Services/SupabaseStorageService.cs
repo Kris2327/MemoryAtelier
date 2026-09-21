@@ -20,6 +20,9 @@ public class SupabaseStorageService(
     // Снимките от клиенти (телефони и т.н.) често са по няколко MB — това взриви LCP-то на сайта
     // (виж PageSpeed: 60+ MB картинки на начална страница). Преоразмеряваме и компресираме преди upload.
     private const int MaxDimension = 1920;
+    // Малка "-thumb" версия за решетки/миниатюри — Supabase-ият image-transformation endpoint (render/image)
+    // се оказа недостъпен за проекта (403), затова генерираме статична миниатюра сами при качване.
+    private const int ThumbnailMaxDimension = 480;
     private const int WebpQuality = 80;
 
     public bool IsConfigured =>
@@ -36,47 +39,51 @@ public class SupabaseStorageService(
 
         await EnsureBucketExistsAsync(cancellationToken);
 
-        var (uploadStream, contentType, extension) = await PrepareImageAsync(file, cancellationToken);
-        using (uploadStream)
+        var (mainStream, thumbStream, contentType, extension) = await PrepareImageAsync(file, cancellationToken);
+        using (mainStream)
+        using (thumbStream)
         {
             var objectPath = $"products/{DateTime.UtcNow:yyyy/MM}/{Guid.NewGuid()}{extension}";
-            var uploadUrl = $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/object/{_settings.StorageBucket}/{objectPath}";
+            await UploadObjectAsync(_settings.StorageBucket, objectPath, mainStream, contentType, upsert: false, cancellationToken);
 
-            using var content = new StreamContent(uploadStream);
-            content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl)
+            if (thumbStream != null)
             {
-                Content = content
-            };
-
-            AddAuthHeaders(request.Headers);
-            request.Headers.TryAddWithoutValidation("x-upsert", "false");
-
-            using var response = await httpClient.SendAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                logger.LogError("Supabase storage upload failed with status {StatusCode}: {Body}", response.StatusCode, body);
-                throw new InvalidOperationException("Image upload to Supabase Storage failed.");
+                try
+                {
+                    await UploadObjectAsync(_settings.StorageBucket, ToThumbnailPath(objectPath), thumbStream, contentType, upsert: false, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    // не чупим целия upload заради миниатюрата — фронтендът пада обратно на основната снимка при 404
+                    logger.LogWarning(ex, "Thumbnail upload failed for {ObjectPath}, continuing without it.", objectPath);
+                }
             }
 
             return $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/object/public/{_settings.StorageBucket}/{objectPath}";
         }
     }
 
-    // GIF-овете (може да са анимирани) се качват непроменени; всичко останало се преоразмерява
-    // до максимум MaxDimension по дългата страна и се пренакодира в WebP.
-    private static async Task<(Stream Stream, string ContentType, string Extension)> PrepareImageAsync(
+    // GIF-овете (може да са анимирани) се качват непроменени, без миниатюра; всичко останало се
+    // преоразмерява до MaxDimension и се пренакодира в WebP, плюс отделна ThumbnailMaxDimension "-thumb" версия.
+    private static async Task<(Stream MainStream, Stream? ThumbStream, string ContentType, string Extension)> PrepareImageAsync(
         IFormFile file, CancellationToken cancellationToken)
     {
         if (file.ContentType == "image/gif")
         {
-            return (file.OpenReadStream(), file.ContentType, Path.GetExtension(file.FileName));
+            return (file.OpenReadStream(), null, file.ContentType, Path.GetExtension(file.FileName));
         }
 
         await using var source = file.OpenReadStream();
         using var image = await Image.LoadAsync(source, cancellationToken);
+
+        using var thumbImage = image.Clone(x => x.Resize(new ResizeOptions
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(ThumbnailMaxDimension, ThumbnailMaxDimension)
+        }));
+        var thumbOutput = new MemoryStream();
+        await thumbImage.SaveAsync(thumbOutput, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
+        thumbOutput.Position = 0;
 
         image.Mutate(x => x.Resize(new ResizeOptions
         {
@@ -87,13 +94,13 @@ public class SupabaseStorageService(
         var output = new MemoryStream();
         await image.SaveAsync(output, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
         output.Position = 0;
-        return (output, "image/webp", ".webp");
+        return (output, thumbOutput, "image/webp", ".webp");
     }
 
-    // Преоразмерява "на място" стари снимки, качени преди MaxDimension/WebP преоразмеряването по-горе
-    // (виж коментара му) — тегли текущия обект, смалява го ако е над MaxDimension и го качва обратно
-    // на СЪЩИЯ path (x-upsert), така че URL-ът в базата да не се променя. Форматът се запазва, за да
-    // няма несъответствие между разширение и съдържание.
+    // Преоразмерява "на място" стари снимки, качени преди MaxDimension/WebP логиката по-горе — тегли текущия
+    // обект, смалява го ако е над MaxDimension и го качва обратно на СЪЩИЯ path (x-upsert), така че URL-ът в
+    // базата да не се променя. Освен това (винаги, дори когато основната снимка вече е ОК) генерира и качва
+    // липсващата "-thumb" companion версия, използвана от фронтенда за решетки/миниатюри.
     public async Task<ImageReprocessResult> ReprocessIfOversizedAsync(string publicImageUrl, CancellationToken cancellationToken = default)
     {
         const string marker = "/storage/v1/object/public/";
@@ -110,11 +117,12 @@ public class SupabaseStorageService(
         if (!getResponse.IsSuccessStatusCode) return ImageReprocessResult.Failed;
 
         var originalBytes = await getResponse.Content.ReadAsByteArrayAsync(cancellationToken);
-        using var sourceStream = new MemoryStream(originalBytes);
+        var contentType = getResponse.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
 
         Image image;
         try
         {
+            using var sourceStream = new MemoryStream(originalBytes);
             image = await Image.LoadAsync(sourceStream, cancellationToken);
         }
         catch
@@ -124,12 +132,32 @@ public class SupabaseStorageService(
 
         using (image)
         {
-            if (image.Width <= MaxDimension && image.Height <= MaxDimension)
+            var wasOversized = image.Width > MaxDimension || image.Height > MaxDimension;
+            var format = image.Metadata.DecodedImageFormat;
+
+            try
+            {
+                using var thumbImage = image.Clone(x => x.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(ThumbnailMaxDimension, ThumbnailMaxDimension)
+                }));
+                using var thumbOutput = new MemoryStream();
+                if (format != null) await thumbImage.SaveAsync(thumbOutput, format, cancellationToken);
+                else await thumbImage.SaveAsync(thumbOutput, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
+                thumbOutput.Position = 0;
+                await UploadObjectAsync(bucket, ToThumbnailPath(objectPath), thumbOutput, contentType, upsert: true, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Thumbnail generation/upload failed for {ObjectPath}", objectPath);
+            }
+
+            if (!wasOversized)
             {
                 return ImageReprocessResult.AlreadyOptimized;
             }
 
-            var format = image.Metadata.DecodedImageFormat;
             image.Mutate(x => x.Resize(new ResizeOptions
             {
                 Mode = ResizeMode.Max,
@@ -137,35 +165,46 @@ public class SupabaseStorageService(
             }));
 
             using var output = new MemoryStream();
-            if (format != null)
-            {
-                await image.SaveAsync(output, format, cancellationToken);
-            }
-            else
-            {
-                await image.SaveAsync(output, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
-            }
+            if (format != null) await image.SaveAsync(output, format, cancellationToken);
+            else await image.SaveAsync(output, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
             output.Position = 0;
 
-            var contentType = getResponse.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var uploadUrl = $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/object/{bucket}/{objectPath}";
-
-            using var content = new StreamContent(output);
-            content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl) { Content = content };
-            AddAuthHeaders(request.Headers);
-            request.Headers.TryAddWithoutValidation("x-upsert", "true");
-
-            using var response = await httpClient.SendAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                logger.LogError("Supabase storage reprocess-upload failed for {ObjectPath} with status {StatusCode}: {Body}", objectPath, response.StatusCode, body);
+                await UploadObjectAsync(bucket, objectPath, output, contentType, upsert: true, cancellationToken);
+            }
+            catch
+            {
                 return ImageReprocessResult.Failed;
             }
 
             return ImageReprocessResult.Reprocessed;
+        }
+    }
+
+    private static string ToThumbnailPath(string objectPath)
+    {
+        var dot = objectPath.LastIndexOf('.');
+        return dot == -1 ? objectPath + "-thumb" : objectPath[..dot] + "-thumb" + objectPath[dot..];
+    }
+
+    private async Task UploadObjectAsync(string bucket, string objectPath, Stream content, string contentType, bool upsert, CancellationToken cancellationToken)
+    {
+        var uploadUrl = $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/object/{bucket}/{objectPath}";
+
+        using var streamContent = new StreamContent(content);
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl) { Content = streamContent };
+        AddAuthHeaders(request.Headers);
+        request.Headers.TryAddWithoutValidation("x-upsert", upsert ? "true" : "false");
+
+        using var response = await httpClient.SendAsync(request, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogError("Supabase storage upload failed for {ObjectPath} with status {StatusCode}: {Body}", objectPath, response.StatusCode, body);
+            throw new InvalidOperationException("Image upload to Supabase Storage failed.");
         }
     }
 

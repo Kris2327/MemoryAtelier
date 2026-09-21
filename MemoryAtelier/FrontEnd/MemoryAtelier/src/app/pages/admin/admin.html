@@ -203,8 +203,9 @@
                   <div class="product-cell">
                     <img
                       class="product-thumb"
-                      [src]="product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
-                      [alt]="product.name" />
+                      [src]="(product.imageUrl | thumbUrl) || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                      [alt]="product.name"
+                      (error)="onThumbError($event, product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA')" />
                     <div>
                       <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
                       <span class="product-meta">{{ product.stock === 0 ? i18n.t('admin.lowStock.outOfStock') : i18n.t('admin.lowStock.needsAttention') }}</span>
@@ -292,8 +293,9 @@
                         <div class="product-cell">
                           <img
                             class="product-thumb"
-                            [src]="product.images[0]?.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
-                            [alt]="product.name" />
+                            [src]="(product.images[0]?.imageUrl | thumbUrl) || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                            [alt]="product.name"
+                            (error)="onThumbError($event, product.images[0]?.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA')" />
                           <div>
                             <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
                             <span class="product-meta">
@@ -738,8 +740,9 @@
                 <div class="product-cell">
                   <img
                     class="product-thumb"
-                    [src]="product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
-                    [alt]="product.name" />
+                    [src]="(product.imageUrl | thumbUrl) || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA'"
+                    [alt]="product.name"
+                    (error)="onThumbError($event, product.imageUrl || 'https://placehold.co/64x64/f7ede6/8b4513?text=MA')" />
                   <div>
                     <strong class="product-name">{{ i18n.pick(product.name, product.nameEn) }}</strong>
                     <span class="product-meta">€{{ product.price.toFixed(2) }}</span>

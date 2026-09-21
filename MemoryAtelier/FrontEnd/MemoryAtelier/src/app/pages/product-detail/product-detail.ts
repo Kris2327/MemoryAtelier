@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
 import { environment } from '../../../environments/environment';
-import { ResizeImagePipe, originalImageUrl } from '../../shared/resize-image.pipe';
+import { ThumbUrlPipe } from '../../shared/thumb-url';
 
 export interface Review {
   id: string;
@@ -23,7 +23,7 @@ export interface Review {
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, ResizeImagePipe],
+  imports: [CommonModule, ThumbUrlPipe],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css'
 })
@@ -277,10 +277,10 @@ export class ProductDetail implements OnInit {
   formatDate(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
   mainImage() { const p = this.product(); return p?.images[this.selectedImage()]?.imageUrl ?? 'https://placehold.co/600x500'; }
 
-  // Fallback ако Supabase-ият image-transformation endpoint не е наличен — връща оригиналния URL.
-  onImageError(event: Event): void {
+  // -thumb companion файлът може да липсва за снимки, качени преди thumbnail генерирането
+  // (или преди reprocess-legacy backfill-а) — тогава падаме обратно на пълната снимка.
+  onThumbError(event: Event, original: string): void {
     const el = event.target as HTMLImageElement;
-    const fallback = originalImageUrl(el.src);
-    if (fallback !== el.src) el.src = fallback;
+    if (el.src !== original) el.src = original;
   }
 }

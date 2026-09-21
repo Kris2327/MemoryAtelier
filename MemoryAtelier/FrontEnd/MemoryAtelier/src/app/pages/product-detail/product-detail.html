@@ -23,7 +23,7 @@
       <!-- IMAGES -->
       <div class="pd-images">
         <div class="pd-main-img-wrap">
-          <img [src]="mainImage() | resizeImage:900" [alt]="i18n.pick(product()!.name, product()!.nameEn)" class="pd-main-img" fetchpriority="high" loading="eager" decoding="async" (error)="onImageError($event)" />
+          <img [src]="mainImage()" [alt]="i18n.pick(product()!.name, product()!.nameEn)" class="pd-main-img" fetchpriority="high" loading="eager" decoding="async" />
           @if (product()!.stock === 0) {
             <div class="out-of-stock-overlay">{{ i18n.t('pd.outOfStockOverlay') }}</div>
           }
@@ -32,7 +32,7 @@
           <div class="pd-thumbs">
             @for (img of product()!.images; track img.id; let i = $index) {
               <div class="pd-thumb" [class.active]="selectedImage() === i" (click)="selectImage(i)">
-                <img [src]="img.imageUrl | resizeImage:150" [alt]="i18n.pick(product()!.name, product()!.nameEn) + ' ' + (i + 1)" loading="lazy" decoding="async" (error)="onImageError($event)" />
+                <img [src]="img.imageUrl | thumbUrl" [alt]="i18n.pick(product()!.name, product()!.nameEn) + ' ' + (i + 1)" loading="lazy" decoding="async" (error)="onThumbError($event, img.imageUrl)" />
               </div>
             }
           </div>
@@ -224,7 +224,7 @@
           @for (p of suggestions(); track p.id) {
             <div class="sugg-card" (click)="goToProduct(p)">
               <div class="sugg-img-wrap">
-                <img [src]="(p.images[0]?.imageUrl | resizeImage:400) || 'https://placehold.co/300x240'" [alt]="i18n.pick(p.name, p.nameEn)" loading="lazy" decoding="async" (error)="onImageError($event)" />
+                <img [src]="(p.images[0]?.imageUrl | thumbUrl) || 'https://placehold.co/300x240'" [alt]="i18n.pick(p.name, p.nameEn)" loading="lazy" decoding="async" (error)="onThumbError($event, p.images[0]?.imageUrl || 'https://placehold.co/300x240')" />
               </div>
               <div class="sugg-info">
                 <div class="sugg-cat">{{ categoryNames(p.categories) }}</div>
