@@ -90,6 +90,85 @@ public class SupabaseStorageService(
         return (output, "image/webp", ".webp");
     }
 
+    // Преоразмерява "на място" стари снимки, качени преди MaxDimension/WebP преоразмеряването по-горе
+    // (виж коментара му) — тегли текущия обект, смалява го ако е над MaxDimension и го качва обратно
+    // на СЪЩИЯ path (x-upsert), така че URL-ът в базата да не се променя. Форматът се запазва, за да
+    // няма несъответствие между разширение и съдържание.
+    public async Task<ImageReprocessResult> ReprocessIfOversizedAsync(string publicImageUrl, CancellationToken cancellationToken = default)
+    {
+        const string marker = "/storage/v1/object/public/";
+        var idx = publicImageUrl.IndexOf(marker, StringComparison.Ordinal);
+        if (idx == -1) return ImageReprocessResult.Skipped;
+
+        var rest = publicImageUrl[(idx + marker.Length)..];
+        var slashIdx = rest.IndexOf('/');
+        if (slashIdx == -1) return ImageReprocessResult.Skipped;
+        var bucket = rest[..slashIdx];
+        var objectPath = rest[(slashIdx + 1)..];
+
+        using var getResponse = await httpClient.GetAsync(publicImageUrl, cancellationToken);
+        if (!getResponse.IsSuccessStatusCode) return ImageReprocessResult.Failed;
+
+        var originalBytes = await getResponse.Content.ReadAsByteArrayAsync(cancellationToken);
+        using var sourceStream = new MemoryStream(originalBytes);
+
+        Image image;
+        try
+        {
+            image = await Image.LoadAsync(sourceStream, cancellationToken);
+        }
+        catch
+        {
+            return ImageReprocessResult.Failed;
+        }
+
+        using (image)
+        {
+            if (image.Width <= MaxDimension && image.Height <= MaxDimension)
+            {
+                return ImageReprocessResult.AlreadyOptimized;
+            }
+
+            var format = image.Metadata.DecodedImageFormat;
+            image.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Mode = ResizeMode.Max,
+                Size = new Size(MaxDimension, MaxDimension)
+            }));
+
+            using var output = new MemoryStream();
+            if (format != null)
+            {
+                await image.SaveAsync(output, format, cancellationToken);
+            }
+            else
+            {
+                await image.SaveAsync(output, new WebpEncoder { Quality = WebpQuality }, cancellationToken);
+            }
+            output.Position = 0;
+
+            var contentType = getResponse.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+            var uploadUrl = $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/object/{bucket}/{objectPath}";
+
+            using var content = new StreamContent(output);
+            content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, uploadUrl) { Content = content };
+            AddAuthHeaders(request.Headers);
+            request.Headers.TryAddWithoutValidation("x-upsert", "true");
+
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogError("Supabase storage reprocess-upload failed for {ObjectPath} with status {StatusCode}: {Body}", objectPath, response.StatusCode, body);
+                return ImageReprocessResult.Failed;
+            }
+
+            return ImageReprocessResult.Reprocessed;
+        }
+    }
+
     private async Task EnsureBucketExistsAsync(CancellationToken cancellationToken)
     {
         var bucketUrl = $"{_settings.ProjectUrl.TrimEnd('/')}/storage/v1/bucket";
@@ -122,3 +201,5 @@ public class SupabaseStorageService(
         headers.TryAddWithoutValidation("apikey", _settings.ServiceRoleKey);
     }
 }
+
+public enum ImageReprocessResult { Reprocessed, AlreadyOptimized, Skipped, Failed }
