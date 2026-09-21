@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using MemoryAtelierBackend.DTOs;
 using MemoryAtelierBackend.Services;
 
@@ -10,6 +11,7 @@ namespace MemoryAtelierBackend.Controllers;
 public class CategoriesController(CategoryService categoryService) : ControllerBase
 {
     [HttpGet]
+    [OutputCache(PolicyName = "Catalog")]
     public async Task<IActionResult> GetAll() =>
         Ok(await categoryService.GetTreeAsync(User.IsInRole("Admin")));
 

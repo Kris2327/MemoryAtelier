@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using MemoryAtelierBackend.Data;
 using MemoryAtelierBackend.DTOs;
@@ -5,7 +6,7 @@ using MemoryAtelierBackend.Models;
 
 namespace MemoryAtelierBackend.Services;
 
-public class ProductService(AppDbContext db)
+public class ProductService(AppDbContext db, IOutputCacheStore cache)
 {
     public async Task<List<ProductDto>> GetAllAsync(Guid? categoryId = null, bool isAdmin = false)
     {
@@ -42,6 +43,7 @@ public class ProductService(AppDbContext db)
 
         product.IsHidden = hidden;
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return ToDto(product, isAdmin: true);
     }
 
@@ -75,6 +77,7 @@ public class ProductService(AppDbContext db)
 
         db.Products.Add(product);
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return ToDto(product);
     }
 
@@ -119,6 +122,7 @@ public class ProductService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return ToDto(product);
     }
 
@@ -129,6 +133,7 @@ public class ProductService(AppDbContext db)
         product.IsDeleted = true;
         product.DeletedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -154,6 +159,7 @@ public class ProductService(AppDbContext db)
         product.IsDeleted = false;
         product.DeletedAt = null;
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -172,6 +178,7 @@ public class ProductService(AppDbContext db)
         db.Reviews.RemoveRange(await db.Reviews.Where(r => r.ProductId == id).ToListAsync());
         db.Products.Remove(product);
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return PurgeResult.Purged;
     }
 
@@ -201,6 +208,7 @@ public class ProductService(AppDbContext db)
 
         product.Stock = stock;
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
 
         return ToDto(product);
     }

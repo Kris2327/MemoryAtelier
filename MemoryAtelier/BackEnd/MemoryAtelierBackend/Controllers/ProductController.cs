@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using MemoryAtelierBackend.DTOs;
 using MemoryAtelierBackend.Services;
 
@@ -10,6 +11,7 @@ namespace MemoryAtelierBackend.Controllers;
 public class ProductController(ProductService productService) : ControllerBase
 {
     [HttpGet]
+    [OutputCache(PolicyName = "Catalog")]
     public async Task<IActionResult> GetAll([FromQuery] Guid? categoryId) =>
         Ok(await productService.GetAllAsync(categoryId, User.IsInRole("Admin")));
 
@@ -19,6 +21,7 @@ public class ProductController(ProductService productService) : ControllerBase
         Ok(await productService.GetDeletedAsync());
 
     [HttpGet("{id:guid}")]
+    [OutputCache(PolicyName = "Catalog")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var product = await productService.GetByIdAsync(id, User.IsInRole("Admin"));

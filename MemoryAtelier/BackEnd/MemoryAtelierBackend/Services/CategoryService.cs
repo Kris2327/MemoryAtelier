@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.EntityFrameworkCore;
 using MemoryAtelierBackend.Data;
 using MemoryAtelierBackend.DTOs;
 using MemoryAtelierBackend.Models;
 
 namespace MemoryAtelierBackend.Services;
 
-public class CategoryService(AppDbContext db)
+public class CategoryService(AppDbContext db, IOutputCacheStore cache)
 {
     public async Task<List<CategoryDto>> GetTreeAsync(bool includeHidden)
     {
@@ -32,6 +33,7 @@ public class CategoryService(AppDbContext db)
         var cat = new Category { Id = Guid.NewGuid(), Name = dto.Name, NameEn = dto.NameEn, ParentId = dto.ParentId, SortOrder = maxOrder + 1 };
         db.Categories.Add(cat);
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return cat;
     }
 
@@ -48,6 +50,7 @@ public class CategoryService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
     }
 
     public async Task<(Category? Category, string? Error)> UpdateAsync(Guid id, UpdateCategoryDto dto)
@@ -64,6 +67,7 @@ public class CategoryService(AppDbContext db)
         cat.NameEn = dto.NameEn;
         cat.ParentId = dto.ParentId;
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return (cat, null);
     }
 
@@ -96,6 +100,7 @@ public class CategoryService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -140,6 +145,7 @@ public class CategoryService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -159,6 +165,7 @@ public class CategoryService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -180,6 +187,7 @@ public class CategoryService(AppDbContext db)
         }
 
         await db.SaveChangesAsync();
+        await cache.EvictByTagAsync("catalog", default);
         return true;
     }
 
@@ -204,6 +212,7 @@ public class CategoryService(AppDbContext db)
             group = group.Except(leaves).ToList();
         }
 
+        await cache.EvictByTagAsync("catalog", default);
         return PurgeResult.Purged;
     }
 

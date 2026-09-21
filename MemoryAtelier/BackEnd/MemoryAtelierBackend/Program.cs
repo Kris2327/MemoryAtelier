@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -77,6 +78,16 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+builder.Services.AddOutputCache(options =>
+{
+    // Кешира публичните GET заявки за каталога (продукти/категории) за кратко.
+    // Не кешира заявки с Authorization хедър, за да не изтече скрито/админско съдържание към анонимни клиенти.
+    options.AddPolicy("Catalog", policy => policy
+        .Expire(TimeSpan.FromSeconds(60))
+        .Tag("catalog")
+        .With(ctx => !ctx.HttpContext.Request.Headers.ContainsKey("Authorization")));
+});
+
 builder.Services.AddRateLimiter(options =>
 {
     // 5 съобщения на 10 минути за всеки клиентски IP
@@ -102,6 +113,7 @@ app.UseCors("AllowAngular");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseOutputCache();
 app.MapControllers();
 app.UseStaticFiles();
 

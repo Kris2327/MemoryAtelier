@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product/product';
@@ -25,6 +25,8 @@ export class HomePage implements OnInit, OnDestroy {
   favouriteIds = signal<Set<string>>(new Set());
   addedToCart = signal<Set<string>>(new Set());
   heroIndex = signal(0);
+  // hero снимките се зареждат при поискване (не всички наведнъж) — тук пазим кои индекси вече са пуснати за сваляне
+  loadedHeroIndices = signal<Set<number>>(new Set([0]));
   sidebarOpen = signal(false);
   private heroTimer?: number;
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -109,7 +111,23 @@ export class HomePage implements OnInit, OnDestroy {
     private router: Router,
     public i18n: I18nService,
     private seo: SeoService
-  ) {}
+  ) {
+    // предзарежда активния слайд и следващия, за да има плавен crossfade,
+    // без да тегли наведнъж снимките на всичките (до 6) слайда при първо зареждане
+    effect(() => {
+      const count = this.heroImages().length;
+      if (count === 0) return;
+      const current = this.heroIndex();
+      const next = (current + 1) % count;
+      this.loadedHeroIndices.update(set =>
+        set.has(current) && set.has(next) ? set : new Set(set).add(current).add(next)
+      );
+    });
+  }
+
+  isHeroSlideLoaded(i: number): boolean {
+    return this.loadedHeroIndices().has(i);
+  }
 
   ngOnInit() {
     this.seo.update({
