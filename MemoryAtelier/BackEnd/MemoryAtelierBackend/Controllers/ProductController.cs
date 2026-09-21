@@ -12,8 +12,8 @@ public class ProductController(ProductService productService) : ControllerBase
 {
     [HttpGet]
     [OutputCache(PolicyName = "Catalog")]
-    public async Task<IActionResult> GetAll([FromQuery] Guid? categoryId) =>
-        Ok(await productService.GetAllAsync(categoryId, User.IsInRole("Admin")));
+    public async Task<IActionResult> GetAll([FromQuery] Guid? categoryId, [FromQuery] int? take) =>
+        Ok(await productService.GetAllAsync(categoryId, User.IsInRole("Admin"), take));
 
     [HttpGet("deleted")]
     [Authorize(Roles = "Admin")]

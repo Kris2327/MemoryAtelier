@@ -21,8 +21,11 @@ import { ThumbUrlPipe } from '../../shared/thumb-url';
 })
 export class HomePage implements OnInit, OnDestroy {
   allProducts = signal<Product[]>([]);
+  // малка резервна извадка за hero fallback-а — тегли се и на SSR, за разлика от allProducts (вж. loadAllProducts)
+  heroFallbackProducts = signal<Product[]>([]);
   selectedCategory = signal('All');
-  loading = signal(false);
+  // старт true, за да не рендира SSR празна решетка, докато чака allProducts (зареждан само в браузъра)
+  loading = signal(true);
   favouriteIds = signal<Set<string>>(new Set());
   addedToCart = signal<Set<string>>(new Set());
   heroIndex = signal(0);
@@ -36,10 +39,11 @@ export class HomePage implements OnInit, OnDestroy {
   adminHeroImages = signal<string[]>([]);
 
   // докато администраторът не е избрал снимки, покажи по една на продукт като резервен вариант
+  // (от heroFallbackProducts, не allProducts — трябва да е налично още на SSR за LCP-то, вж. loadAllProducts)
   heroImages = computed(() => {
     const admin = this.adminHeroImages();
     if (admin.length > 0) return admin;
-    return this.allProducts()
+    return this.heroFallbackProducts()
       .filter(p => p.images.length > 0)
       .slice(0, 6)
       .map(p => p.images[0].imageUrl);
@@ -137,8 +141,13 @@ export class HomePage implements OnInit, OnDestroy {
       path: '/home'
     });
 
-    // зареди ВСИЧКИ продукти веднъж
-    this.loadAllProducts();
+    // пълният каталог е тежък (~250 KB, десетки продукти) и не е нужен за LCP-то (hero-то) —
+    // тегли се само в браузъра, след hydration, за да остане SSR страницата лека на мобилни връзки.
+    // Малката резервна извадка за hero fallback-а обаче трябва да е налична още на SSR.
+    this.loadHeroFallbackProducts();
+    if (this.isBrowser) {
+      this.loadAllProducts();
+    }
     this.loadHeroImages();
     this.categoryService.refresh();
 
@@ -173,6 +182,12 @@ export class HomePage implements OnInit, OnDestroy {
     this.productService.getAll().subscribe({
       next: (data) => { this.allProducts.set(data); this.loading.set(false); },
       error: () => this.loading.set(false)
+    });
+  }
+
+  loadHeroFallbackProducts() {
+    this.productService.getAll(undefined, 6).subscribe({
+      next: (data) => this.heroFallbackProducts.set(data)
     });
   }
 

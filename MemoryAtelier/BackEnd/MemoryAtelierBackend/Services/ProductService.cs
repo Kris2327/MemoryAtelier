@@ -8,7 +8,7 @@ namespace MemoryAtelierBackend.Services;
 
 public class ProductService(AppDbContext db, IOutputCacheStore cache)
 {
-    public async Task<List<ProductDto>> GetAllAsync(Guid? categoryId = null, bool isAdmin = false)
+    public async Task<List<ProductDto>> GetAllAsync(Guid? categoryId = null, bool isAdmin = false, int? take = null)
     {
         var query = db.Products.Include(p => p.Categories).Include(p => p.Images).AsQueryable();
         if (categoryId.HasValue)
@@ -21,6 +21,11 @@ public class ProductService(AppDbContext db, IOutputCacheStore cache)
         if (!isAdmin)
         {
             products = products.Where(IsVisibleToPublic).ToList();
+        }
+
+        if (take.HasValue)
+        {
+            products = products.Take(take.Value).ToList();
         }
 
         return products.Select(p => ToDto(p, isAdmin)).ToList();

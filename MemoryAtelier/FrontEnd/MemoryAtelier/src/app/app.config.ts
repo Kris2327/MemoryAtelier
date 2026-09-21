@@ -3,7 +3,8 @@ import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './services/interceptors/auth-interceptor';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
+import { SKIP_TRANSFER_CACHE } from './services/http-context-tokens';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,9 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
     ),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideClientHydration(withEventReplay()),
+    provideClientHydration(
+      withEventReplay(),
+      withHttpTransferCacheOptions({ filter: req => !req.context.get(SKIP_TRANSFER_CACHE) }),
+    ),
   ],
 };

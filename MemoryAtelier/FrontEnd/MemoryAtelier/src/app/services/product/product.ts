@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Product, CreateProductDto, TrashedProduct } from '../auth/auth-types';
+import { SKIP_TRANSFER_CACHE } from '../http-context-tokens';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -9,10 +10,13 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(categoryId?: string) {
+  getAll(categoryId?: string, take?: number) {
     let params = new HttpParams();
     if (categoryId) params = params.set('categoryId', categoryId);
-    return this.http.get<Product[]>(this.API, { params });
+    if (take) params = params.set('take', take);
+    // пълният (без categoryId/take) каталог е ~250 KB — не бива да се вгражда в SSR HTML-а, вж. SKIP_TRANSFER_CACHE
+    const context = new HttpContext().set(SKIP_TRANSFER_CACHE, !categoryId && !take);
+    return this.http.get<Product[]>(this.API, { params, context });
   }
 
   getById(id: string) {
