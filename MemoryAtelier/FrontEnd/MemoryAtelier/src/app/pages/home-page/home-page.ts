@@ -10,11 +10,12 @@ import { CategoryService } from '../../services/category/category';
 import { Category, CategoryRef, Product } from '../../services/auth/auth-types';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
+import { ResizeImagePipe, originalImageUrl } from '../../shared/resize-image.pipe';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ResizeImagePipe],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css'
 })
@@ -289,6 +290,13 @@ export class HomePage implements OnInit, OnDestroy {
 
   scrollToSections(): void {
     document.querySelector('.sections, .category-layout')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Fallback ако Supabase-ият image-transformation endpoint не е наличен — връща оригиналния URL.
+  onImageError(event: Event): void {
+    const el = event.target as HTMLImageElement;
+    const fallback = originalImageUrl(el.src);
+    if (fallback !== el.src) el.src = fallback;
   }
 
   isNew(product: Product): boolean {

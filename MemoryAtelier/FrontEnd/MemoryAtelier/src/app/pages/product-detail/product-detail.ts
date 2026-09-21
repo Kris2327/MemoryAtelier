@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
 import { environment } from '../../../environments/environment';
+import { ResizeImagePipe, originalImageUrl } from '../../shared/resize-image.pipe';
 
 export interface Review {
   id: string;
@@ -22,7 +23,7 @@ export interface Review {
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ResizeImagePipe],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css'
 })
@@ -275,4 +276,11 @@ export class ProductDetail implements OnInit {
   stars(n: number) { return Array(5).fill(0).map((_, i) => i < Math.round(n)); }
   formatDate(d: string) { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
   mainImage() { const p = this.product(); return p?.images[this.selectedImage()]?.imageUrl ?? 'https://placehold.co/600x500'; }
+
+  // Fallback ако Supabase-ият image-transformation endpoint не е наличен — връща оригиналния URL.
+  onImageError(event: Event): void {
+    const el = event.target as HTMLImageElement;
+    const fallback = originalImageUrl(el.src);
+    if (fallback !== el.src) el.src = fallback;
+  }
 }
