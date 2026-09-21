@@ -23,7 +23,7 @@
       <!-- IMAGES -->
       <div class="pd-images">
         <div class="pd-main-img-wrap">
-          <img [src]="mainImage()" [alt]="i18n.pick(product()!.name, product()!.nameEn)" class="pd-main-img" />
+          <img [src]="mainImage()" [alt]="i18n.pick(product()!.name, product()!.nameEn)" class="pd-main-img" fetchpriority="high" loading="eager" decoding="async" />
           @if (product()!.stock === 0) {
             <div class="out-of-stock-overlay">{{ i18n.t('pd.outOfStockOverlay') }}</div>
           }

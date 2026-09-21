@@ -2,7 +2,16 @@
   <section class="hero">
     <div class="hero-bg">
       @for (img of heroImages(); track img; let i = $index) {
-        <div class="hero-slide" [class.active]="i === heroIndex()" [style.backgroundImage]="isHeroSlideLoaded(i) ? 'url(' + img + ')' : null"></div>
+        <div class="hero-slide" [class.active]="i === heroIndex()">
+          @if (isHeroSlideLoaded(i)) {
+            <img
+              [src]="img"
+              alt=""
+              [attr.fetchpriority]="i === 0 ? 'high' : null"
+              [loading]="i === 0 ? 'eager' : 'lazy'"
+              decoding="async" />
+          }
+        </div>
       }
       <div class="hero-overlay"></div>
     </div>

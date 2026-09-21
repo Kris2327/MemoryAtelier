@@ -1,5 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* bootstrap-icons.min.css hardcodes font-display:block (FOIT); redeclaring the face here,
+   loaded after it in angular.json's styles array, overrides it to swap so icon text isn't
+   hidden while the font downloads. */
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2") format("woff2"),
+       url("../node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff") format("woff");
+  font-display: swap;
+}
+
 html, body {
   height: 100%;
   margin: 0;
