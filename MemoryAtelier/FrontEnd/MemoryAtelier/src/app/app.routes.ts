@@ -15,6 +15,8 @@ export const routes: Routes = [
   { path: '', component: Splash, pathMatch: 'full' },
   { path: 'sign-in', component: SignIn },
   { path: 'signup', component: Signup },
+  { path: 'forgot-password', loadComponent: () => import('./pages/forgot-password/forgot-password').then(m => m.ForgotPassword) },
+  { path: 'reset-password', loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword) },
   // Извън Navbar wrapper-а нарочно — админ панелът има собствен sidebar и не му трябва сайтовият navbar.
   { path: 'admin', loadComponent: () => import('./pages/admin/admin').then(m => m.Admin), canActivate: [authGuard, adminGuard] },
   {
@@ -26,6 +28,7 @@ export const routes: Routes = [
       { path: 'product/:id', loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetail) },
       { path: 'cart', component: Cart, canActivate: [authGuard] },
       { path: 'favourites', component: Favourites, canActivate: [authGuard] },
+      { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(m => m.Profile), canActivate: [authGuard] },
       { path: 'checkout', component: Checkout, canActivate: [authGuard] },
       { path: 'contact', loadComponent: () => import('./pages/contact/contact').then(m => m.Contact) },
       { path: 'sitemap', loadComponent: () => import('./pages/sitemap/sitemap').then(m => m.Sitemap) },

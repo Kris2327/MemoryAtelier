@@ -151,6 +151,18 @@ public class OrderService(
         return orders.Select(ToAdminOrderDto).ToList();
     }
 
+    public async Task<List<AdminOrderDto>> GetMyOrdersAsync(Guid userId)
+    {
+        var orders = await db.Orders
+            .Include(order => order.User)
+            .Include(order => order.Items)
+            .Where(order => order.UserId == userId)
+            .OrderByDescending(order => order.CreatedAt)
+            .ToListAsync();
+
+        return orders.Select(ToAdminOrderDto).ToList();
+    }
+
     public async Task<bool> MarkSeenAsync(Guid orderId)
     {
         var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);

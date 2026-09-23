@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest, UserProfile } from './auth-types';
+import { AuthResponse, ChangePasswordRequest, LoginRequest, RegisterRequest, ResetPasswordRequest, UpdateProfileRequest, UserProfile } from './auth-types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -40,6 +40,36 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.API}/register`, dto).pipe(
       tap(res => this.saveSession(res))
     );
+  }
+
+  getProfile() {
+    return this.http.get<UserProfile>(`${this.API}/profile`);
+  }
+
+  updateProfile(dto: UpdateProfileRequest) {
+    return this.http.put<UserProfile>(`${this.API}/profile`, dto).pipe(
+      tap(profile => {
+        this._name.set(profile.name);
+        this._phone.set(profile.phoneNumber);
+        if (this.isBrowser) {
+          localStorage.setItem('name', profile.name);
+          if (profile.phoneNumber) localStorage.setItem('phone', profile.phoneNumber);
+          else localStorage.removeItem('phone');
+        }
+      })
+    );
+  }
+
+  changePassword(dto: ChangePasswordRequest) {
+    return this.http.put<void>(`${this.API}/change-password`, dto);
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post<void>(`${this.API}/forgot-password`, { email });
+  }
+
+  resetPassword(dto: ResetPasswordRequest) {
+    return this.http.post<void>(`${this.API}/reset-password`, dto);
   }
 
   logout() {

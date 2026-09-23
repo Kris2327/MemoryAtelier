@@ -30,6 +30,9 @@ public class OrderController(OrderService orderService) : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll() => Ok(await orderService.GetAllAsync());
 
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetMine() => Ok(await orderService.GetMyOrdersAsync(UserId));
+
     [HttpPut("{id:guid}/seen")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> MarkSeen(Guid id)

@@ -141,6 +141,121 @@ public class EmailService(IOptions<EmailSettings> emailOptions, IOptions<BankTra
             """;
     }
 
+    public async Task SendPasswordChangedAsync(string customerName, string customerEmail)
+    {
+        var message = new MimeMessage();
+        message.From.Add(MailboxAddress.Parse(_settings.From));
+        message.To.Add(MailboxAddress.Parse(customerEmail));
+        message.Subject = "Паролата на профила ви беше сменена";
+
+        var builder = new BodyBuilder
+        {
+            HtmlBody = BuildPasswordChangedHtml(customerName)
+        };
+
+        message.Body = builder.ToMessageBody();
+
+        using var smtp = new SmtpClient();
+        await smtp.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_settings.From, _settings.Password);
+        await smtp.SendAsync(message);
+        await smtp.DisconnectAsync(true);
+
+        logger.LogInformation("Password changed notification email sent to {Email}.", customerEmail);
+    }
+
+    private static string BuildPasswordChangedHtml(string customerName)
+    {
+        var changedAt = DateTime.UtcNow.ToString("d MMMM yyyy, HH:mm", new CultureInfo("bg-BG"));
+
+        return $$"""
+            <!DOCTYPE html>
+            <html lang="bg">
+            <head>
+              <meta charset="utf-8">
+              <title>Паролата е сменена</title>
+            </head>
+            <body style="margin: 0; padding: 24px; background: #fdf8f4; font-family: Lato, Arial, sans-serif; color: #2c1810;">
+              <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 16px 40px rgba(44, 24, 16, 0.12);">
+                <div style="padding: 32px; background: linear-gradient(135deg, #2c1810 0%, #c97d4e 100%); color: #fff8f3;">
+                  <div style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.85;">Memory Atelier</div>
+                  <h1 style="margin: 12px 0 8px; font-family: 'Playfair Display', Georgia, serif; font-size: 28px;">🔒 Паролата беше сменена</h1>
+                  <p style="margin: 0; font-size: 15px; line-height: 1.6;">Здравейте, {{customerName}}! Паролата на профила ви в Memory Atelier беше сменена на {{changedAt}} ч. (UTC).</p>
+                </div>
+
+                <div style="padding: 32px;">
+                  <p style="font-size: 14px; color: #5e4639; line-height: 1.7;">
+                    Ако вие сте направили тази промяна, не е нужно да предприемате нищо.
+                    Ако не разпознавате това действие, моля свържете се с нас незабавно, за да защитим профила ви.
+                  </p>
+                </div>
+              </div>
+            </body>
+            </html>
+            """;
+    }
+
+    public async Task SendPasswordResetAsync(string customerName, string customerEmail, string resetLink)
+    {
+        var message = new MimeMessage();
+        message.From.Add(MailboxAddress.Parse(_settings.From));
+        message.To.Add(MailboxAddress.Parse(customerEmail));
+        message.Subject = "Възстановяване на паролата — Memory Atelier";
+
+        var builder = new BodyBuilder
+        {
+            HtmlBody = BuildPasswordResetHtml(customerName, resetLink)
+        };
+
+        message.Body = builder.ToMessageBody();
+
+        using var smtp = new SmtpClient();
+        await smtp.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_settings.From, _settings.Password);
+        await smtp.SendAsync(message);
+        await smtp.DisconnectAsync(true);
+
+        logger.LogInformation("Password reset email sent to {Email}.", customerEmail);
+    }
+
+    private static string BuildPasswordResetHtml(string customerName, string resetLink)
+    {
+        var safeLink = System.Net.WebUtility.HtmlEncode(resetLink);
+
+        return $$"""
+            <!DOCTYPE html>
+            <html lang="bg">
+            <head>
+              <meta charset="utf-8">
+              <title>Възстановяване на паролата</title>
+            </head>
+            <body style="margin: 0; padding: 24px; background: #fdf8f4; font-family: Lato, Arial, sans-serif; color: #2c1810;">
+              <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 16px 40px rgba(44, 24, 16, 0.12);">
+                <div style="padding: 32px; background: linear-gradient(135deg, #2c1810 0%, #c97d4e 100%); color: #fff8f3;">
+                  <div style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.85;">Memory Atelier</div>
+                  <h1 style="margin: 12px 0 8px; font-family: 'Playfair Display', Georgia, serif; font-size: 28px;">🔑 Възстановяване на паролата</h1>
+                  <p style="margin: 0; font-size: 15px; line-height: 1.6;">Здравейте, {{customerName}}! Получихме заявка за смяна на паролата на профила ви.</p>
+                </div>
+
+                <div style="padding: 32px;">
+                  <p style="font-size: 14px; color: #5e4639; line-height: 1.7; margin-bottom: 24px;">
+                    Натиснете бутона по-долу, за да зададете нова парола. Линкът е валиден 1 час.
+                  </p>
+
+                  <div style="text-align: center; margin-bottom: 24px;">
+                    <a href="{{safeLink}}" style="display: inline-block; background: #c97d4e; color: #fff8f3; text-decoration: none; padding: 14px 32px; border-radius: 24px; font-size: 15px; font-weight: 700;">Задай нова парола</a>
+                  </div>
+
+                  <p style="font-size: 13px; color: #aaa; line-height: 1.6;">
+                    Ако не сте поискали смяна на паролата, просто игнорирайте този имейл — паролата ви остава непроменена.
+                  </p>
+                </div>
+              </div>
+            </body>
+            </html>
+            """;
+    }
+
     public async Task SendOrderNotificationAsync(
         string customerName,
         string customerEmail,

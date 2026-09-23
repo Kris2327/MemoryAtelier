@@ -6,6 +6,12 @@ public record RegisterDto(string Name, string Email, string Password, string? Ph
 public record LoginDto(string Email, string Password);
 public record AuthResponseDto(string Token, string Role, string Name, Guid UserId, string? Phone);
 
+public record UserProfileDto(Guid Id, string Name, string Email, string? PhoneNumber, string? City, string? Address, string? PostCode);
+public record UpdateProfileDto(string Name, string? PhoneNumber, string? City, string? Address, string? PostCode);
+public record ChangePasswordDto(string CurrentPassword, string NewPassword);
+public record ForgotPasswordDto(string Email);
+public record ResetPasswordDto(string Token, string NewPassword);
+
 public record CategoryDto(Guid Id, string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId, List<CategoryDto> Children, bool IsHidden = false);
 public record CreateCategoryDto(string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId);
 public record UpdateCategoryDto(string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId);
@@ -172,6 +178,11 @@ public class BankTransferSettings
     public string Iban { get; set; } = string.Empty;
     public string AccountHolder { get; set; } = string.Empty;
     public string BankName { get; set; } = string.Empty;
+}
+
+public class FrontendSettings
+{
+    public string BaseUrl { get; set; } = "http://localhost:4200";
 }
 
 public class ReviewDto

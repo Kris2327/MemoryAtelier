@@ -1,6 +1,9 @@
 export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
   bg: {
     // NAVBAR
+    'nav.categories': 'Категории',
+    'nav.search': 'Търси',
+    'nav.searchPlaceholder': 'Търсене на продукти...',
     'nav.adminPanel': 'Админ панел',
     'nav.hello': 'Здравейте',
     'nav.logout': 'Излез',
@@ -8,6 +11,25 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'nav.favourites': 'Любими',
     'nav.cart': 'Количка',
     'nav.langSwitch': 'EN',
+
+    // PROFILE
+    'profile.title': 'Моят профил',
+    'profile.tabData': 'Основни данни',
+    'profile.tabOrders': 'Моите поръчки',
+    'profile.name': 'Име',
+    'profile.email': 'Имейл',
+    'profile.deliveryDataHint': 'Тези данни се ползват и за предварително попълване при поръчка.',
+    'profile.save': 'Запази промените',
+    'profile.saved': 'Данните са запазени.',
+    'profile.changePassword': 'Смяна на парола',
+    'profile.changePasswordHint': 'Ще ви изпратим линк по имейл, с който можете да зададете нова парола.',
+    'profile.sendResetLink': 'Изпрати линк за смяна на паролата',
+    'profile.sendingResetLink': 'Изпращане...',
+    'profile.resetLinkSent': 'Изпратихме ви имейл с линк за смяна на паролата.',
+    'profile.noOrders': 'Все още нямате поръчки.',
+    'profile.orderPlacedOn': 'Поръчана на',
+    'profile.orderTotal': 'Обща сума',
+    'profile.orderStatus': 'Статус',
 
     // COMMON
     'common.backToShop': 'Обратно към магазина',
@@ -34,6 +56,8 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'home.footer': 'Memory Atelier © 2025 — Ръчно изработено с любов',
     'home.filters': 'Категории',
     'home.noProductsInSection': 'Няма продукти в тази секция засега.',
+    'home.searchResultsFor': 'Резултати от търсене за',
+    'home.noSearchResults': 'Няма намерени продукти по това търсене.',
     'home.scrollCue': 'Разгледай колекциите',
     'home.collectionKicker': 'Колекция',
     'home.newBadge': 'Ново',
@@ -97,6 +121,24 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'signin.registerLink': 'Регистрирайте се',
     'signin.error': 'Невалиден имейл или парола.',
     'signin.sessionExpired': 'Сесията ви изтече. Моля, влезте отново.',
+    'signin.forgotPassword': 'Забравена парола?',
+
+    'forgotPassword.title': 'Забравена парола',
+    'forgotPassword.subtitle': 'Въведете имейла си и ще ви изпратим линк за смяна на паролата.',
+    'forgotPassword.emailLabel': 'Имейл',
+    'forgotPassword.submit': 'Изпрати линк',
+    'forgotPassword.submitting': 'Изпращане...',
+    'forgotPassword.success': 'Ако този имейл съществува в системата, изпратихме линк за смяна на паролата.',
+    'forgotPassword.backToSignIn': 'Обратно към входа',
+
+    'resetPassword.title': 'Нова парола',
+    'resetPassword.subtitle': 'Въведете новата си парола.',
+    'resetPassword.newPassword': 'Нова парола',
+    'resetPassword.submit': 'Смени паролата',
+    'resetPassword.submitting': 'Сменяне...',
+    'resetPassword.success': 'Паролата е сменена успешно. Вече можете да влезете.',
+    'resetPassword.errInvalid': 'Линкът е невалиден или е изтекъл. Заявете нов.',
+    'resetPassword.goToSignIn': 'Към входа',
 
     // SIGN UP
     'signup.tagline1': 'Започнете',
@@ -456,6 +498,9 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
   },
   en: {
     // NAVBAR
+    'nav.categories': 'Categories',
+    'nav.search': 'Search',
+    'nav.searchPlaceholder': 'Search products...',
     'nav.adminPanel': 'Admin panel',
     'nav.hello': 'Hello',
     'nav.logout': 'Log out',
@@ -463,6 +508,25 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'nav.favourites': 'Favourites',
     'nav.cart': 'Cart',
     'nav.langSwitch': 'BG',
+
+    // PROFILE
+    'profile.title': 'My profile',
+    'profile.tabData': 'Basic data',
+    'profile.tabOrders': 'My orders',
+    'profile.name': 'Name',
+    'profile.email': 'Email',
+    'profile.deliveryDataHint': 'This data is also used to pre-fill checkout.',
+    'profile.save': 'Save changes',
+    'profile.saved': 'Your data has been saved.',
+    'profile.changePassword': 'Change password',
+    'profile.changePasswordHint': "We'll email you a link you can use to set a new password.",
+    'profile.sendResetLink': 'Send password reset link',
+    'profile.sendingResetLink': 'Sending...',
+    'profile.resetLinkSent': 'We sent you an email with a password reset link.',
+    'profile.noOrders': 'You have no orders yet.',
+    'profile.orderPlacedOn': 'Placed on',
+    'profile.orderTotal': 'Total',
+    'profile.orderStatus': 'Status',
 
     // COMMON
     'common.backToShop': 'Back to shop',
@@ -489,6 +553,8 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'home.footer': 'Memory Atelier © 2025 — Handmade with love',
     'home.filters': 'Categories',
     'home.noProductsInSection': 'No products in this section yet.',
+    'home.searchResultsFor': 'Search results for',
+    'home.noSearchResults': 'No products matched your search.',
     'home.scrollCue': 'Browse the collections',
     'home.collectionKicker': 'Collection',
     'home.newBadge': 'New',
@@ -552,6 +618,24 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'signin.registerLink': 'Sign up',
     'signin.error': 'Invalid email or password.',
     'signin.sessionExpired': 'Your session has expired. Please sign in again.',
+    'signin.forgotPassword': 'Forgot password?',
+
+    'forgotPassword.title': 'Forgot password',
+    'forgotPassword.subtitle': "Enter your email and we'll send you a link to reset your password.",
+    'forgotPassword.emailLabel': 'Email',
+    'forgotPassword.submit': 'Send link',
+    'forgotPassword.submitting': 'Sending...',
+    'forgotPassword.success': 'If this email exists in our system, we sent a password reset link.',
+    'forgotPassword.backToSignIn': 'Back to sign in',
+
+    'resetPassword.title': 'New password',
+    'resetPassword.subtitle': 'Enter your new password.',
+    'resetPassword.newPassword': 'New password',
+    'resetPassword.submit': 'Change password',
+    'resetPassword.submitting': 'Changing...',
+    'resetPassword.success': 'Your password has been changed. You can now sign in.',
+    'resetPassword.errInvalid': 'This link is invalid or has expired. Please request a new one.',
+    'resetPassword.goToSignIn': 'Go to sign in',
 
     // SIGN UP
     'signup.tagline1': 'Start',

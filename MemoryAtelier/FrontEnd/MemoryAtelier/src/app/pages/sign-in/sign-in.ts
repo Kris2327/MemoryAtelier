@@ -5,11 +5,12 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth';
 import { I18nService } from '../../services/i18n/i18n';
 import { SeoService } from '../../services/seo/seo';
+import { PasswordField } from '../../shared/password-field/password-field';
 
 @Component({
   selector: 'app-sign-in',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PasswordField],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.css'
 })

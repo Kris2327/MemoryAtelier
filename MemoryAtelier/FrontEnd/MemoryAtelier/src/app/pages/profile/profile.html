@@ -1,0 +1,124 @@
+<div class="profile-page">
+  <div class="profile-header">
+    <h1 class="profile-title">{{ i18n.t('profile.title') }}</h1>
+  </div>
+
+  <div class="profile-tabs">
+    <button type="button" class="profile-tab" [class.active]="activeTab() === 'data'" (click)="setTab('data')">
+      {{ i18n.t('profile.tabData') }}
+    </button>
+    <button type="button" class="profile-tab" [class.active]="activeTab() === 'orders'" (click)="setTab('orders')">
+      {{ i18n.t('profile.tabOrders') }}
+    </button>
+  </div>
+
+  @if (activeTab() === 'data') {
+    <div class="profile-panel">
+      @if (loadingProfile()) {
+        <div class="loading"><div class="spinner"></div></div>
+      } @else {
+        <form class="profile-form" (submit)="$event.preventDefault(); saveProfile()">
+          <p class="form-hint">{{ i18n.t('profile.deliveryDataHint') }}</p>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span>{{ i18n.t('profile.name') }}</span>
+              <input type="text" [(ngModel)]="form.name" name="name" required />
+            </label>
+            <label class="form-field">
+              <span>{{ i18n.t('profile.email') }}</span>
+              <input type="email" [value]="profile()?.email" disabled />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span>{{ i18n.t('checkout.phone') }}</span>
+              <input type="tel" [(ngModel)]="form.phoneNumber" name="phoneNumber" />
+            </label>
+            <label class="form-field">
+              <span>{{ i18n.t('checkout.city') }}</span>
+              <input type="text" [(ngModel)]="form.city" name="city" [placeholder]="i18n.t('checkout.cityPlaceholder')" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-field form-field-wide">
+              <span>{{ i18n.t('checkout.address') }}</span>
+              <input type="text" [(ngModel)]="form.address" name="address" [placeholder]="i18n.t('checkout.addressPlaceholder')" />
+            </label>
+            <label class="form-field">
+              <span>{{ i18n.t('checkout.postCode') }}</span>
+              <input type="text" [(ngModel)]="form.postCode" name="postCode" />
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="savingProfile()">
+              {{ i18n.t('profile.save') }}
+            </button>
+            @if (profileSaved()) {
+              <span class="form-success">{{ i18n.t('profile.saved') }}</span>
+            }
+          </div>
+        </form>
+
+        <div class="profile-divider"></div>
+
+        <div class="password-reset-block">
+          <h2 class="section-subtitle">{{ i18n.t('profile.changePassword') }}</h2>
+          <p class="form-hint">{{ i18n.t('profile.changePasswordHint') }}</p>
+
+          <div class="form-actions">
+            <button type="button" class="btn-outline" [disabled]="sendingResetLink()" (click)="sendResetLink()">
+              {{ sendingResetLink() ? i18n.t('profile.sendingResetLink') : i18n.t('profile.sendResetLink') }}
+            </button>
+            @if (resetLinkSent()) {
+              <span class="form-success">{{ i18n.t('profile.resetLinkSent') }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (activeTab() === 'orders') {
+    <div class="profile-panel">
+      @if (loadingOrders()) {
+        <div class="loading"><div class="spinner"></div></div>
+      } @else if (orders().length === 0) {
+        <p class="empty-state">{{ i18n.t('profile.noOrders') }}</p>
+      } @else {
+        <div class="orders-list">
+          @for (order of orders(); track order.id) {
+            <div class="order-card">
+              <div class="order-card-header">
+                <div>
+                  <span class="order-date">{{ i18n.t('profile.orderPlacedOn') }} {{ order.createdAt | date:'dd.MM.yyyy' }}</span>
+                </div>
+                <span class="order-status" [class]="'status-' + order.status.toLowerCase()">
+                  {{ statusLabel(order.status) }}
+                </span>
+              </div>
+
+              <div class="order-items">
+                @for (item of order.items; track item.id) {
+                  <div class="order-item">
+                    <span class="order-item-name">{{ item.productName }}</span>
+                    <span class="order-item-qty">× {{ item.quantity }}</span>
+                    <span class="order-item-price">€{{ (item.unitPrice * item.quantity).toFixed(2) }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="order-card-footer">
+                <span class="order-address">{{ order.deliveryAddress }}</span>
+                <span class="order-total">{{ i18n.t('profile.orderTotal') }}: €{{ order.totalAmount.toFixed(2) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

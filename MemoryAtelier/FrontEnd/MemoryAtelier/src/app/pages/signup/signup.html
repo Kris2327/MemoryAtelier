@@ -76,19 +76,11 @@
     <div class="form-row">
       <div class="form-group">
         <label>{{ i18n.t('signup.passwordLabel') }} <span style="color: red;">*</span></label>
-        <input
-          type="password"
-          [(ngModel)]="password"
-          placeholder="••••••••"
-          class="input" />
+        <app-password-field [(ngModel)]="password" placeholder="••••••••" name="password"></app-password-field>
       </div>
       <div class="form-group">
         <label>{{ i18n.t('signup.confirmPasswordLabel') }} <span style="color: red;">*</span></label>
-        <input
-          type="password"
-          [(ngModel)]="confirmPassword"
-          placeholder="••••••••"
-          class="input" />
+        <app-password-field [(ngModel)]="confirmPassword" placeholder="••••••••" name="confirmPassword"></app-password-field>
       </div>
     </div>
 

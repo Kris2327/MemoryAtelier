@@ -21,6 +21,7 @@ import { ThumbUrlPipe } from '../../shared/thumb-url';
 })
 export class HomePage implements OnInit, OnDestroy {
   allProducts = signal<Product[]>([]);
+  searchQuery = signal('');
   // малка резервна извадка за hero fallback-а — тегли се и на SSR, за разлика от allProducts (вж. loadAllProducts)
   heroFallbackProducts = signal<Product[]>([]);
   selectedCategory = signal('All');
@@ -89,6 +90,18 @@ export class HomePage implements OnInit, OnDestroy {
 
   isFiltered = computed(() => this.selectedCategory() !== 'All');
 
+  isSearching = computed(() => this.searchQuery().trim().length > 0);
+
+  // резултати от търсенето по име/описание — клиентски, каталогът вече е зареден изцяло
+  searchResults = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return [];
+    return this.allProducts().filter(p =>
+      this.i18n.pick(p.name, p.nameEn).toLowerCase().includes(q) ||
+      this.i18n.pick(p.description, p.descriptionEn).toLowerCase().includes(q)
+    );
+  });
+
   // главната секция (корена), в чието дърво попада избраната категория — за страничното меню
   selectedRootCategory = computed<Category | null>(() => {
     const catId = this.selectedCategory();
@@ -154,6 +167,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.route.queryParams.subscribe(params => {
       const cat = params['category'] || 'All';
       this.selectedCategory.set(cat);
+      this.searchQuery.set(params['q'] || '');
     });
 
     if (this.authService.isLoggedIn()) {

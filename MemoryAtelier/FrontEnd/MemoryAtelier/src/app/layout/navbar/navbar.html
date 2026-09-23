@@ -13,50 +13,75 @@
         <span class="brand-name">Memory Atelier</span>
       </div>
 
-      <!-- 2. CENTER: nav links -->
+      <!-- 2. CATEGORIES trigger — opens a vertical list on the left, like a mini "all categories" sidebar -->
       <div class="nav-links">
-        @for (item of navItems(); track item.label) {
-          <div class="nav-item"
-            (mouseenter)="openDropdown(item.label)"
-            (mouseleave)="closeDropdown()">
-            <span class="nav-link" (click)="filterBy(item.value); closeDropdown()">
-              {{ item.label }}
-              <span class="nav-arrow">▾</span>
-            </span>
-            @if (activeDropdown() === item.label) {
-              <div class="dropdown"
-                (mouseenter)="openDropdown(item.label)"
-                (mouseleave)="closeDropdown()">
-                <div class="dropdown-inner">
-                  <div class="dropdown-col">
-                    @for (sub of item.subcategories; track sub.label) {
-                      <div class="dropdown-item"
-                        [class.has-children]="sub.children"
-                        [class.active-sub]="activeSubcategory() === sub.label"
-                        (mouseenter)="sub.children ? openSubcategory(sub.label) : clearSubcategory()"
-                        (click)="filterBy(sub.value)">
-                        {{ sub.label }}
-                        @if (sub.children) { <span class="sub-arrow">›</span> }
-                      </div>
-                    }
-                  </div>
-                  @for (sub of item.subcategories!; track sub.label) {
+        <div class="nav-item"
+          (mouseenter)="openMegaMenu()"
+          (mouseleave)="closeMegaMenu()">
+          <button type="button" class="categories-trigger" (click)="megaMenuOpen() ? closeMegaMenu() : openMegaMenu()">
+            <span class="categories-icon">☰</span>
+            {{ i18n.t('nav.categories') }}
+            <span class="nav-arrow">▾</span>
+          </button>
+          @if (megaMenuOpen()) {
+            <div class="mega-menu"
+              (mouseenter)="openMegaMenu()"
+              (mouseleave)="closeMegaMenu()">
+              <div class="mega-menu-inner">
+                <div class="mega-col mega-col-roots">
+                  @for (item of navItems(); track item.label) {
+                    <div class="mega-root-item"
+                      [class.active-sub]="hoveredRoot() === item.label"
+                      (mouseenter)="hoveredRoot.set(item.label); clearSubcategory()"
+                      (click)="filterBy(item.value); closeMegaMenu()">
+                      {{ item.label }}
+                      @if (item.subcategories) { <span class="sub-arrow">›</span> }
+                    </div>
+                  }
+                </div>
+
+                @if (currentRoot(); as root) {
+                  @if (root.subcategories) {
+                    <div class="mega-col mega-col-subs">
+                      @for (sub of root.subcategories; track sub.label) {
+                        <div class="dropdown-item"
+                          [class.has-children]="sub.children"
+                          [class.active-sub]="activeSubcategory() === sub.label"
+                          (mouseenter)="sub.children ? openSubcategory(sub.label) : clearSubcategory()"
+                          (click)="filterBy(sub.value); closeMegaMenu()">
+                          {{ sub.label }}
+                          @if (sub.children) { <span class="sub-arrow">›</span> }
+                        </div>
+                      }
+                    </div>
+                  }
+                  @for (sub of root.subcategories || []; track sub.label) {
                     @if (sub.children && activeSubcategory() === sub.label) {
-                      <div class="dropdown-col dropdown-col-right">
+                      <div class="mega-col mega-col-children">
                         @for (child of sub.children; track child.value) {
-                          <div class="dropdown-item" (click)="filterBy(child.value)">{{ child.label }}</div>
+                          <div class="dropdown-item" (click)="filterBy(child.value); closeMegaMenu()">{{ child.label }}</div>
                         }
                       </div>
                     }
                   }
-                </div>
+                }
               </div>
-            }
-          </div>
-        }
+            </div>
+          }
+        </div>
       </div>
 
-      <!-- 3. RIGHT: actions -->
+      <!-- 3. CENTER: search -->
+      <form class="search-form" (submit)="$event.preventDefault(); submitSearch(searchInput.value)">
+        <input #searchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" />
+        <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- 4. RIGHT: actions -->
       <div class="nav-actions">
 
         <button class="lang-switch" type="button" (click)="i18n.toggle()" title="Switch language">
@@ -67,12 +92,10 @@
           @if (authService.isAdmin()) {
             <button class="btn-ghost" (click)="goToAdmin()">{{ i18n.t('nav.adminPanel') }}</button>
           }
-          <span class="welcome">{{ i18n.t('nav.hello') }}, {{ authService.name() }}</span>
           <button class="btn-outline" (click)="logout()">{{ i18n.t('nav.logout') }}</button>
 
-
-          <button class="btn-logout-icon" (click)="goToLogin()" [title]="i18n.t('nav.logout')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+          <button class="btn-logout-icon" (click)="goToProfile()" [title]="authService.name()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
               <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
               <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
             </svg>
@@ -116,6 +139,15 @@
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" [class.open]="mobileMenuOpen()">
+      <form class="search-form mobile-search-form" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
+        <input #mobileSearchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" />
+        <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
+      </form>
+
       @for (item of navItems(); track item.label) {
         <div class="mobile-section">
 

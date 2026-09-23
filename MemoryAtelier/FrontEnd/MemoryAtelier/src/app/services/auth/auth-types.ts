@@ -148,11 +148,29 @@ export interface AdminOrder {
 }
 
 export interface UserProfile {
-  firstName: string;
-  lastName: string;
+  id: string;
+  name: string;
   email: string;
-  phone?: string;
-  city?: string;
-  address?: string;
-  postCode?: string;
+  phoneNumber: string | null;
+  city: string | null;
+  address: string | null;
+  postCode: string | null;
+}
+
+export interface UpdateProfileRequest {
+  name: string;
+  phoneNumber?: string | null;
+  city?: string | null;
+  address?: string | null;
+  postCode?: string | null;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
 }

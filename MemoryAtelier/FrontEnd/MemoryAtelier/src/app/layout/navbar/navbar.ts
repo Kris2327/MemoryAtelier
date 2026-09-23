@@ -27,13 +27,18 @@ export interface NavCategory {
   styleUrl: './navbar.css'
 })
 export class Navbar implements OnInit {
-  activeDropdown = signal<string | null>(null);
+  megaMenuOpen = signal(false);
+  hoveredRoot = signal<string | null>(null);
   activeSubcategory = signal<string | null>(null);
   mobileMenuOpen = signal(false);
   activeMobileSection = signal<string | null>(null);
 
   navItems = computed<NavCategory[]>(() =>
     this.categoryService.categories().map(category => this.toNavCategory(category))
+  );
+
+  currentRoot = computed<NavCategory | undefined>(() =>
+    this.navItems().find(item => item.label === this.hoveredRoot())
   );
 
   constructor(
@@ -70,8 +75,17 @@ export class Navbar implements OnInit {
     };
   }
 
-  openDropdown(label: string) { this.activeDropdown.set(label); }
-  closeDropdown() { this.activeDropdown.set(null); this.activeSubcategory.set(null); }
+  openMegaMenu() {
+    this.megaMenuOpen.set(true);
+    if (!this.hoveredRoot() && this.navItems().length) {
+      this.hoveredRoot.set(this.navItems()[0].label);
+    }
+  }
+  closeMegaMenu() {
+    this.megaMenuOpen.set(false);
+    this.hoveredRoot.set(null);
+    this.activeSubcategory.set(null);
+  }
   openSubcategory(label: string) { this.activeSubcategory.set(label); }
   clearSubcategory() { this.activeSubcategory.set(null); }
   toggleMobileMenu() { this.mobileMenuOpen.update(v => !v); }
@@ -82,9 +96,18 @@ export class Navbar implements OnInit {
     this.closeMobileMenu();
   }
 
+  submitSearch(term: string) {
+    const q = term.trim();
+    if (!q) return;
+    this.router.navigate(['/home'], { queryParams: { q } });
+    this.closeMobileMenu();
+    this.closeMegaMenu();
+  }
+
   logout() { this.authService.logout(); }
   goToAdmin() { this.router.navigate(['/admin']); this.closeMobileMenu(); }
   goToLogin() { this.router.navigate(['/sign-in']); this.closeMobileMenu(); }
+  goToProfile() { this.router.navigate(['/profile']); this.closeMobileMenu(); }
   goHome() { this.router.navigate(['/home']); this.closeMobileMenu(); }
   goToCart() { this.router.navigate(['/cart']); this.closeMobileMenu(); }
   goToFavourites() { this.router.navigate(['/favourites']); this.closeMobileMenu(); }

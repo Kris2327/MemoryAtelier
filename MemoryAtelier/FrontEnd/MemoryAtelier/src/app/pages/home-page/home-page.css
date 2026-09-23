@@ -84,7 +84,7 @@
 }
 .hero-sub {
   font-size: 18px; color: #7a5c4e;
-  max-width: 480px; line-height: 1.7; font-weight: 300;
+  max-width: 480px; margin: 0 auto; line-height: 1.7; font-weight: 300;
 }
 
 .hero-quick-links {

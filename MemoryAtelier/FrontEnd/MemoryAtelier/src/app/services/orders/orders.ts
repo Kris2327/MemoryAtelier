@@ -13,6 +13,10 @@ export class OrdersService {
     return this.http.get<AdminOrder[]>(this.API);
   }
 
+  getMine() {
+    return this.http.get<AdminOrder[]>(`${this.API}/mine`);
+  }
+
   markSeen(id: string) {
     return this.http.put(`${this.API}/${id}/seen`, {});
   }

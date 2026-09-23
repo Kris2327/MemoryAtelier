@@ -8,6 +8,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'cart', renderMode: RenderMode.Client },
   { path: 'favourites', renderMode: RenderMode.Client },
   { path: 'checkout', renderMode: RenderMode.Client },
+  { path: 'profile', renderMode: RenderMode.Client },
   // Продуктовите данни се сменят без ребилд — рендират се на сървъра при всяка заявка.
   { path: 'product/:id', renderMode: RenderMode.Server },
   { path: 'product/:id/:slug', renderMode: RenderMode.Server },

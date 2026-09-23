@@ -10,6 +10,20 @@ public class User
     public string? PhoneNumber { get; set; }
     public DateTime? BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? City { get; set; }
+    public string? Address { get; set; }
+    public string? PostCode { get; set; }
+}
+
+public class PasswordResetToken
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
+    public string Token { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public bool Used { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
 
 public class Category

@@ -28,8 +28,11 @@
       <input type="email" [(ngModel)]="email" placeholder="you@example.com" class="input" />
     </div>
     <div class="form-group">
-      <label>{{ i18n.t('signin.passwordLabel') }}</label>
-      <input type="password" [(ngModel)]="password" placeholder="••••••••" class="input" />
+      <div class="form-group-header">
+        <label>{{ i18n.t('signin.passwordLabel') }}</label>
+        <a class="forgot-link" routerLink="/forgot-password">{{ i18n.t('signin.forgotPassword') }}</a>
+      </div>
+      <app-password-field [(ngModel)]="password" placeholder="••••••••" name="password"></app-password-field>
     </div>
 
     @if (error()) {

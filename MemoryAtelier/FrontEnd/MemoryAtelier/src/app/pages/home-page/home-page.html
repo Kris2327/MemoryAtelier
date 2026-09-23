@@ -98,7 +98,33 @@
     <div class="loading"><div class="spinner"></div></div>
   } @else {
 
-    @if (isFiltered() && selectedRootCategory(); as root) {
+    @if (isSearching()) {
+      <!-- SEARCH RESULTS -->
+      <div class="category-hero">
+        <div class="category-breadcrumb">
+          <a routerLink="/home">{{ i18n.t('pd.breadcrumbHome') }}</a>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-current">{{ i18n.t('home.searchResultsFor') }} "{{ searchQuery() }}"</span>
+        </div>
+        <h1 class="category-title">{{ i18n.t('home.searchResultsFor') }} "{{ searchQuery() }}"</h1>
+      </div>
+
+      <div class="sections">
+        <div class="category-content-head">
+          <span class="results-count">{{ searchResults().length }} {{ i18n.t('common.products') }}</span>
+        </div>
+
+        @if (searchResults().length > 0) {
+          <div class="product-grid">
+            @for (product of searchResults(); track product.id) {
+              <ng-container *ngTemplateOutlet="productCard; context: { $implicit: product }"></ng-container>
+            }
+          </div>
+        } @else {
+          <p class="empty-section">{{ i18n.t('home.noSearchResults') }}</p>
+        }
+      </div>
+    } @else if (isFiltered() && selectedRootCategory(); as root) {
       <!-- SELECTED SECTION: breadcrumb + title + странично меню + плосък списък (всеки продукт по веднъж) -->
       <div class="category-hero">
         <div class="category-breadcrumb">

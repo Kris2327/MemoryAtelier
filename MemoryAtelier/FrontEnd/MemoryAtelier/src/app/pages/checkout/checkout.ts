@@ -88,6 +88,16 @@ export class Checkout implements OnInit {
     this.address.firstName = parts[0] ?? '';
     this.address.lastName = parts.slice(1).join(' ') ?? '';
     this.address.phone = this.authService.phone() ?? '';
+
+    // допълни адреса от запазения профил, ако е наличен (не презаписва, ако потребителят вече е започнал да пише)
+    this.authService.getProfile().subscribe({
+      next: (profile) => {
+        if (!this.address.city) this.address.city = profile.city ?? '';
+        if (!this.address.address) this.address.address = profile.address ?? '';
+        if (!this.address.postCode) this.address.postCode = profile.postCode ?? '';
+      },
+      error: () => {}
+    });
   }
 
   validate(): boolean {
