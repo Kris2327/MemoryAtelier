@@ -403,6 +403,16 @@
             </div>
 
             <div class="form-group">
+              <label for="sectionDesc">{{ i18n.t('admin.newSection.descLabel') }}</label>
+              <textarea id="sectionDesc" class="input textarea" [(ngModel)]="newSection.description" [placeholder]="i18n.t('admin.newSection.descPlaceholder')"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="sectionDescEn">{{ i18n.t('admin.newSection.descEnLabel') }}</label>
+              <textarea id="sectionDescEn" class="input textarea" [(ngModel)]="newSection.descriptionEn" [placeholder]="i18n.t('admin.newSection.descEnPlaceholder')"></textarea>
+            </div>
+
+            <div class="form-group">
               <label>{{ i18n.t('admin.newSection.parentLabel') }}</label>
               <div class="cat-dropdown">
                 <button type="button" class="cat-dropdown-trigger" (click)="$event.stopPropagation(); toggleNewSectionParentDropdown()">
@@ -439,92 +449,61 @@
 
             <ng-template #categoryNode let-node let-cls="cls" let-idx="idx" let-total="total">
               <div class="tree-node" [ngClass]="cls" [class.tree-node-hidden]="node.isHidden">
-                @if (editingCategoryId() === node.id) {
-                  <div class="tree-edit-form">
-                    <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.name" />
-                    <input class="input input-sm" type="text" [(ngModel)]="categoryDraft.nameEn" [placeholder]="i18n.t('admin.structure.nameEnPlaceholder')" />
-                    <div class="cat-dropdown cat-dropdown-inline">
-                      <button type="button" class="cat-dropdown-trigger cat-dropdown-trigger-sm" (click)="$event.stopPropagation(); toggleCategoryEditParentDropdown()">
-                        <span class="cat-dropdown-trigger-text">{{ categoryEditParentLabel() }}</span>
-                        <span class="cat-dropdown-arrow" [class.open]="categoryEditParentDropdownOpen()">▾</span>
-                      </button>
-                      @if (categoryEditParentDropdownOpen()) {
-                        <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
-                          <label class="cat-dropdown-option">
-                            <input type="radio" name="categoryEditParent" [checked]="!categoryDraft.parentId" (change)="selectCategoryEditParent('')" />
-                            <span>{{ i18n.t('admin.newSection.topLevel') }}</span>
-                          </label>
-                          @for (opt of parentOptionsFor(node.id); track trackByCategory($index, opt)) {
-                            <label class="cat-dropdown-option">
-                              <input type="radio" name="categoryEditParent" [checked]="categoryDraft.parentId === opt.id" (change)="selectCategoryEditParent(opt.id)" />
-                              <span>{{ categoryOptionLabel(opt) }}</span>
-                            </label>
-                          }
-                        </div>
-                      }
-                    </div>
-                  </div>
-                  <div class="tree-actions">
-                    <button class="btn-icon-danger" type="button" (click)="saveEditCategory(node.id)">{{ i18n.t('admin.structure.save') }}</button>
-                    <button class="btn-ghost" type="button" (click)="cancelEditCategory()">{{ i18n.t('admin.structure.cancel') }}</button>
-                  </div>
-                } @else {
-                  <div class="tree-node-label" [class.clickable]="node.children?.length" (click)="node.children?.length && toggleCategoryExpand(node.id)">
-                    @if (node.children?.length) {
-                      <span class="tree-chevron" [class.open]="isCategoryExpanded(node.id)">▾</span>
-                    }
-                    <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
-                    @if (node.isHidden) {
-                      <span class="hidden-badge">{{ i18n.t('admin.structure.hiddenBadge') }}</span>
-                    }
-                  </div>
-                  <div class="tree-actions">
-                    <div class="menu-dropdown">
-                      <button
-                        class="icon-button icon-button-edit icon-button-sm menu-trigger"
-                        type="button"
-                        [attr.aria-label]="i18n.t('admin.structure.actions')"
-                        [title]="i18n.t('admin.structure.actions')"
-                        (click)="$event.stopPropagation(); toggleSectionMenu(node.id)">
-                        <i class="bi bi-three-dots-vertical"></i>
-                      </button>
-                      @if (isSectionMenuOpen(node.id)) {
-                        <div class="menu-panel" (click)="$event.stopPropagation()">
-                          <button class="menu-item" type="button" [disabled]="idx === 0" (click)="moveCategory(node, -1)">
-                            <i class="bi bi-arrow-up"></i> {{ i18n.t('admin.structure.moveUp') }}
-                          </button>
-                          <button class="menu-item" type="button" [disabled]="idx === total - 1" (click)="moveCategory(node, 1)">
-                            <i class="bi bi-arrow-down"></i> {{ i18n.t('admin.structure.moveDown') }}
-                          </button>
-                          <button class="menu-item" type="button" (click)="startEditCategory(node)">
-                            <i class="bi bi-pencil"></i> {{ i18n.t('admin.structure.edit') }}
-                          </button>
-                          <button class="menu-item" type="button" (click)="toggleSectionHidden(node)">
-                            <i class="bi" [class.bi-eye]="node.isHidden" [class.bi-eye-slash]="!node.isHidden"></i>
-                            {{ node.isHidden ? i18n.t('admin.structure.show') : i18n.t('admin.structure.hide') }}
-                          </button>
-                          <button class="menu-item menu-item-danger" type="button" (click)="confirmDeleteSection(node.id)">
-                            <i class="bi bi-trash"></i> {{ i18n.t('admin.structure.delete') }}
-                          </button>
-                        </div>
-                      }
-                    </div>
-                  </div>
-
-                  @if (sectionDeleteConfirmId() === node.id) {
-                    <div class="delete-confirm">
-                      <span>
-                        {{ i18n.t('admin.structure.deleteConfirmPrefix') }} "{{ i18n.pick(node.name, node.nameEn) }}"?
-                        @if (sectionDescendantCount(node.id) > 0) {
-                          {{ i18n.t('admin.structure.deleteConfirmChildrenPrefix') }} {{ sectionDescendantCount(node.id) }} {{ i18n.t('admin.structure.deleteConfirmChildrenSuffix') }}
-                        }
-                      </span>
-                      <div class="delete-actions">
-                        <button class="btn-danger" type="button" (click)="deleteSection(node.id)">{{ i18n.t('admin.mgmt.yesDelete') }}</button>
-                        <button class="btn-ghost" type="button" (click)="cancelDeleteSection()">{{ i18n.t('admin.structure.cancel') }}</button>
-                      </div>
-                    </div>
+                <div class="tree-node-label" [class.clickable]="node.children?.length" (click)="node.children?.length && toggleCategoryExpand(node.id)">
+                  @if (node.children?.length) {
+                    <span class="tree-chevron" [class.open]="isCategoryExpanded(node.id)">▾</span>
                   }
+                  <span>{{ i18n.pick(node.name, node.nameEn) }}</span>
+                  @if (node.isHidden) {
+                    <span class="hidden-badge">{{ i18n.t('admin.structure.hiddenBadge') }}</span>
+                  }
+                </div>
+                <div class="tree-actions">
+                  <div class="menu-dropdown">
+                    <button
+                      class="icon-button icon-button-edit icon-button-sm menu-trigger"
+                      type="button"
+                      [attr.aria-label]="i18n.t('admin.structure.actions')"
+                      [title]="i18n.t('admin.structure.actions')"
+                      (click)="$event.stopPropagation(); toggleSectionMenu(node.id)">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    @if (isSectionMenuOpen(node.id)) {
+                      <div class="menu-panel" (click)="$event.stopPropagation()">
+                        <button class="menu-item" type="button" [disabled]="idx === 0" (click)="moveCategory(node, -1)">
+                          <i class="bi bi-arrow-up"></i> {{ i18n.t('admin.structure.moveUp') }}
+                        </button>
+                        <button class="menu-item" type="button" [disabled]="idx === total - 1" (click)="moveCategory(node, 1)">
+                          <i class="bi bi-arrow-down"></i> {{ i18n.t('admin.structure.moveDown') }}
+                        </button>
+                        <button class="menu-item" type="button" (click)="startEditCategory(node)">
+                          <i class="bi bi-pencil"></i> {{ i18n.t('admin.structure.edit') }}
+                        </button>
+                        <button class="menu-item" type="button" (click)="toggleSectionHidden(node)">
+                          <i class="bi" [class.bi-eye]="node.isHidden" [class.bi-eye-slash]="!node.isHidden"></i>
+                          {{ node.isHidden ? i18n.t('admin.structure.show') : i18n.t('admin.structure.hide') }}
+                        </button>
+                        <button class="menu-item menu-item-danger" type="button" (click)="confirmDeleteSection(node.id)">
+                          <i class="bi bi-trash"></i> {{ i18n.t('admin.structure.delete') }}
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                @if (sectionDeleteConfirmId() === node.id) {
+                  <div class="delete-confirm">
+                    <span>
+                      {{ i18n.t('admin.structure.deleteConfirmPrefix') }} "{{ i18n.pick(node.name, node.nameEn) }}"?
+                      @if (sectionDescendantCount(node.id) > 0) {
+                        {{ i18n.t('admin.structure.deleteConfirmChildrenPrefix') }} {{ sectionDescendantCount(node.id) }} {{ i18n.t('admin.structure.deleteConfirmChildrenSuffix') }}
+                      }
+                    </span>
+                    <div class="delete-actions">
+                      <button class="btn-danger" type="button" (click)="deleteSection(node.id)">{{ i18n.t('admin.mgmt.yesDelete') }}</button>
+                      <button class="btn-ghost" type="button" (click)="cancelDeleteSection()">{{ i18n.t('admin.structure.cancel') }}</button>
+                    </div>
+                  </div>
                 }
               </div>
             </ng-template>
@@ -1017,6 +996,73 @@
         <button class="btn-primary" type="button" (click)="saveProduct()">
           {{ editingProduct() ? i18n.t('admin.modal.saveChanges') : i18n.t('admin.modal.addProductBtn') }}
         </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (editingCategoryId(); as editCatId) {
+  <div class="modal-overlay" (click)="cancelEditCategory()">
+    <div class="pm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ i18n.t('admin.structure.editModalTitle') }}</h3>
+          <p>{{ i18n.t('admin.structure.editModalSubtitle') }}</p>
+        </div>
+        <button class="modal-close" type="button" (click)="cancelEditCategory()">×</button>
+      </div>
+
+      <div class="modal-body" (click)="closeAllCategoryDropdowns()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categoryEditName">{{ i18n.t('admin.newSection.nameLabel') }}</label>
+            <input id="categoryEditName" class="input" type="text" [(ngModel)]="categoryDraft.name" [placeholder]="i18n.t('admin.newSection.namePlaceholder')" />
+          </div>
+
+          <div class="form-group">
+            <label for="categoryEditNameEn">{{ i18n.t('admin.newSection.nameEnLabel') }}</label>
+            <input id="categoryEditNameEn" class="input" type="text" [(ngModel)]="categoryDraft.nameEn" [placeholder]="i18n.t('admin.newSection.nameEnPlaceholder')" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryEditDesc">{{ i18n.t('admin.newSection.descLabel') }}</label>
+          <textarea id="categoryEditDesc" class="input textarea" [(ngModel)]="categoryDraft.description" [placeholder]="i18n.t('admin.newSection.descPlaceholder')"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryEditDescEn">{{ i18n.t('admin.newSection.descEnLabel') }}</label>
+          <textarea id="categoryEditDescEn" class="input textarea" [(ngModel)]="categoryDraft.descriptionEn" [placeholder]="i18n.t('admin.newSection.descEnPlaceholder')"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>{{ i18n.t('admin.newSection.parentLabel') }}</label>
+          <div class="cat-dropdown">
+            <button type="button" class="cat-dropdown-trigger" (click)="$event.stopPropagation(); toggleCategoryEditParentDropdown()">
+              <span class="cat-dropdown-trigger-text">{{ categoryEditParentLabel() }}</span>
+              <span class="cat-dropdown-arrow" [class.open]="categoryEditParentDropdownOpen()">▾</span>
+            </button>
+            @if (categoryEditParentDropdownOpen()) {
+              <div class="cat-dropdown-panel" (click)="$event.stopPropagation()">
+                <label class="cat-dropdown-option">
+                  <input type="radio" name="categoryEditParent" [checked]="!categoryDraft.parentId" (change)="selectCategoryEditParent('')" />
+                  <span>{{ i18n.t('admin.newSection.topLevel') }}</span>
+                </label>
+                @for (opt of parentOptionsFor(editCatId); track trackByCategory($index, opt)) {
+                  <label class="cat-dropdown-option">
+                    <input type="radio" name="categoryEditParent" [checked]="categoryDraft.parentId === opt.id" (change)="selectCategoryEditParent(opt.id)" />
+                    <span>{{ categoryOptionLabel(opt) }}</span>
+                  </label>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" (click)="cancelEditCategory()">{{ i18n.t('admin.structure.cancel') }}</button>
+        <button class="btn-primary" type="button" (click)="saveEditCategory(editCatId)">{{ i18n.t('admin.structure.save') }}</button>
       </div>
     </div>
   </div>

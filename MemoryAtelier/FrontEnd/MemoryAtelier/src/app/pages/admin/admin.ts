@@ -129,9 +129,9 @@ export class Admin implements OnInit, AfterViewInit {
   stockDrafts = signal<Record<string, number>>({});
   stockSavingId = signal<string | null>(null);
 
-  newSection = { name: '', nameEn: '', parentId: '' };
+  newSection = { name: '', nameEn: '', description: '', descriptionEn: '', parentId: '' };
   editingCategoryId = signal<string | null>(null);
-  categoryDraft = { name: '', nameEn: '', parentId: '' };
+  categoryDraft = { name: '', nameEn: '', description: '', descriptionEn: '', parentId: '' };
   expandedCategoryIds = signal<Set<string>>(new Set());
   collapsedGroups = signal<Set<string>>(new Set());
   sectionDeleteConfirmId = signal<string | null>(null);
@@ -1037,13 +1037,15 @@ export class Admin implements OnInit, AfterViewInit {
     this.categoryService.create({
       name: this.newSection.name,
       nameEn: this.newSection.nameEn.trim() || null,
+      description: this.newSection.description.trim() || null,
+      descriptionEn: this.newSection.descriptionEn.trim() || null,
       parentId: this.newSection.parentId || null
     }).subscribe({
       next: () => {
         this.loadCategories();
         this.loadDashboardData();
         this.showSuccess(`${this.i18n.t('admin.toast.sectionAddedPrefix')} "${this.newSection.name}" ${this.i18n.t('admin.toast.sectionAddedSuffix')}`);
-        this.newSection = { name: '', nameEn: '', parentId: '' };
+        this.newSection = { name: '', nameEn: '', description: '', descriptionEn: '', parentId: '' };
       }
     });
   }
@@ -1185,8 +1187,15 @@ export class Admin implements OnInit, AfterViewInit {
   startEditCategory(cat: Category): void {
     this.closeSectionMenu();
     this.editingCategoryId.set(cat.id);
-    this.categoryDraft = { name: cat.name, nameEn: cat.nameEn ?? '', parentId: cat.parentId ?? '' };
+    this.categoryDraft = {
+      name: cat.name,
+      nameEn: cat.nameEn ?? '',
+      description: cat.description ?? '',
+      descriptionEn: cat.descriptionEn ?? '',
+      parentId: cat.parentId ?? ''
+    };
     this.categoryEditParentDropdownOpen.set(false);
+    document.body.style.overflow = 'hidden';
   }
 
   parentOptionsFor(nodeId: string): Category[] {
@@ -1204,6 +1213,8 @@ export class Admin implements OnInit, AfterViewInit {
 
   cancelEditCategory(): void {
     this.editingCategoryId.set(null);
+    this.categoryEditParentDropdownOpen.set(false);
+    document.body.style.overflow = '';
   }
 
   toggleCategoryExpand(id: string): void {
@@ -1246,11 +1257,14 @@ export class Admin implements OnInit, AfterViewInit {
     this.categoryService.update(id, {
       name: this.categoryDraft.name,
       nameEn: this.categoryDraft.nameEn.trim() || null,
+      description: this.categoryDraft.description.trim() || null,
+      descriptionEn: this.categoryDraft.descriptionEn.trim() || null,
       parentId: this.categoryDraft.parentId || null
     }).subscribe({
       next: () => {
         this.loadCategories();
         this.editingCategoryId.set(null);
+        document.body.style.overflow = '';
         this.showSuccess(this.i18n.t('admin.toast.sectionUpdated'));
       }
     });

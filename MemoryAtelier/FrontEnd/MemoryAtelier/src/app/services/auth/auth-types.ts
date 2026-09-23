@@ -12,6 +12,8 @@ export interface Category {
   id: string;
   name: string;
   nameEn: string | null;
+  description: string | null;
+  descriptionEn: string | null;
   parentId: string | null;
   children: Category[];
   isHidden: boolean;

@@ -162,6 +162,14 @@
   letter-spacing: 0.02em;
 }
 
+.category-description {
+  margin-top: 10px;
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #8a7266;
+}
+
 /* CATEGORY LAYOUT — странично меню с подсекции + плосък списък продукти */
 .category-layout {
   display: grid;
@@ -528,6 +536,7 @@
 
   .category-hero { padding: 28px 20px 20px; }
   .category-title { font-size: 28px; }
+  .category-description { font-size: 14px; }
 
   .category-layout {
     grid-template-columns: 1fr;

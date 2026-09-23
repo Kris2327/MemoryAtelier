@@ -6,9 +6,9 @@ public record RegisterDto(string Name, string Email, string Password, string? Ph
 public record LoginDto(string Email, string Password);
 public record AuthResponseDto(string Token, string Role, string Name, Guid UserId, string? Phone);
 
-public record CategoryDto(Guid Id, string Name, string? NameEn, Guid? ParentId, List<CategoryDto> Children, bool IsHidden = false);
-public record CreateCategoryDto(string Name, string? NameEn, Guid? ParentId);
-public record UpdateCategoryDto(string Name, string? NameEn, Guid? ParentId);
+public record CategoryDto(Guid Id, string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId, List<CategoryDto> Children, bool IsHidden = false);
+public record CreateCategoryDto(string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId);
+public record UpdateCategoryDto(string Name, string? NameEn, string? Description, string? DescriptionEn, Guid? ParentId);
 public record ReorderCategoriesDto(List<Guid> OrderedIds);
 public record SetHiddenDto(bool Hidden);
 

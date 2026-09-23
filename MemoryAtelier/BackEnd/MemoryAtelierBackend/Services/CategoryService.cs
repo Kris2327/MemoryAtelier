@@ -19,7 +19,7 @@ public class CategoryService(AppDbContext db, IOutputCacheStore cache)
         return all
             .Where(c => c.ParentId == parentId && (includeHidden || !c.IsHidden))
             .OrderBy(c => c.SortOrder)
-            .Select(c => new CategoryDto(c.Id, c.Name, c.NameEn, c.ParentId, BuildTree(all, c.Id, includeHidden), c.IsHidden))
+            .Select(c => new CategoryDto(c.Id, c.Name, c.NameEn, c.Description, c.DescriptionEn, c.ParentId, BuildTree(all, c.Id, includeHidden), c.IsHidden))
             .ToList();
     }
 
@@ -30,7 +30,7 @@ public class CategoryService(AppDbContext db, IOutputCacheStore cache)
             .Select(c => (int?)c.SortOrder)
             .MaxAsync() ?? -1;
 
-        var cat = new Category { Id = Guid.NewGuid(), Name = dto.Name, NameEn = dto.NameEn, ParentId = dto.ParentId, SortOrder = maxOrder + 1 };
+        var cat = new Category { Id = Guid.NewGuid(), Name = dto.Name, NameEn = dto.NameEn, Description = dto.Description, DescriptionEn = dto.DescriptionEn, ParentId = dto.ParentId, SortOrder = maxOrder + 1 };
         db.Categories.Add(cat);
         await db.SaveChangesAsync();
         await cache.EvictByTagAsync("catalog", default);
@@ -65,6 +65,8 @@ public class CategoryService(AppDbContext db, IOutputCacheStore cache)
 
         cat.Name = dto.Name;
         cat.NameEn = dto.NameEn;
+        cat.Description = dto.Description;
+        cat.DescriptionEn = dto.DescriptionEn;
         cat.ParentId = dto.ParentId;
         await db.SaveChangesAsync();
         await cache.EvictByTagAsync("catalog", default);

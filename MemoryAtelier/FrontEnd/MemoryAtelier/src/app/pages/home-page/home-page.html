@@ -115,6 +115,9 @@
         </div>
         @if (selectedCategoryPath(); as path) {
           <h1 class="category-title">{{ i18n.pick(path[path.length - 1].name, path[path.length - 1].nameEn) }}</h1>
+          @if (i18n.pick(path[path.length - 1].description ?? '', path[path.length - 1].descriptionEn); as categoryDesc) {
+            <p class="category-description">{{ categoryDesc }}</p>
+          }
         }
       </div>
 

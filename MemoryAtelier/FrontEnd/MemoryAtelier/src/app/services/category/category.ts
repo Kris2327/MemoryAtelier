@@ -20,11 +20,11 @@ export class CategoryService {
     this.getAll().subscribe(data => this.categories.set(data));
   }
 
-  create(dto: { name: string; nameEn: string | null; parentId: string | null }) {
+  create(dto: { name: string; nameEn: string | null; description: string | null; descriptionEn: string | null; parentId: string | null }) {
     return this.http.post<Category>(this.API, dto);
   }
 
-  update(id: string, dto: { name: string; nameEn: string | null; parentId: string | null }) {
+  update(id: string, dto: { name: string; nameEn: string | null; description: string | null; descriptionEn: string | null; parentId: string | null }) {
     return this.http.put<Category>(`${this.API}/${id}`, dto);
   }
 
