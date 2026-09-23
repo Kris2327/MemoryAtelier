@@ -9,13 +9,13 @@
           <span [class.open]="mobileMenuOpen()"></span>
           <span [class.open]="mobileMenuOpen()"></span>
         </button>
+        <img style="height:40px;width:40px;" src="roundedLogo.png" alt="Logo" class="logo" />
         <!-- Mobile-only: toggles the dropdown search pill below the navbar -->
         <button class="icon-btn mobile-search-btn" type="button" (click)="$event.stopPropagation(); toggleMobileSearch()" [attr.aria-label]="i18n.t('nav.search')">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
           </svg>
         </button>
-        <img style="height:40px;width:40px;" src="roundedLogo.png" alt="Logo" class="logo" />
         <span class="brand-name">Memory Atelier</span>
       </div>
 
@@ -141,19 +141,6 @@
         </button>
 
       </div>
-
-      @if (mobileSearchOpen()) {
-        <!-- прозрачен backdrop зад pill-а — клик извън него затваря търсенето -->
-        <div class="mobile-search-backdrop" (click)="closeMobileSearch()"></div>
-        <form class="search-form mobile-search-dropdown" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
-          <input #mobileSearchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" autofocus />
-          <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-            </svg>
-          </button>
-        </form>
-      }
     </div>
 
     <!-- MOBILE MENU -->
@@ -204,6 +191,20 @@
 </div>
 
   </nav>
+
+  @if (mobileSearchOpen()) {
+    <!-- извън <nav>-а нарочно — navbar-ът има backdrop-filter, което създава containing block
+         за position:fixed деца и щеше да свие backdrop-а/pill-а до височината на navbar-а -->
+    <div class="mobile-search-backdrop" (click)="closeMobileSearch()"></div>
+    <form class="search-form mobile-search-dropdown" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
+      <input #mobileSearchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" autofocus />
+      <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+      </button>
+    </form>
+  }
 
   <main class="content">
     <router-outlet />

@@ -199,11 +199,11 @@
   animation: fadeDown .15s ease both;
 }
 
-/* Същият .search-form pill като на desktop, но окачен под navbar-а — долният му край
-   пресича средата на pill-а (top: 100%, вдигнат нагоре с половината си височина). */
+/* Същият .search-form pill като на desktop, но окачен под navbar-а — навигацията е висока
+   72px (виж .container-nav), долният ѝ край пресича средата на pill-а. */
 .mobile-search-dropdown {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 72px;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 999;
@@ -437,6 +437,7 @@
   .brand-name { display: none; }
   .nav-links { display: none; }
   .search-form { display: none; }
+  .mobile-search-dropdown { display: flex; }
   .mobile-search-btn { display: flex; }
 
   .nav-actions { grid-column: 3; gap: 4px; }
