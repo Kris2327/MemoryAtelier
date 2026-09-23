@@ -191,43 +191,28 @@
 
 .mobile-search-btn { display: none; }
 
-.mobile-search-overlay {
-  position: absolute;
+.mobile-search-backdrop {
+  position: fixed;
   inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 20px;
-  background: #fff;
+  z-index: 998;
+  background: rgba(44,24,16,.15);
   animation: fadeDown .15s ease both;
 }
-.mobile-search-overlay-icon { color: #c97d4e; flex-shrink: 0; }
-.mobile-search-overlay-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 15px;
-  font-family: 'Lato', sans-serif;
-  color: #2c1810;
+
+/* Същият .search-form pill като на desktop, но окачен под navbar-а — долният му край
+   пресича средата на pill-а (top: 100%, вдигнат нагоре с половината си височина). */
+.mobile-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  width: calc(100% - 40px);
+  max-width: 420px;
+  margin: 0;
+  box-shadow: 0 8px 24px rgba(44,24,16,.18);
+  animation: fadeDown .15s ease both;
 }
-.mobile-search-overlay-input::placeholder { color: #b3a094; }
-.mobile-search-overlay-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: none;
-  color: #999;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.mobile-search-overlay-close:hover { color: #c97d4e; background: #fdf0e8; }
 
 .icon-badge {
   position: absolute;

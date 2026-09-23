@@ -91,7 +91,7 @@ export class Navbar implements OnInit {
   clearSubcategory() { this.activeSubcategory.set(null); }
   toggleMobileMenu() { this.mobileMenuOpen.update(v => !v); }
   closeMobileMenu() { this.mobileMenuOpen.set(false); }
-  openMobileSearch() { this.mobileSearchOpen.set(true); }
+  toggleMobileSearch() { this.mobileSearchOpen.update(v => !v); }
   closeMobileSearch() { this.mobileSearchOpen.set(false); }
 
   filterBy(category: string) {
