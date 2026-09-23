@@ -101,6 +101,21 @@ builder.Services.AddOutputCache(options =>
 
 builder.Services.AddRateLimiter(options =>
 {
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Общ таван за всеки endpoint, който няма собствена по-строга политика — пази backend-а/базата
+    // от внезапен наплив (легитимен пик или флууд), без да пречи на нормалното сърфиране в сайта
+    // (една зареждаща се страница дърпа паралелно няколко endpoint-а).
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 300,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+
     // 5 съобщения на 10 минути за всеки клиентски IP
     options.AddPolicy("contact", httpContext => RateLimitPartition.GetFixedWindowLimiter(
         httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -108,6 +123,16 @@ builder.Services.AddRateLimiter(options =>
         {
             PermitLimit = 5,
             Window = TimeSpan.FromMinutes(10),
+            QueueLimit = 0
+        }));
+
+    // По-строг лимит за вход/регистрация — основната цел за brute-force/bot атаки.
+    options.AddPolicy("auth", httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(5),
             QueueLimit = 0
         }));
 });

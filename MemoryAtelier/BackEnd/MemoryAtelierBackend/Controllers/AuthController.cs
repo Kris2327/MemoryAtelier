@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MemoryAtelierBackend.DTOs;
 using MemoryAtelierBackend.Services;
 
@@ -6,6 +7,7 @@ namespace MemoryAtelierBackend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("auth")]
 public class AuthController(AuthService authService) : ControllerBase
 {
     [HttpPost("register")]
