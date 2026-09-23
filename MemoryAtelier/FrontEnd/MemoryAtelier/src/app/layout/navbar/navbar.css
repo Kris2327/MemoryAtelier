@@ -13,6 +13,7 @@
 }
 
 .container-nav {
+  position: relative;
   display: grid;
   grid-template-columns: auto auto 1fr auto;
   align-items: center;
@@ -187,6 +188,46 @@
   height: 36px;
 }
 .icon-btn:hover { color: #c97d4e; background: #fdf0e8; }
+
+.mobile-search-btn { display: none; }
+
+.mobile-search-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  background: #fff;
+  animation: fadeDown .15s ease both;
+}
+.mobile-search-overlay-icon { color: #c97d4e; flex-shrink: 0; }
+.mobile-search-overlay-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: 'Lato', sans-serif;
+  color: #2c1810;
+}
+.mobile-search-overlay-input::placeholder { color: #b3a094; }
+.mobile-search-overlay-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: #999;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.mobile-search-overlay-close:hover { color: #c97d4e; background: #fdf0e8; }
 
 .icon-badge {
   position: absolute;
@@ -411,11 +452,7 @@
   .brand-name { display: none; }
   .nav-links { display: none; }
   .search-form { display: none; }
-  .mobile-search-form {
-    display: flex;
-    max-width: none;
-    margin: 0 0 10px;
-  }
+  .mobile-search-btn { display: flex; }
 
   .nav-actions { grid-column: 3; gap: 4px; }
 

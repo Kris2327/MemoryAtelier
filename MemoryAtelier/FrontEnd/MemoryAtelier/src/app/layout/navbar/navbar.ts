@@ -32,6 +32,7 @@ export class Navbar implements OnInit {
   activeSubcategory = signal<string | null>(null);
   mobileMenuOpen = signal(false);
   activeMobileSection = signal<string | null>(null);
+  mobileSearchOpen = signal(false);
 
   navItems = computed<NavCategory[]>(() =>
     this.categoryService.categories().map(category => this.toNavCategory(category))
@@ -90,6 +91,8 @@ export class Navbar implements OnInit {
   clearSubcategory() { this.activeSubcategory.set(null); }
   toggleMobileMenu() { this.mobileMenuOpen.update(v => !v); }
   closeMobileMenu() { this.mobileMenuOpen.set(false); }
+  openMobileSearch() { this.mobileSearchOpen.set(true); }
+  closeMobileSearch() { this.mobileSearchOpen.set(false); }
 
   filterBy(category: string) {
     this.router.navigate(['/home'], { queryParams: { category } });
@@ -102,6 +105,7 @@ export class Navbar implements OnInit {
     this.router.navigate(['/home'], { queryParams: { q } });
     this.closeMobileMenu();
     this.closeMegaMenu();
+    this.closeMobileSearch();
   }
 
   logout() { this.authService.logout(); }

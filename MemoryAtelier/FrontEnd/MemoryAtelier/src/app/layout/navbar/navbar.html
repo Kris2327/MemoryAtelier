@@ -84,6 +84,13 @@
       <!-- 4. RIGHT: actions -->
       <div class="nav-actions">
 
+        <!-- Mobile-only: opens the inline search overlay on the navbar line -->
+        <button class="icon-btn mobile-search-btn" type="button" (click)="openMobileSearch()" [attr.aria-label]="i18n.t('nav.search')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
+
         <button class="lang-switch" type="button" (click)="i18n.toggle()" title="Switch language">
           {{ i18n.lang() === 'bg' ? 'EN' : 'BG' }}
         </button>
@@ -135,19 +142,22 @@
         </button>
 
       </div>
+
+      @if (mobileSearchOpen()) {
+        <form class="mobile-search-overlay" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
+          <svg class="mobile-search-overlay-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input #mobileSearchInput type="text" class="mobile-search-overlay-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" autofocus />
+          <button type="button" class="mobile-search-overlay-close" (click)="closeMobileSearch()" [attr.aria-label]="i18n.t('common.close')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </form>
+      }
     </div>
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" [class.open]="mobileMenuOpen()">
-      <form class="search-form mobile-search-form" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
-        <input #mobileSearchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" />
-        <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-          </svg>
-        </button>
-      </form>
-
       @for (item of navItems(); track item.label) {
         <div class="mobile-section">
 

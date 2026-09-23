@@ -32,6 +32,7 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'profile.orderStatus': 'Статус',
 
     // COMMON
+    'common.close': 'Затвори',
     'common.backToShop': 'Обратно към магазина',
     'common.browseProducts': 'Разгледай продукти',
     'common.products': 'продукта',
@@ -529,6 +530,7 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'profile.orderStatus': 'Status',
 
     // COMMON
+    'common.close': 'Close',
     'common.backToShop': 'Back to shop',
     'common.browseProducts': 'Browse products',
     'common.products': 'products',
