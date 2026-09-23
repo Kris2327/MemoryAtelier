@@ -254,10 +254,6 @@ export class HomePage implements OnInit, OnDestroy {
     return this.i18n.pick(group.category, group.categoryEn);
   }
 
-  categoryNames(categories: CategoryRef[]): string {
-    return categories.map(c => this.i18n.pick(c.name, c.nameEn)).join(', ');
-  }
-
   loadFavouriteIds() {
     this.favouritesService.getFavourites().subscribe({
       next: (favs) => this.favouriteIds.set(new Set(favs.map(f => f.productId)))

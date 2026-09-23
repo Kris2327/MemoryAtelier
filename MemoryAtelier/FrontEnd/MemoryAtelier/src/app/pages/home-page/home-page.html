@@ -57,7 +57,6 @@
           decoding="async"
           (error)="onThumbError($event, product.images[0]?.imageUrl || 'https://placehold.co/290x240')"
           class="product-img" />
-        <span class="product-category">{{ categoryNames(product.categories) }}</span>
         @if (isNew(product)) {
           <span class="product-new-badge">{{ i18n.t('home.newBadge') }}</span>
         }
@@ -220,7 +219,6 @@
                   decoding="async"
                   (error)="onThumbError($event, product.images[0]?.imageUrl || 'https://placehold.co/220x180')"
                   class="slider-img" />
-                <span class="slider-category">{{ categoryNames(product.categories) }}</span>
               </div>
               <div class="slider-info">
                 <div class="slider-name">{{ i18n.pick(product.name, product.nameEn) }}</div>
