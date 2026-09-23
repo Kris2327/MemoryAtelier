@@ -27,6 +27,8 @@ export class Signup {
     seo.update({ title: 'Регистрация | Memory Atelier', description: 'Създайте акаунт в Memory Atelier.', path: '/signup', noindex: true });
   }
 
+  goHome() { this.router.navigate(['/home']); }
+
   submit() {
     this.error.set('');
 

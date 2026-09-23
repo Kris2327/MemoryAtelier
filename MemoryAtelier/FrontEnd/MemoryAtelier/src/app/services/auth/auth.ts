@@ -24,6 +24,10 @@ export class AuthService {
   readonly isLoggedIn = computed(() => !!this._token());
   readonly isAdmin = computed(() => this._role() === 'Admin');
 
+  // Вдига се от auth-interceptor-а при 401 от вече логнат потребител (изтекъл/невалиден токен).
+  // Sign-in страницата го чете еднократно, за да покаже съобщение, после го изчиства.
+  readonly sessionExpired = signal(false);
+
   constructor(private http: HttpClient, private router: Router) {}
 
   login(dto: LoginRequest) {
@@ -39,12 +43,32 @@ export class AuthService {
   }
 
   logout() {
-    if (this.isBrowser) localStorage.clear();
+    this.clearSession();
+    this.router.navigate(['/sign-in']);
+  }
+
+  // Токенът вече не е валиден (изтекла сесия) — разлика от logout() е, че маркира sessionExpired,
+  // за да може sign-in страницата да покаже съобщение защо потребителят се озовава там.
+  expireSession(): void {
+    if (!this._token()) return; // вече сме разлогнати — не пренавигирай многократно при паралелни 401-ци
+    this.clearSession();
+    this.sessionExpired.set(true);
+    this.router.navigate(['/sign-in']);
+  }
+
+  private clearSession(): void {
+    if (this.isBrowser) {
+      // Само данните за сесията — localStorage.clear() трие и несвързани неща (съгласие за
+      // бисквитки, избран език), които трябва да оцелеят след логаут.
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('name');
+      localStorage.removeItem('phone');
+    }
     this._token.set(null);
     this._role.set(null);
     this._name.set(null);
-    this._phone.set(null); // <- добави
-    this.router.navigate(['/sign-in']);
+    this._phone.set(null);
   }
 
   private saveSession(res: AuthResponse) {

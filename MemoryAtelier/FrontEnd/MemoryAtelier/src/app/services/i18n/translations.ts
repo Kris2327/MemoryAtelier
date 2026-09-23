@@ -19,6 +19,9 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'cookies.learnMore': 'Научете повече',
     'cookies.ok': 'Разбирам',
 
+    // SPLASH
+    'splash.hint': 'Кликни, за да продължиш',
+
     // HOME
     'home.hero.badge': '✿ Ръчно изработено с любов',
     'home.hero.sub': 'Ръчно изработени съкровища с любов — всяко парче разказва история',
@@ -93,6 +96,7 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'signin.noAccount': 'Нямате акаунт?',
     'signin.registerLink': 'Регистрирайте се',
     'signin.error': 'Невалиден имейл или парола.',
+    'signin.sessionExpired': 'Сесията ви изтече. Моля, влезте отново.',
 
     // SIGN UP
     'signup.tagline1': 'Започнете',
@@ -464,6 +468,9 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'cookies.learnMore': 'Learn more',
     'cookies.ok': 'I understand',
 
+    // SPLASH
+    'splash.hint': 'Click to continue',
+
     // HOME
     'home.hero.badge': '✿ Handmade with love',
     'home.hero.sub': 'Handmade treasures crafted with love — every piece tells a story',
@@ -538,6 +545,7 @@ export const TRANSLATIONS: Record<'bg' | 'en', Record<string, string>> = {
     'signin.noAccount': "Don't have an account?",
     'signin.registerLink': 'Sign up',
     'signin.error': 'Invalid email or password.',
+    'signin.sessionExpired': 'Your session has expired. Please sign in again.',
 
     // SIGN UP
     'signup.tagline1': 'Start',

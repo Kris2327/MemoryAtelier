@@ -80,6 +80,28 @@
   overflow-y: auto;
 }
 
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #ede5df;
+  color: #888;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  transition: all .2s;
+  white-space: nowrap;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+.btn-back:hover {
+  border-color: #c97d4e;
+  color: #c97d4e;
+}
+
 .auth-brand {
   display: flex;
   align-items: center;

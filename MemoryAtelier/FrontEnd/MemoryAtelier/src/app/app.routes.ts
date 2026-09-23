@@ -8,10 +8,11 @@ import { Cart } from './pages/cart/cart/cart';
 import { Favourites } from './pages/favourites/favourites';
 import { ProductDetail } from './pages/product-detail/product-detail';
 import { Checkout } from './pages/checkout/checkout';
+import { Splash } from './pages/splash/splash';
 
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', component: Splash, pathMatch: 'full' },
   { path: 'sign-in', component: SignIn },
   { path: 'signup', component: Signup },
   // Извън Navbar wrapper-а нарочно — админ панелът има собствен sidebar и не му трябва сайтовият navbar.

@@ -18,10 +18,19 @@ export class SignIn {
   password = '';
   error = signal('');
   loading = signal(false);
+  sessionExpired = signal(false);
 
   constructor(private authService: AuthService, private router: Router, public i18n: I18nService, seo: SeoService) {
     seo.update({ title: 'Вход | Memory Atelier', description: 'Влезте в своя акаунт в Memory Atelier.', path: '/sign-in', noindex: true });
+
+    // Еднократно "изяждаме" флага от AuthService, за да не се показва пак при следваща визита.
+    if (this.authService.sessionExpired()) {
+      this.sessionExpired.set(true);
+      this.authService.sessionExpired.set(false);
+    }
   }
+
+  goHome() { this.router.navigate(['/home']); }
 
   submit() {
     this.error.set('');

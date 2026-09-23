@@ -86,10 +86,27 @@
     </nav>
     </div>
 
-    <button class="sidebar-summary" [class.alert]="lowStockCount() > 0" type="button" (click)="goToLowStock()">
-      <span class="summary-label">{{ i18n.t('admin.lowStockLabel') }}</span>
-      <strong>{{ lowStockCount() }}</strong>
-    </button>
+    <div class="sidebar-bottom">
+      <button class="sidebar-summary" [class.alert]="lowStockCount() > 0" type="button" (click)="goToLowStock()">
+        <span class="summary-label">{{ i18n.t('admin.lowStockLabel') }}</span>
+        <strong>{{ lowStockCount() }}</strong>
+      </button>
+
+      <div class="sidebar-profile">
+        <div class="profile-avatar">{{ profileInitial() }}</div>
+        <div class="profile-info">
+          <span class="profile-greeting">{{ i18n.t('nav.hello') }}</span>
+          <strong class="profile-name">{{ authService.name() }}</strong>
+        </div>
+        <button class="profile-logout" type="button" (click)="logout()" [title]="i18n.t('nav.logout')" [attr.aria-label]="i18n.t('nav.logout')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
   </aside>
 
   <main class="admin-main">

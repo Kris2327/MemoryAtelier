@@ -1,0 +1,14 @@
+<div class="splash" [class.leaving]="leaving()" (click)="enter($event)">
+  <div class="splash-logo-bg" style="background-image: url('roundedLogo.png');" aria-hidden="true"></div>
+
+  <div class="splash-content">
+    <img src="roundedLogo.png" alt="Memory Atelier" class="splash-logo" />
+
+    <p class="splash-quote">
+      „Всичко започва с една мечта. А когато към нея добавиш щипка въображение и творчество, много любов и желание, вяра и постоянство, няма граници пред това, което можеш да създадеш.“
+    </p>
+    <span class="splash-signature">Memory Atelier</span>
+
+    <span class="splash-hint">{{ i18n.t('splash.hint') }}</span>
+  </div>
+</div>

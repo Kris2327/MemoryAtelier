@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ProductService } from '../../services/product/product';
+import { AuthService } from '../../services/auth/auth';
 import { CategoryService } from '../../services/category/category';
 import { ImageService } from '../../services/images/images';
 import { GoogleDriveService } from '../../services/google-drive/google-drive';
@@ -91,6 +92,7 @@ export class Admin implements OnInit, AfterViewInit {
   @ViewChild('usersChart') usersChartRef?: ElementRef<HTMLCanvasElement>;
 
   private readonly productService = inject(ProductService);
+  readonly authService = inject(AuthService);
   private readonly categoryService = inject(CategoryService);
   private readonly imageService = inject(ImageService);
   private readonly googleDriveService = inject(GoogleDriveService);
@@ -296,6 +298,14 @@ export class Admin implements OnInit, AfterViewInit {
 
   goToSite(): void {
     this.router.navigate(['/home']);
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  profileInitial(): string {
+    return (this.authService.name() ?? '?').trim().charAt(0).toUpperCase() || '?';
   }
 
   goToLowStock(): void {

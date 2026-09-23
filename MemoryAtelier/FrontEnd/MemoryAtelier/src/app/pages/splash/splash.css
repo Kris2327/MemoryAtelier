@@ -1,0 +1,111 @@
+* { box-sizing: border-box; }
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #fffaf6 0%, #fdf8f4 45%, #f8ede3 100%);
+  cursor: pointer;
+  animation: splashFadeIn .6s ease both;
+  transition: opacity .5s ease;
+}
+
+.splash.leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-logo-bg {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: min(70vw, 620px);
+  opacity: 0.08;
+  filter: blur(1px);
+  transform: scale(1.15);
+  animation: splashBgZoom 12s ease-in-out infinite alternate;
+}
+
+.splash-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px;
+  max-width: 640px;
+  margin-top: 48px;
+}
+
+.splash-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  box-shadow: 0 12px 40px rgba(201, 125, 78, 0.25);
+  margin-bottom: 32px;
+  animation: splashRise .8s ease .1s both;
+}
+
+.splash-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.6vw, 26px);
+  line-height: 1.6;
+  color: #5e4639;
+  margin: 0 0 22px;
+  animation: splashRise .8s ease .3s both;
+}
+
+.splash-signature {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #c97d4e;
+  animation: splashRise .8s ease .5s both;
+}
+
+.splash-signature::before {
+  content: '— ';
+}
+
+.splash-hint {
+  margin-top: 56px;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  color: #a88f80;
+  animation: splashRise .8s ease .8s both, splashPulse 2.2s ease-in-out 1.6s infinite;
+}
+
+@keyframes splashFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes splashRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes splashBgZoom {
+  from { transform: scale(1.15); }
+  to { transform: scale(1.25); }
+}
+
+@media (max-width: 600px) {
+  .splash-content { padding: 24px; margin-top: 24px; }
+  .splash-logo { width: 76px; height: 76px; margin-bottom: 24px; }
+  .splash-hint { margin-top: 40px; }
+}
