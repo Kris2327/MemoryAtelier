@@ -38,10 +38,14 @@
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   justify-content: center;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.nav-item { position: relative; }
+.nav-links::-webkit-scrollbar { display: none; }
+.nav-item { position: relative; flex-shrink: 0; }
 .nav-item::after {
   content: '';
   position: absolute;
@@ -61,6 +65,7 @@
   transition: color .2s;
   letter-spacing: 0.3px;
   padding: 8px 0;
+  white-space: nowrap;
 }
 .nav-link:hover { color: #c97d4e; }
 .nav-arrow {
