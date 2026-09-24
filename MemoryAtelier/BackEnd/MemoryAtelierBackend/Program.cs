@@ -126,13 +126,23 @@ builder.Services.AddRateLimiter(options =>
             QueueLimit = 0
         }));
 
-    // По-строг лимит за вход/регистрация — основната цел за brute-force/bot атаки.
+    // По-строг лимит за вход/забравена-парола — основната цел за brute-force/bot атаки.
     options.AddPolicy("auth", httpContext => RateLimitPartition.GetFixedWindowLimiter(
         httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         _ => new FixedWindowRateLimiterOptions
         {
             PermitLimit = 10,
             Window = TimeSpan.FromMinutes(5),
+            QueueLimit = 0
+        }));
+
+    // Регистрация на нови акаунти — 20 на минута за всеки клиентски IP.
+    options.AddPolicy("register", httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 20,
+            Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0
         }));
 });
