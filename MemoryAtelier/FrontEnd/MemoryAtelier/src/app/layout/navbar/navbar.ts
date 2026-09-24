@@ -1,12 +1,15 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth/auth';
 import { CartService } from '../../services/cartService/cartService';
 import { FavouritesService } from '../../services/favourites/favourites';
 import { CategoryService } from '../../services/category/category';
-import { Category } from '../../services/auth/auth-types';
+import { ProductService } from '../../services/product/product';
+import { Category, Product } from '../../services/auth/auth-types';
 import { I18nService } from '../../services/i18n/i18n';
+
+const MAX_SEARCH_SUGGESTIONS = 6;
 
 export interface NavChild {
   label: string;
@@ -34,6 +37,10 @@ export class Navbar implements OnInit {
   activeMobileSection = signal<string | null>(null);
   mobileSearchOpen = signal(false);
 
+  searchTerm = signal('');
+  searchSuggestionsOpen = signal(false);
+  private allProducts = signal<Product[] | null>(null);
+
   navItems = computed<NavCategory[]>(() =>
     this.categoryService.categories()
       .filter(category => !category.isHidden)
@@ -44,14 +51,34 @@ export class Navbar implements OnInit {
     this.navItems().find(item => item.label === this.hoveredRoot())
   );
 
+  searchSuggestions = computed<Product[]>(() => {
+    const q = this.searchTerm().trim().toLowerCase();
+    const products = this.allProducts();
+    if (!q || !products) return [];
+    return products
+      .filter(p => this.i18n.pick(p.name, p.nameEn).toLowerCase().includes(q))
+      .slice(0, MAX_SEARCH_SUGGESTIONS);
+  });
+
   constructor(
     public authService: AuthService,
     private router: Router,
     public cartService: CartService,            // ← public
     public favouritesService: FavouritesService,
     private categoryService: CategoryService,
+    private productService: ProductService,
     public i18n: I18nService
-  ) {}
+  ) {
+    // докато си на страницата с резултати от търсене, полето показва какво си търсил;
+    // при напускане ѝ (или при навигация без ?q) се изчиства, за да не остава стар текст в друга секция
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        const q = this.router.parseUrl(event.urlAfterRedirects).queryParams['q'] || '';
+        this.searchTerm.set(q);
+        this.searchSuggestionsOpen.set(false);
+      }
+    });
+  }
 
   ngOnInit() {
     this.categoryService.refresh();
@@ -60,6 +87,30 @@ export class Navbar implements OnInit {
       this.cartService.getCount().subscribe();
       this.favouritesService.getCount().subscribe();
     }
+  }
+
+  onSearchInput(value: string) {
+    this.searchTerm.set(value);
+    this.searchSuggestionsOpen.set(value.trim().length > 0);
+    if (value.trim().length > 0 && this.allProducts() === null) {
+      this.productService.getAll().subscribe(products => this.allProducts.set(products));
+    }
+  }
+
+  selectSuggestion(product: Product) {
+    this.searchTerm.set('');
+    this.searchSuggestionsOpen.set(false);
+    this.closeMobileSearch();
+    this.router.navigate(['/product', product.id, product.slug]);
+  }
+
+  closeSearchSuggestions() {
+    this.searchSuggestionsOpen.set(false);
+  }
+
+  // забавяне на затварянето, за да мине click/mousedown на предложение преди blur да скрие dropdown-а
+  closeSearchSuggestionsDelayed() {
+    setTimeout(() => this.searchSuggestionsOpen.set(false), 150);
   }
 
   private toNavCategory(category: Category): NavCategory {
@@ -98,7 +149,15 @@ export class Navbar implements OnInit {
   toggleMobileMenu() { this.mobileMenuOpen.update(v => !v); }
   closeMobileMenu() { this.mobileMenuOpen.set(false); }
   toggleMobileSearch() { this.mobileSearchOpen.update(v => !v); }
-  closeMobileSearch() { this.mobileSearchOpen.set(false); }
+  closeMobileSearch() {
+    this.mobileSearchOpen.set(false);
+    this.searchSuggestionsOpen.set(false);
+  }
+  // потребителят затваря панела без да търси (backdrop клик) — изчиства недовършения текст
+  cancelMobileSearch() {
+    this.closeMobileSearch();
+    this.searchTerm.set('');
+  }
 
   filterBy(category: string) {
     this.router.navigate(['/home'], { queryParams: { category } });
@@ -109,6 +168,7 @@ export class Navbar implements OnInit {
     const q = term.trim();
     if (!q) return;
     this.router.navigate(['/home'], { queryParams: { q } });
+    this.searchSuggestionsOpen.set(false);
     this.closeMobileMenu();
     this.closeMegaMenu();
     this.closeMobileSearch();

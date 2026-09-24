@@ -78,14 +78,39 @@
       </div>
 
       <!-- 3. CENTER: search -->
-      <form class="search-form" (submit)="$event.preventDefault(); submitSearch(searchInput.value)">
-        <input #searchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" />
-        <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-          </svg>
-        </button>
-      </form>
+      <div class="search-wrap">
+        <form class="search-form" (submit)="$event.preventDefault(); submitSearch(searchTerm())">
+          <input
+            type="text"
+            class="search-input"
+            [placeholder]="i18n.t('nav.searchPlaceholder')"
+            name="q"
+            [value]="searchTerm()"
+            (input)="onSearchInput($any($event.target).value)"
+            (focus)="onSearchInput(searchTerm())"
+            (blur)="closeSearchSuggestionsDelayed()"
+            autocomplete="off"
+          />
+          <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+          </button>
+        </form>
+
+        @if (searchSuggestionsOpen() && searchSuggestions().length) {
+          <div class="search-suggestions">
+            @for (product of searchSuggestions(); track product.id) {
+              <div class="search-suggestion-item" (mousedown)="selectSuggestion(product)">
+                @if (product.images.length) {
+                  <img [src]="product.images[0].imageUrl" alt="" class="search-suggestion-thumb" />
+                }
+                <span class="search-suggestion-name">{{ i18n.pick(product.name, product.nameEn) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
 
       <!-- 4. RIGHT: actions -->
       <div class="nav-actions">
@@ -195,15 +220,39 @@
   @if (mobileSearchOpen()) {
     <!-- извън <nav>-а нарочно — navbar-ът има backdrop-filter, което създава containing block
          за position:fixed деца и щеше да свие backdrop-а/pill-а до височината на navbar-а -->
-    <div class="mobile-search-backdrop" (click)="closeMobileSearch()"></div>
-    <form class="search-form mobile-search-dropdown" (submit)="$event.preventDefault(); submitSearch(mobileSearchInput.value)">
-      <input #mobileSearchInput type="text" class="search-input" [placeholder]="i18n.t('nav.searchPlaceholder')" name="q" autofocus />
-      <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-        </svg>
-      </button>
-    </form>
+    <div class="mobile-search-backdrop" (click)="cancelMobileSearch()"></div>
+    <div class="mobile-search-dropdown-wrap">
+      <form class="search-form mobile-search-dropdown" (submit)="$event.preventDefault(); submitSearch(searchTerm())">
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="i18n.t('nav.searchPlaceholder')"
+          name="q"
+          [value]="searchTerm()"
+          (input)="onSearchInput($any($event.target).value)"
+          autocomplete="off"
+          autofocus
+        />
+        <button type="submit" class="search-btn" [attr.aria-label]="i18n.t('nav.search')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
+      </form>
+
+      @if (searchSuggestionsOpen() && searchSuggestions().length) {
+        <div class="search-suggestions mobile-search-suggestions">
+          @for (product of searchSuggestions(); track product.id) {
+            <div class="search-suggestion-item" (mousedown)="selectSuggestion(product)">
+              @if (product.images.length) {
+                <img [src]="product.images[0].imageUrl" alt="" class="search-suggestion-thumb" />
+              }
+              <span class="search-suggestion-name">{{ i18n.pick(product.name, product.nameEn) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
   }
 
   <main class="content">
