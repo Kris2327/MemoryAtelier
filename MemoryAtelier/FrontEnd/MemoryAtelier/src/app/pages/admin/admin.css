@@ -1393,6 +1393,11 @@ select.input:hover {
     grid-template-columns: 1fr;
   }
 
+  /* на телефон структурата (добавяне на нова секция) трябва да е над списъка с продукти */
+  .management-side {
+    order: -1;
+  }
+
   .delete-confirm {
     flex-direction: column;
     align-items: flex-start;
