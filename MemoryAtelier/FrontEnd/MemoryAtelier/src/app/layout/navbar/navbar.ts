@@ -35,7 +35,9 @@ export class Navbar implements OnInit {
   mobileSearchOpen = signal(false);
 
   navItems = computed<NavCategory[]>(() =>
-    this.categoryService.categories().map(category => this.toNavCategory(category))
+    this.categoryService.categories()
+      .filter(category => !category.isHidden)
+      .map(category => this.toNavCategory(category))
   );
 
   currentRoot = computed<NavCategory | undefined>(() =>
@@ -61,17 +63,21 @@ export class Navbar implements OnInit {
   }
 
   private toNavCategory(category: Category): NavCategory {
+    const visibleChildren = category.children.filter(sub => !sub.isHidden);
     return {
       label: this.i18n.pick(category.name, category.nameEn),
       value: category.id,
-      subcategories: category.children.length
-        ? category.children.map(sub => ({
-            label: this.i18n.pick(sub.name, sub.nameEn),
-            value: sub.id,
-            children: sub.children.length
-              ? sub.children.map(child => ({ label: this.i18n.pick(child.name, child.nameEn), value: child.id }))
-              : undefined
-          }))
+      subcategories: visibleChildren.length
+        ? visibleChildren.map(sub => {
+            const visibleGrandchildren = sub.children.filter(child => !child.isHidden);
+            return {
+              label: this.i18n.pick(sub.name, sub.nameEn),
+              value: sub.id,
+              children: visibleGrandchildren.length
+                ? visibleGrandchildren.map(child => ({ label: this.i18n.pick(child.name, child.nameEn), value: child.id }))
+                : undefined
+            };
+          })
         : undefined
     };
   }

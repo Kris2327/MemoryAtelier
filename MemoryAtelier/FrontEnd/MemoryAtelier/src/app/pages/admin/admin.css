@@ -1364,10 +1364,18 @@ select.input:hover {
     transform: translateX(0);
   }
 
+  :host,
+  .admin-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
   .admin-main {
     margin-left: 0;
     height: auto;
     min-height: 100vh;
+    overflow-y: visible;
     padding: 84px 18px 24px;
   }
 

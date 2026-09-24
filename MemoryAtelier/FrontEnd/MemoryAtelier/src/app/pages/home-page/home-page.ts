@@ -51,7 +51,7 @@ export class HomePage implements OnInit, OnDestroy {
   });
 
   // главните секции — за бързите линкове под hero заглавието
-  rootCategories = computed(() => this.categoryService.categories());
+  rootCategories = computed(() => this.categoryService.categories().filter(c => !c.isHidden));
 
   // id-та на избраната категория И всичките й подкатегории (null = "All")
   private selectedCategoryIds = computed<Set<string> | null>(() => {
