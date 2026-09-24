@@ -56,7 +56,7 @@ export class Navbar implements OnInit {
     const products = this.allProducts();
     if (!q || !products) return [];
     return products
-      .filter(p => this.i18n.pick(p.name, p.nameEn).toLowerCase().includes(q))
+      .filter(p => !p.isHidden && this.i18n.pick(p.name, p.nameEn).toLowerCase().includes(q))
       .slice(0, MAX_SEARCH_SUGGESTIONS);
   });
 

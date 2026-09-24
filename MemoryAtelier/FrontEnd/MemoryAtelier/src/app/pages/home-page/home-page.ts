@@ -194,14 +194,14 @@ export class HomePage implements OnInit, OnDestroy {
   loadAllProducts() {
     this.loading.set(true);
     this.productService.getAll().subscribe({
-      next: (data) => { this.allProducts.set(data); this.loading.set(false); },
+      next: (data) => { this.allProducts.set(data.filter(p => !p.isHidden)); this.loading.set(false); },
       error: () => this.loading.set(false)
     });
   }
 
   loadHeroFallbackProducts() {
     this.productService.getAll(undefined, 6).subscribe({
-      next: (data) => this.heroFallbackProducts.set(data)
+      next: (data) => this.heroFallbackProducts.set(data.filter(p => !p.isHidden))
     });
   }
 
