@@ -19,6 +19,8 @@ export const routes: Routes = [
   { path: 'reset-password', loadComponent: () => import('./pages/reset-password/reset-password').then(m => m.ResetPassword) },
   // Извън Navbar wrapper-а нарочно — админ панелът има собствен sidebar и не му трябва сайтовият navbar.
   { path: 'admin', loadComponent: () => import('./pages/admin/admin').then(m => m.Admin), canActivate: [authGuard, adminGuard] },
+  // QR код страница за базари — стои извън Navbar-а и не се линква никъде в сайта, само чрез QR кода.
+  { path: 'links', loadComponent: () => import('./pages/links/links').then(m => m.Links) },
   {
     path: '',
     component: Navbar,

@@ -6,5 +6,6 @@ Disallow: /checkout
 Disallow: /favourites
 Disallow: /sign-in
 Disallow: /signup
+Disallow: /links
 
 Sitemap: https://memoryatelier.bg/sitemap.xml

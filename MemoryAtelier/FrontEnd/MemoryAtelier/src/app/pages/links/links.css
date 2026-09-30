@@ -1,0 +1,68 @@
+.links-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: #fdf8f4;
+}
+
+.links-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}
+
+.links-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #c97d4e;
+}
+
+.links-sub {
+  margin: 0 0 1rem;
+  color: #7a5c4e;
+  font-size: 1rem;
+}
+
+.links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.links-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  color: #2c1810;
+  background: #fff;
+  border: 1px solid #f0e0d4;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.links-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(44, 24, 16, 0.1);
+}
+
+.links-link--primary {
+  background: #c97d4e;
+  color: #fff;
+  border-color: #c97d4e;
+}
