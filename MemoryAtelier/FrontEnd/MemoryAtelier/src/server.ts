@@ -60,6 +60,18 @@ app.use((req, res, next) => {
 });
 
 /**
+ * Непозната страница: няма prerender-нат HTML за нея, затова вместо Express "Cannot GET"
+ * връщаме клиентската обвивка със статус 404 — Angular router-ът я хваща с NotFound компонента.
+ */
+app.use((req, res, next) => {
+  res.status(404).sendFile(join(browserDistFolder, 'index.csr.html'), (err) => {
+    if (err) {
+      next(err);
+    }
+  });
+});
+
+/**
  * Start the server if this module is the main entry point, or it is ran via PM2.
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
