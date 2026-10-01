@@ -1,0 +1,12 @@
+<div class="nf-page">
+  <p class="nf-code">404</p>
+  @if (i18n.lang() === 'bg') {
+    <h1 class="nf-title">Страницата не е намерена</h1>
+    <p class="nf-text">Адресът може да е грешен или страницата е преместена.</p>
+    <a class="nf-btn" routerLink="/home">Към магазина</a>
+  } @else {
+    <h1 class="nf-title">Page not found</h1>
+    <p class="nf-text">The address may be wrong or the page has been moved.</p>
+    <a class="nf-btn" routerLink="/home">Back to the shop</a>
+  }
+</div>
