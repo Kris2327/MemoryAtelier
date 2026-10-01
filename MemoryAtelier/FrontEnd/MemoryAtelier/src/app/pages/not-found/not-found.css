@@ -3,7 +3,7 @@
 .nf-page {
   font-family: 'Lato', sans-serif;
   background: #fdf8f4;
-  min-height: 70vh;
+  min-height: 100vh;
   padding: 80px 24px;
   display: flex;
   flex-direction: column;
@@ -14,10 +14,21 @@
 
 .nf-code {
   font-family: 'Playfair Display', serif;
-  font-size: 96px;
+  font-size: 150px;
   line-height: 1;
   color: #c97d4e;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nf-logo {
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .nf-title {

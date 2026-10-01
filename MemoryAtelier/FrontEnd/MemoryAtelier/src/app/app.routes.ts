@@ -35,8 +35,9 @@ export const routes: Routes = [
       { path: 'contact', loadComponent: () => import('./pages/contact/contact').then(m => m.Contact) },
       { path: 'sitemap', loadComponent: () => import('./pages/sitemap/sitemap').then(m => m.Sitemap) },
       { path: 'terms', loadComponent: () => import('./pages/terms/terms').then(m => m.Terms) },
-      { path: 'privacy', loadComponent: () => import('./pages/privacy/privacy').then(m => m.Privacy) },
-      { path: '**', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) } // последен
+      { path: 'privacy', loadComponent: () => import('./pages/privacy/privacy').then(m => m.Privacy) }
     ]
-  }
+  },
+  // Извън Navbar wrapper-а нарочно — 404 страницата е самостоятелна, без меню.
+  { path: '**', loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFound) } // последен
 ];
